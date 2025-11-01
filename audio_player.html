@@ -358,6 +358,15 @@
         .hidden {
             display: none;
         }
+        
+        .word {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .word:hover {
+            background-color: rgba(52, 152, 219, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -566,11 +575,11 @@
             // 如果没有解析到字幕，使用默认字幕
             if (subtitles.length === 0) {
                 subtitles = [
-                    { start: 0, end: 5, text: "欢迎使用网页音频播放器。" },
-                    { start: 5, end: 10, text: "这是一个支持字幕显示和词汇查询功能的播放器。" },
-                    { start: 10, end: 15, text: "您可以选择字幕中的单词进行查询。" },
-                    { start: 15, end: 20, text: "这个播放器非常适合语言学习。" },
-                    { start: 20, end: 25, text: "请享受您的学习体验！" }
+                    { start: 0, end: 5, text: "Welcome to our English learning audio player." },
+                    { start: 5, end: 10, text: "This player supports subtitles and vocabulary lookup." },
+                    { start: 10, end: 15, text: "You can select any word in the subtitle to look up its meaning." },
+                    { start: 15, end: 20, text: "This is especially useful for language learners." },
+                    { start: 20, end: 25, text: "Let's begin our English learning journey!" }
                 ];
             }
             
@@ -607,6 +616,11 @@
                     wordElem.addEventListener('click', function() {
                         const word = this.getAttribute('data-word');
                         dictionaryInput.value = word;
+                        
+                        // 点击单词时暂停播放
+                        player.pause();
+                        
+                        // 查询单词
                         searchWord(word);
                         
                         // 高亮显示选中的单词
@@ -727,23 +741,23 @@
         // 初始化默认字幕
         parseSubtitle(`1
 00:00:00,000 --> 00:00:05,000
-欢迎使用网页音频播放器。
+Welcome to our English learning audio player.
 
 2
 00:00:05,000 --> 00:00:10,000
-这是一个支持字幕显示和词汇查询功能的播放器。
+This player supports subtitles and vocabulary lookup.
 
 3
 00:00:10,000 --> 00:00:15,000
-您可以选择字幕中的单词进行查询。
+You can select any word in the subtitle to look up its meaning.
 
 4
 00:00:15,000 --> 00:00:20,000
-这个播放器非常适合语言学习。
+This is especially useful for language learners.
 
 5
 00:00:20,000 --> 00:00:25,000
-请享受您的学习体验！`);
+Let's begin our English learning journey!`);
     </script>
 </body>
 </html>

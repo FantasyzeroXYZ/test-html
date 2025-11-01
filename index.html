@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>移动端音频播放器 - 带字幕与查词功能</title>
+    <title>移动端视频音频播放器 - 带字幕与查词功能</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <style>
         * {
@@ -418,21 +418,21 @@
 </head>
 <body>
     <header>
-        <h1>移动端音频播放器</h1>
-        <p class="subtitle">支持本地文件、字幕显示与词汇查询功能</p>
+        <h1>移动端视频音频播放器</h1>
+        <p class="subtitle">支持视频文件作为音频播放、字幕显示与词汇查询功能</p>
     </header>
     
     <div class="container">
         <section class="file-section">
             <div class="file-controls">
-                <button class="file-btn" id="audio-file-btn">选择音频文件</button>
+                <button class="file-btn" id="audio-file-btn">选择音频/视频文件</button>
                 <button class="file-btn" id="subtitle-file-btn">选择字幕文件</button>
-                <input type="file" id="audio-file-input" accept="audio/*" class="hidden">
+                <input type="file" id="audio-file-input" accept="audio/*,video/*" class="hidden">
                 <input type="file" id="subtitle-file-input" accept=".srt,.vtt,.txt" class="hidden">
             </div>
             <div class="file-info">
                 <div class="file-card">
-                    <h3>音频文件</h3>
+                    <h3>音频/视频文件</h3>
                     <p id="audio-file-name">未选择文件</p>
                 </div>
                 <div class="file-card">
@@ -449,8 +449,8 @@
                         <i>♪</i>
                     </div>
                     <div class="track-info">
-                        <h2 id="track-title">请选择音频文件</h2>
-                        <p id="track-description">支持 MP3, WAV, OGG 等格式</p>
+                        <h2 id="track-title">请选择音频/视频文件</h2>
+                        <p id="track-description">支持 MP3, WAV, OGG, MP4, AVI 等格式</p>
                     </div>
                 </div>
                 
@@ -463,7 +463,7 @@
         <section class="subtitle-section">
             <div class="subtitle-display" id="subtitle-display">
                 <div class="subtitle-text" id="subtitle-text">
-                    请先选择音频和字幕文件<br>
+                    请先选择音频/视频和字幕文件<br>
                     <strong>点击字幕中的单词即可查询其含义</strong>
                 </div>
             </div>
@@ -534,7 +534,7 @@
             subtitleFileInput.click();
         });
         
-        // 音频文件选择处理
+        // 音频/视频文件选择处理
         audioFileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -542,16 +542,26 @@
                 trackTitle.textContent = file.name.replace(/\.[^/.]+$/, ""); // 移除扩展名
                 trackDescription.textContent = `文件大小: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
                 
-                // 创建音频URL并设置播放器源
-                const audioURL = URL.createObjectURL(file);
+                // 创建文件URL并设置播放器源
+                const fileURL = URL.createObjectURL(file);
                 const audioElement = document.querySelector('#player');
-                audioElement.src = audioURL;
                 
-                // 重新初始化播放器
+                // 清除之前的源
+                while (audioElement.firstChild) {
+                    audioElement.removeChild(audioElement.firstChild);
+                }
+                
+                // 添加新的源
+                const source = document.createElement('source');
+                source.src = fileURL;
+                source.type = file.type;
+                audioElement.appendChild(source);
+                
+                // 重新加载播放器
                 player.source = {
                     type: 'audio',
                     sources: [{
-                        src: audioURL,
+                        src: fileURL,
                         type: file.type
                     }]
                 };
@@ -646,15 +656,28 @@
             );
             
             if (currentSubtitle) {
-                // 将字幕文本转换为可点击的单词
-                const words = currentSubtitle.text.split(/(\s+)/);
-                const clickableWords = words.map(word => {
-                    // 只对字母单词添加点击功能
-                    if (word.trim().length > 0 && /^[a-zA-Z]+$/.test(word.trim())) {
-                        return `<span class="word" data-word="${word.trim()}">${word}</span>`;
-                    }
-                    return word;
-                }).join('');
+                // 改进的字幕文本转换，修复句末单词无法点击的问题
+                // 使用更复杂的正则表达式匹配单词，包括句末单词
+                const text = currentSubtitle.text;
+                
+                // 使用正则表达式匹配单词，包括带有标点符号的单词
+                const wordRegex = /[a-zA-Z]+(?:['’][a-zA-Z]+)*/g;
+                let lastIndex = 0;
+                let clickableWords = '';
+                
+                let match;
+                while ((match = wordRegex.exec(text)) !== null) {
+                    // 添加匹配前的非单词部分
+                    clickableWords += text.substring(lastIndex, match.index);
+                    
+                    // 添加可点击的单词
+                    clickableWords += `<span class="word" data-word="${match[0]}">${match[0]}</span>`;
+                    
+                    lastIndex = match.index + match[0].length;
+                }
+                
+                // 添加剩余的非单词部分
+                clickableWords += text.substring(lastIndex);
                 
                 subtitleText.innerHTML = clickableWords;
                 

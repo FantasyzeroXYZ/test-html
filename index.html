@@ -2119,28 +2119,17 @@
             await addCardToAnki(note);
         }
 
-        // 统一的音频文件名生成函数
+        // 最简单的音频文件名生成函数
         function generateAudioFileName(word) {
             // 清理单词，只保留字母
-            const cleanWord = word.replace(/[^a-z]/gi, '').toLowerCase().substring(0, 15);
+            const cleanWord = word.replace(/[^a-z]/gi, '').toLowerCase();
             
-            // 生成6位随机数 (100000-999999)
-            const randomNum = Math.floor(100000 + Math.random() * 900000).toString();
-            
-            // 直接生成最终文件名
-            let fileName = `audio_${cleanWord}_${randomNum}.wav`;
+            // 直接使用单词生成文件名
+            let fileName = `audio_${cleanWord}.wav`;
             
             // 简单的文件名消毒
             fileName = fileName.replace(/[:\/\?#\[\]@!$&'()*+,;= "<>%{}|\\^`]/g, '_');
             fileName = fileName.replace(/[^\w\.\-]/g, '_');
-            
-            // 确保文件名不会太长
-            if (fileName.length > 100) {
-                const extMatch = fileName.match(/\.([^.]+)$/);
-                const extension = extMatch ? extMatch[1] : '';
-                const baseName = fileName.substring(0, 100 - extension.length - 1);
-                fileName = baseName + (extension ? '.' + extension : '');
-            }
             
             return fileName;
         }
@@ -2180,38 +2169,6 @@
                 
                 if (storeResult.error) {
                     console.error('存储音频文件失败:', storeResult.error);
-                    
-                    // 如果是因为文件名冲突，生成全新的文件名重试
-                    if (storeResult.error.includes('exists') || storeResult.error.includes('duplicate')) {
-                        const retryFileName = generateAudioFileName(word); // 重新生成
-                        console.log('文件名冲突，重试使用:', retryFileName);
-                        
-                        const retryResponse = await fetch('http://127.0.0.1:8765', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                action: 'storeMediaFile',
-                                version: 6,
-                                params: {
-                                    filename: retryFileName,
-                                    data: base64Audio.split(',')[1],
-                                    deleteExisting: false
-                                }
-                            })
-                        });
-                        
-                        const retryResult = await retryResponse.json();
-                        if (retryResult.error) {
-                            console.error('重试存储音频文件失败:', retryResult.error);
-                            return null;
-                        }
-                        
-                        console.log('音频文件存储成功（重试）:', retryFileName);
-                        return retryFileName;
-                    }
-                    
                     return null;
                 }
                 

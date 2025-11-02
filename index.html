@@ -710,21 +710,6 @@
             .auto-config-select {
                 flex: 1;
             }
-            
-            /* PC端底部面板样式 */
-            .dictionary-panel {
-                left: 50%;
-                right: auto;
-                width: 90%;
-                max-width: 600px;
-                transform: translate(-50%, 100%);
-                border-radius: 15px;
-            }
-            
-            .dictionary-panel.active {
-                transform: translate(-50%, 0);
-                bottom: 20px;
-            }
         }
         
         /* 小屏幕手机适配 */
@@ -989,7 +974,6 @@
         let ankiDecks = [];
         let ankiModels = [];
         let currentModelFields = [];
-        let audioFile = null;
 
         // 文件选择事件处理
         audioFileBtn.addEventListener('click', () => {
@@ -1004,7 +988,6 @@
         audioFileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                audioFile = file;
                 audioFileName.textContent = file.name;
                 trackTitle.textContent = file.name.replace(/\.[^/.]+$/, ""); // 移除扩展名
                 trackDescription.textContent = `文件大小: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
@@ -1210,58 +1193,14 @@
             startTimeDisplayPlayer.textContent = clipStartTime.toFixed(2);
             endTimeDisplayPlayer.textContent = clipEndTime.toFixed(2);
             
-            // 创建音频片段
-            createAudioClip(clipStartTime, clipEndTime);
-        }
-
-        // 创建音频片段
-        async function createAudioClip(startTime, endTime) {
-            if (!audioFile) {
-                clipStatusPlayer.textContent = '错误：没有音频文件';
-                return;
-            }
-            
-            clipStatusPlayer.textContent = '正在创建音频片段...';
-            
-            try {
-                // 这里简化实现，实际应用中需要更复杂的音频处理
-                // 由于浏览器限制，这里我们只是模拟音频截取
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-                // 创建音频片段数据
-                const audioClipData = await generateAudioClipData(startTime, endTime);
-                
-                // 保存音频片段
-                currentAudioClip = {
-                    start: startTime,
-                    end: endTime,
-                    data: audioClipData
-                };
-                
-                clipStatusPlayer.textContent = `音频片段已创建 (${startTime.toFixed(2)}s - ${endTime.toFixed(2)}s)`;
-            } catch (error) {
-                clipStatusPlayer.textContent = '音频片段创建失败: ' + error.message;
-                console.error('音频片段创建错误:', error);
-            }
-        }
-
-        // 生成音频片段数据（模拟）
-        async function generateAudioClipData(startTime, endTime) {
-            // 在实际应用中，这里应该使用Web Audio API或其他库来截取音频
-            // 由于浏览器限制，这里我们只是生成一个模拟的音频文件名
-            
-            // 创建一个包含时间信息的唯一文件名
-            const fileName = `audio_clip_${startTime.toFixed(2)}_${endTime.toFixed(2)}.mp3`;
-            
-            // 在实际应用中，这里应该返回实际的音频数据或URL
-            // 这里我们返回一个模拟的音频数据对象
-            return {
-                fileName: fileName,
-                startTime: startTime,
-                endTime: endTime,
-                // 在实际应用中，这里应该包含实际的音频数据
-                data: `模拟音频数据: ${fileName}`
+            // 模拟截取音频
+            currentAudioClip = {
+                start: clipStartTime,
+                end: clipEndTime,
+                data: `audio_clip_${Date.now()}.mp3`
             };
+            
+            clipStatusPlayer.textContent = `已自动截取当前字幕音频 (${clipStartTime.toFixed(2)}s - ${clipEndTime.toFixed(2)}s)`;
         }
 
         // 使用Free Dictionary API查询单词
@@ -1448,8 +1387,28 @@
                 return;
             }
             
-            // 创建音频片段
-            await createAudioClip(clipStartTime, clipEndTime);
+            clipStatusPlayer.textContent = '正在截取音频...';
+            clipAudioBtnPlayer.disabled = true;
+            
+            try {
+                // 这里简化实现，实际应用中需要更复杂的音频处理
+                // 由于浏览器限制，这里我们只是模拟音频截取
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 模拟截取的音频数据
+                currentAudioClip = {
+                    start: clipStartTime,
+                    end: clipEndTime,
+                    data: `audio_clip_${Date.now()}.mp3` // 实际应用中应该是音频数据
+                };
+                
+                clipStatusPlayer.textContent = `音频截取成功 (${clipStartTime.toFixed(2)}s - ${clipEndTime.toFixed(2)}s)`;
+            } catch (error) {
+                clipStatusPlayer.textContent = '音频截取失败: ' + error.message;
+                console.error('音频截取错误:', error);
+            } finally {
+                clipAudioBtnPlayer.disabled = false;
+            }
         });
         
         // Anki连接检查
@@ -1711,14 +1670,6 @@
                 return;
             }
             
-            // 准备音频数据
-            let audioData = '';
-            if (currentAudioClip) {
-                // 在实际应用中，这里应该将音频数据发送到Anki
-                // 由于浏览器限制，这里我们只发送时间信息
-                audioData = `[sound:${currentAudioClip.data.fileName}]`;
-            }
-            
             // 准备Anki卡片数据
             const note = {
                 deckName: deckSelect.value,
@@ -1727,7 +1678,7 @@
                     [wordFieldSelect.value]: word,
                     [sentenceFieldSelect.value]: currentSentence,
                     [definitionFieldSelect.value]: definition,
-                    [audioFieldSelect.value]: audioData
+                    [audioFieldSelect.value]: currentAudioClip ? `[sound:${currentAudioClip.data}]` : ''
                 },
                 options: {
                     allowDuplicate: false

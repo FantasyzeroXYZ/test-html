@@ -2,8 +2,8 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>网页音频播放器 - 支持本地文件与查词功能</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>移动端视频音频播放器 - 带字幕与查词功能</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <style>
         * {
@@ -11,16 +11,18 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
             background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
             color: #fff;
             min-height: 100vh;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            overflow-x: hidden;
         }
         
         .container {
@@ -28,19 +30,19 @@
             width: 100%;
             background: rgba(0, 0, 0, 0.7);
             border-radius: 15px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            margin-top: 20px;
+            margin-top: 15px;
         }
         
         header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 1.8rem;
+            margin-bottom: 8px;
             background: linear-gradient(to right, #ff7e5f, #feb47b);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -48,7 +50,7 @@
         
         .subtitle {
             color: #ddd;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
         
         .file-section {
@@ -57,40 +59,39 @@
         
         .file-controls {
             display: flex;
-            gap: 15px;
+            flex-direction: column;
+            gap: 12px;
             margin-bottom: 15px;
-            flex-wrap: wrap;
         }
         
         .file-btn {
             background: rgba(52, 152, 219, 0.7);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 14px 20px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
-            flex: 1;
-            min-width: 180px;
+            font-size: 1rem;
+            text-align: center;
+            width: 100%;
         }
         
-        .file-btn:hover {
+        .file-btn:hover, .file-btn:active {
             background: rgba(52, 152, 219, 1);
         }
         
         .file-info {
             display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
+            flex-direction: column;
+            gap: 12px;
             margin-top: 15px;
         }
         
         .file-card {
             background: rgba(0, 0, 0, 0.3);
             border-radius: 8px;
-            padding: 10px 15px;
-            flex: 1;
-            min-width: 200px;
+            padding: 12px 15px;
         }
         
         .file-card h3 {
@@ -106,46 +107,48 @@
         }
         
         .player-section {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
         
         .player-container {
             background: rgba(30, 30, 40, 0.9);
             border-radius: 10px;
-            padding: 20px;
+            padding: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
         .audio-info {
             display: flex;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
         .album-art {
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             border-radius: 10px;
             background: linear-gradient(45deg, #3498db, #8e44ad);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 20px;
+            margin-right: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
         }
         
         .album-art i {
-            font-size: 40px;
+            font-size: 30px;
             color: rgba(255, 255, 255, 0.8);
         }
         
         .track-info h2 {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             margin-bottom: 5px;
         }
         
         .track-info p {
             color: #bbb;
+            font-size: 0.9rem;
         }
         
         .plyr__controls {
@@ -155,24 +158,29 @@
         .plyr--audio .plyr__controls {
             background: transparent;
             color: white;
+            padding: 10px 5px;
         }
         
         .plyr--full-ui input[type=range] {
             color: #3498db;
         }
         
+        .plyr--audio .plyr__control {
+            padding: 10px;
+        }
+        
         .subtitle-section {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
         
         .subtitle-display {
             background: rgba(30, 30, 40, 0.9);
             border-radius: 10px;
-            padding: 20px;
-            min-height: 120px;
+            padding: 15px;
+            min-height: 100px;
             margin-bottom: 15px;
             line-height: 1.6;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             text-align: center;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             position: relative;
@@ -193,7 +201,7 @@
         
         .subtitle-controls {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
         }
         
@@ -201,13 +209,14 @@
             background: rgba(52, 152, 219, 0.7);
             color: white;
             border: none;
-            padding: 8px 15px;
+            padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s;
+            font-size: 1rem;
         }
         
-        .subtitle-btn:hover {
+        .subtitle-btn:hover, .subtitle-btn:active {
             background: rgba(52, 152, 219, 1);
         }
         
@@ -218,37 +227,39 @@
         .dictionary-container {
             background: rgba(30, 30, 40, 0.9);
             border-radius: 10px;
-            padding: 20px;
+            padding: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
         .dictionary-header {
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            gap: 10px;
             margin-bottom: 15px;
         }
         
         .dictionary-input {
             flex-grow: 1;
-            padding: 10px 15px;
+            padding: 12px 15px;
             border: none;
             border-radius: 5px;
             background: rgba(255, 255, 255, 0.1);
             color: white;
-            margin-right: 10px;
+            font-size: 1rem;
         }
         
         .dictionary-btn {
             background: rgba(46, 204, 113, 0.7);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 20px;
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s;
+            font-size: 1rem;
         }
         
-        .dictionary-btn:hover {
+        .dictionary-btn:hover, .dictionary-btn:active {
             background: rgba(46, 204, 113, 1);
         }
         
@@ -261,19 +272,20 @@
             line-height: 1.6;
             max-height: 300px;
             overflow-y: auto;
+            font-size: 0.95rem;
         }
         
         .word-header {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 5px;
             margin-bottom: 10px;
             padding-bottom: 10px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .word-title {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: bold;
             margin-right: 15px;
         }
@@ -310,49 +322,15 @@
             color: #bbb;
             font-size: 0.9rem;
             margin-top: 10px;
+            line-height: 1.4;
         }
         
         footer {
-            margin-top: 30px;
+            margin-top: 25px;
             text-align: center;
             color: #ddd;
-            font-size: 0.9rem;
-        }
-        
-        /* 响应式设计 */
-        @media (max-width: 600px) {
-            .container {
-                padding: 15px;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .audio-info {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .album-art {
-                margin-right: 0;
-                margin-bottom: 15px;
-            }
-            
-            .file-controls {
-                flex-direction: column;
-            }
-        }
-
-        .loading {
-            text-align: center;
-            color: #3498db;
-            font-style: italic;
-        }
-
-        .error {
-            color: #e74c3c;
-            text-align: center;
+            font-size: 0.8rem;
+            padding: 0 10px;
         }
         
         .hidden {
@@ -364,28 +342,97 @@
             transition: background-color 0.2s;
         }
         
-        .word:hover {
+        .word:hover, .word:active {
             background-color: rgba(52, 152, 219, 0.2);
+        }
+        
+        .loading {
+            text-align: center;
+            color: #3498db;
+            font-style: italic;
+        }
+
+        .error {
+            color: #e74c3c;
+            text-align: center;
+        }
+        
+        /* 移动设备横屏适配 */
+        @media (min-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .file-controls {
+                flex-direction: row;
+            }
+            
+            .file-btn {
+                flex: 1;
+            }
+            
+            .file-info {
+                flex-direction: row;
+            }
+            
+            .dictionary-header {
+                flex-direction: row;
+            }
+            
+            .word-header {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+        
+        /* 小屏幕手机适配 */
+        @media (max-width: 360px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.6rem;
+            }
+            
+            .album-art {
+                width: 70px;
+                height: 70px;
+                margin-right: 12px;
+            }
+            
+            .track-info h2 {
+                font-size: 1.2rem;
+            }
+            
+            .subtitle-display {
+                font-size: 1rem;
+                padding: 12px;
+            }
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>网页音频播放器</h1>
-        <p class="subtitle">支持本地文件、字幕显示与词汇查询功能</p>
+        <h1>移动端视频音频播放器</h1>
+        <p class="subtitle">支持视频文件作为音频播放、字幕显示与词汇查询功能</p>
     </header>
     
     <div class="container">
         <section class="file-section">
             <div class="file-controls">
-                <button class="file-btn" id="audio-file-btn">选择音频文件</button>
+                <button class="file-btn" id="audio-file-btn">选择音频/视频文件</button>
                 <button class="file-btn" id="subtitle-file-btn">选择字幕文件</button>
-                <input type="file" id="audio-file-input" accept="audio/*" class="hidden">
+                <input type="file" id="audio-file-input" accept="audio/*,video/*" class="hidden">
                 <input type="file" id="subtitle-file-input" accept=".srt,.vtt,.txt" class="hidden">
             </div>
             <div class="file-info">
                 <div class="file-card">
-                    <h3>音频文件</h3>
+                    <h3>音频/视频文件</h3>
                     <p id="audio-file-name">未选择文件</p>
                 </div>
                 <div class="file-card">
@@ -402,8 +449,8 @@
                         <i>♪</i>
                     </div>
                     <div class="track-info">
-                        <h2 id="track-title">请选择音频文件</h2>
-                        <p id="track-description">支持 MP3, WAV, OGG 等格式</p>
+                        <h2 id="track-title">请选择音频/视频文件</h2>
+                        <p id="track-description">支持 MP3, WAV, OGG, MP4, AVI 等格式</p>
                     </div>
                 </div>
                 
@@ -416,7 +463,7 @@
         <section class="subtitle-section">
             <div class="subtitle-display" id="subtitle-display">
                 <div class="subtitle-text" id="subtitle-text">
-                    请先选择音频和字幕文件<br>
+                    请先选择音频/视频和字幕文件<br>
                     <strong>点击字幕中的单词即可查询其含义</strong>
                 </div>
             </div>
@@ -487,7 +534,7 @@
             subtitleFileInput.click();
         });
         
-        // 音频文件选择处理
+        // 音频/视频文件选择处理
         audioFileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -495,16 +542,26 @@
                 trackTitle.textContent = file.name.replace(/\.[^/.]+$/, ""); // 移除扩展名
                 trackDescription.textContent = `文件大小: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
                 
-                // 创建音频URL并设置播放器源
-                const audioURL = URL.createObjectURL(file);
+                // 创建文件URL并设置播放器源
+                const fileURL = URL.createObjectURL(file);
                 const audioElement = document.querySelector('#player');
-                audioElement.src = audioURL;
                 
-                // 重新初始化播放器
+                // 清除之前的源
+                while (audioElement.firstChild) {
+                    audioElement.removeChild(audioElement.firstChild);
+                }
+                
+                // 添加新的源
+                const source = document.createElement('source');
+                source.src = fileURL;
+                source.type = file.type;
+                audioElement.appendChild(source);
+                
+                // 重新加载播放器
                 player.source = {
                     type: 'audio',
                     sources: [{
-                        src: audioURL,
+                        src: fileURL,
                         type: file.type
                     }]
                 };
@@ -599,15 +656,28 @@
             );
             
             if (currentSubtitle) {
-                // 将字幕文本转换为可点击的单词
-                const words = currentSubtitle.text.split(/(\s+)/);
-                const clickableWords = words.map(word => {
-                    // 只对字母单词添加点击功能
-                    if (word.trim().length > 0 && /^[a-zA-Z]+$/.test(word.trim())) {
-                        return `<span class="word" data-word="${word.trim()}">${word}</span>`;
-                    }
-                    return word;
-                }).join('');
+                // 改进的字幕文本转换，修复句末单词无法点击的问题
+                // 使用更复杂的正则表达式匹配单词，包括句末单词
+                const text = currentSubtitle.text;
+                
+                // 使用正则表达式匹配单词，包括带有标点符号的单词
+                const wordRegex = /[a-zA-Z]+(?:['’][a-zA-Z]+)*/g;
+                let lastIndex = 0;
+                let clickableWords = '';
+                
+                let match;
+                while ((match = wordRegex.exec(text)) !== null) {
+                    // 添加匹配前的非单词部分
+                    clickableWords += text.substring(lastIndex, match.index);
+                    
+                    // 添加可点击的单词
+                    clickableWords += `<span class="word" data-word="${match[0]}">${match[0]}</span>`;
+                    
+                    lastIndex = match.index + match[0].length;
+                }
+                
+                // 添加剩余的非单词部分
+                clickableWords += text.substring(lastIndex);
                 
                 subtitleText.innerHTML = clickableWords;
                 

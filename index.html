@@ -2083,7 +2083,7 @@
             }, 100);
         });
         
-        // 修复：简化Anki卡片处理流程
+        // 修复：在processAnkiCard函数中，确保音频字段引用正确
         async function processAnkiCard(word, definition) {
             // 准备Anki卡片数据
             const note = {
@@ -2105,7 +2105,9 @@
                 try {
                     const audioFileName = await processAudioFile(word);
                     if (audioFileName) {
+                        // 确保音频字段引用格式正确
                         note.fields[audioFieldSelect.value] = `[sound:${audioFileName}]`;
+                        console.log('音频字段设置:', audioFileName);
                     }
                 } catch (error) {
                     console.error('音频处理失败:', error);
@@ -2116,6 +2118,53 @@
             // 添加卡片到Anki
             await addCardToAnki(note);
         }
+
+        // 添加文件名消毒和唯一性保障函数
+        const ankiQuerySpecialCharacters = ['"', '*', '_', '\\', ':'];
+        const alphaNumericCharacters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const unsafeURLChars = /[:\/\?#\[\]@!$&'()*+,;= "<>%{}|\\^`]/g;
+        const replacement = '_';
+
+        // 生成随机字符串确保文件名唯一性
+        function randomString() {
+            let string = '';
+            for (let i = 0; i < 8; ++i) {
+                string += alphaNumericCharacters.charAt(Math.floor(Math.random() * alphaNumericCharacters.length));
+            }
+            return string;
+        }
+
+        // 确保文件名唯一
+        function makeUniqueFileName(fileName) {
+            const match = /(.*)\.(.*)/.exec(fileName);
+            if (match === null || match.length < 3) {
+                return fileName;
+            }
+            const baseName = match[1];
+            const extension = match[2];
+            return `${baseName}_${randomString()}.${extension}`;
+        }
+
+        // 消毒文件名
+        function sanitizeFileName(name) {
+            // 处理不安全的URL字符
+            name = name.replace(unsafeURLChars, replacement);
+            
+            // 移除可能引起问题的字符
+            name = name.replace(/[^\w\.\-]/g, replacement);
+            
+            // 确保文件名不会太长
+            if (name.length > 100) {
+                const extMatch = name.match(/\.([^.]+)$/);
+                const extension = extMatch ? extMatch[1] : '';
+                const baseName = name.substring(0, 100 - extension.length - 1);
+                name = baseName + (extension ? '.' + extension : '');
+            }
+            
+            return name;
+        }
+
+
 
         // 修复：简化音频文件处理
         async function processAudioFile(word) {
@@ -2164,8 +2213,10 @@
             }
         }
 
-        // 修复：简化添加卡片到Anki
+        // 修复：在添加卡片时添加错误处理和日志
         async function addCardToAnki(note) {
+            console.log('准备添加卡片到Anki:', note);
+            
             const response = await fetch('http://127.0.0.1:8765', {
                 method: 'POST',
                 headers: {
@@ -2183,6 +2234,8 @@
             const result = await response.json();
             
             if (result.error) {
+                console.error('添加卡片失败:', result.error);
+                console.error('卡片数据:', note);
                 throw new Error(result.error);
             }
             

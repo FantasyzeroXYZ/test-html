@@ -409,7 +409,7 @@
             justify-content: center;
         }
         
-        /* 修复：底部弹出面板 */
+        /* 修复：底部弹出面板 - 移除大框滚动 */
         .dictionary-panel {
             position: fixed;
             bottom: 0;
@@ -423,7 +423,7 @@
             transition: transform 0.3s ease-out;
             z-index: 1000;
             max-height: 80vh;
-            overflow-y: auto;
+            /* 移除overflow-y: auto; */
         }
         
         .dictionary-panel.active {
@@ -1194,6 +1194,7 @@
         let ankiDecks = [];
         let ankiModels = [];
         let currentModelFields = [];
+        let currentAudioClip = null; // 存储当前音频片段的URL
 
         // 文件选择事件处理
         audioFileBtn.addEventListener('click', () => {
@@ -1423,39 +1424,183 @@
                 subtitleText.innerHTML = clickableWords;
                 subtitleText.style.opacity = '1';
                 
-                // 为每个单词添加点击事件
-                document.querySelectorAll('.word').forEach(wordElem => {
-                    wordElem.addEventListener('click', function() {
-                        const word = this.getAttribute('data-word');
-                        
-                        // 点击单词时暂停播放
-                        playerWasPlaying = !player.paused;
-                        player.pause();
-                        
-                        // 查询单词并显示底部面板
-                        searchWordInPanel(word);
-                        
-                        // 高亮显示选中的单词
-                        if (currentHighlightedWord) {
-                            currentHighlightedWord.classList.remove('highlight');
-                        }
-                        this.classList.add('highlight');
-                        currentHighlightedWord = this;
-                        
-                        // 记录当前单词和句子
-                        currentWord = word;
-                        currentSentence = currentSubtitle.text;
-                        
-                        // 更新原句显示
-                        updateOriginalSentence(currentSubtitle.text, word);
-                    });
-                });
+                // 修复：使用事件委托解决单词点击问题
+                subtitleText.removeEventListener('click', handleWordClick);
+                subtitleText.addEventListener('click', handleWordClick);
+                
             } else {
                 // 不在任何字幕时间范围内，显示灰色状态
                 subtitleText.style.opacity = '0.5';
             }
             
             updateActiveSubtitleItem();
+        }
+
+        // 修复：使用事件委托处理单词点击
+        function handleWordClick(e) {
+            if (e.target.classList.contains('word')) {
+                const word = e.target.getAttribute('data-word');
+                
+                // 点击单词时暂停播放
+                playerWasPlaying = !player.paused;
+                player.pause();
+                
+                // 查询单词并显示底部面板
+                searchWordInPanel(word);
+                
+                // 高亮显示选中的单词
+                if (currentHighlightedWord) {
+                    currentHighlightedWord.classList.remove('highlight');
+                }
+                e.target.classList.add('highlight');
+                currentHighlightedWord = e.target;
+                
+                // 记录当前单词和句子
+                currentWord = word;
+                if (currentSubtitleIndex >= 0) {
+                    currentSentence = subtitles[currentSubtitleIndex].text;
+                    
+                    // 更新原句显示
+                    updateOriginalSentence(currentSentence, word);
+                    
+                    // 生成当前句子的音频片段
+                    generateAudioClip(currentSubtitleIndex);
+                }
+            }
+        }
+
+        // 生成当前句子的音频片段
+        function generateAudioClip(subtitleIndex) {
+            if (!audioBuffer || !audioContext) {
+                console.log('音频未加载，无法生成音频片段');
+                return;
+            }
+            
+            const subtitle = subtitles[subtitleIndex];
+            const startTime = subtitle.start;
+            const endTime = subtitle.end;
+            
+            // 计算开始和结束的样本位置
+            const startOffset = Math.floor(startTime * audioBuffer.sampleRate);
+            const endOffset = Math.floor(endTime * audioBuffer.sampleRate);
+            const length = endOffset - startOffset;
+            
+            // 创建新的音频缓冲区
+            const newBuffer = audioContext.createBuffer(
+                audioBuffer.numberOfChannels,
+                length,
+                audioBuffer.sampleRate
+            );
+            
+            // 复制音频数据
+            for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
+                const channelData = audioBuffer.getChannelData(channel);
+                const newChannelData = newBuffer.getChannelData(channel);
+                
+                for (let i = 0; i < length; i++) {
+                    newChannelData[i] = channelData[startOffset + i];
+                }
+            }
+            
+            // 将音频缓冲区转换为WAV格式
+            const wavBlob = bufferToWav(newBuffer);
+            
+            // 创建音频URL
+            if (currentAudioClip) {
+                URL.revokeObjectURL(currentAudioClip);
+            }
+            currentAudioClip = URL.createObjectURL(wavBlob);
+            
+            console.log('音频片段已生成');
+        }
+        
+        // 将AudioBuffer转换为WAV Blob
+        function bufferToWav(buffer) {
+            const numChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const length = buffer.length;
+            
+            // 创建WAV文件头
+            const wavHeader = createWavHeader(numChannels, sampleRate, 16, length);
+            
+            // 合并头部和音频数据
+            const interleaved = interleave(buffer);
+            const wavBytes = new Uint8Array(wavHeader.length + interleaved.length * 2);
+            
+            // 写入WAV头部
+            wavBytes.set(wavHeader, 0);
+            
+            // 写入PCM数据
+            const dataView = new DataView(wavBytes.buffer, wavHeader.length);
+            let offset = 0;
+            for (let i = 0; i < interleaved.length; i++) {
+                dataView.setInt16(offset, interleaved[i] * 0x7FFF, true);
+                offset += 2;
+            }
+            
+            return new Blob([wavBytes], { type: 'audio/wav' });
+        }
+        
+        // 创建WAV文件头
+        function createWavHeader(numChannels, sampleRate, bitsPerSample, dataLength) {
+            const byteRate = sampleRate * numChannels * bitsPerSample / 8;
+            const blockAlign = numChannels * bitsPerSample / 8;
+            const dataSize = dataLength * numChannels * bitsPerSample / 8;
+            
+            const buffer = new ArrayBuffer(44);
+            const view = new DataView(buffer);
+            
+            // RIFF标识
+            writeString(view, 0, 'RIFF');
+            // 文件长度
+            view.setUint32(4, 36 + dataSize, true);
+            // WAVE标识
+            writeString(view, 8, 'WAVE');
+            // fmt chunk
+            writeString(view, 12, 'fmt ');
+            // fmt chunk长度
+            view.setUint32(16, 16, true);
+            // 音频格式 (1 = PCM)
+            view.setUint16(20, 1, true);
+            // 声道数
+            view.setUint16(22, numChannels, true);
+            // 采样率
+            view.setUint32(24, sampleRate, true);
+            // 字节率
+            view.setUint32(28, byteRate, true);
+            // 块对齐
+            view.setUint16(32, blockAlign, true);
+            // 位深度
+            view.setUint16(34, bitsPerSample, true);
+            // data chunk
+            writeString(view, 36, 'data');
+            // data chunk长度
+            view.setUint32(40, dataSize, true);
+            
+            return new Uint8Array(buffer);
+        }
+        
+        // 写入字符串到DataView
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+        
+        // 交错音频通道
+        function interleave(buffer) {
+            const numChannels = buffer.numberOfChannels;
+            const length = buffer.length;
+            const result = new Float32Array(length * numChannels);
+            
+            for (let channel = 0; channel < numChannels; channel++) {
+                const channelData = buffer.getChannelData(channel);
+                for (let i = 0; i < length; i++) {
+                    result[i * numChannels + channel] = channelData[i];
+                }
+            }
+            
+            return result;
         }
 
         // 更新原句显示，使单词可点击
@@ -1483,22 +1628,26 @@
             originalSentence.innerHTML = clickableSentence;
             
             // 为原句中的单词添加点击事件
-            document.querySelectorAll('.sentence-word').forEach(wordElem => {
-                wordElem.addEventListener('click', function() {
-                    const word = this.getAttribute('data-word');
-                    panelSearchInput.value = word;
-                    searchWordInPanel(word);
-                    
-                    // 高亮显示选中的单词
-                    document.querySelectorAll('.sentence-word').forEach(w => {
-                        w.classList.remove('highlight');
-                    });
-                    this.classList.add('highlight');
-                    
-                    // 更新当前单词
-                    currentWord = word;
+            originalSentence.removeEventListener('click', handleSentenceWordClick);
+            originalSentence.addEventListener('click', handleSentenceWordClick);
+        }
+
+        // 处理原句中单词点击
+        function handleSentenceWordClick(e) {
+            if (e.target.classList.contains('sentence-word')) {
+                const word = e.target.getAttribute('data-word');
+                panelSearchInput.value = word;
+                searchWordInPanel(word);
+                
+                // 高亮显示选中的单词
+                document.querySelectorAll('.sentence-word').forEach(w => {
+                    w.classList.remove('highlight');
                 });
-            });
+                e.target.classList.add('highlight');
+                
+                // 更新当前单词
+                currentWord = word;
+            }
         }
 
         // 在面板中查询单词
@@ -1924,6 +2073,42 @@
                 tags: ['audio-player']
             };
             
+            // 如果有音频片段，上传到Anki
+            if (currentAudioClip) {
+                try {
+                    // 将音频Blob转换为base64
+                    const base64Audio = await blobToBase64(currentAudioClip);
+                    
+                    // 存储音频文件到Anki
+                    const audioFileName = `audio_${word}_${Date.now()}.wav`;
+                    const storeAudioResponse = await fetch('http://127.0.0.1:8765', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            action: 'storeMediaFile',
+                            version: 6,
+                            params: {
+                                filename: audioFileName,
+                                data: base64Audio.split(',')[1] // 移除data:audio/wav;base64,前缀
+                            }
+                        })
+                    });
+                    
+                    const storeResult = await storeAudioResponse.json();
+                    
+                    if (storeResult.error) {
+                        console.error('存储音频文件失败:', storeResult.error);
+                    } else {
+                        // 设置音频字段为文件名
+                        note.fields[audioFieldSelect.value] = `[sound:${audioFileName}]`;
+                    }
+                } catch (error) {
+                    console.error('音频处理错误:', error);
+                }
+            }
+            
             try {
                 const response = await fetch('http://127.0.0.1:8765', {
                     method: 'POST',
@@ -1960,6 +2145,16 @@
                 console.error('Anki添加卡片错误:', error);
             }
         });
+        
+        // 将Blob转换为Base64
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
         
         // 底部面板功能
         function openDictionaryPanel() {

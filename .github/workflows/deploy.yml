@@ -2,8 +2,8 @@ name: Deploy static site to GitHub Pages
 
 on:
   push:
-    branches: [ main ]   # 当 main 分支有推送时自动部署
-  workflow_dispatch:      # 也可以手动触发部署
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -11,7 +11,7 @@ jobs:
     permissions:
       contents: read
       pages: write
-      id-token: write
+      id-token: write   # ✅ 关键：必须加这一行！
 
     steps:
       - name: Checkout repository
@@ -23,7 +23,7 @@ jobs:
       - name: Upload site files
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .   # 上传当前目录下所有静态文件（HTML、CSS、JS）
+          path: .
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4

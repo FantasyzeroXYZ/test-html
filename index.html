@@ -2101,11 +2101,18 @@
                     // 生成音频片段
                     const audioBlob = await generateAudioClip(currentSubtitleIndex);
                     
+                    // 清理单词，只保留字母数字，用下划线替换其他字符
+                    const cleanWord = word.replace(/[^a-zA-Z0-9]/g, '_');
+                    
+                    // 修复：使用更简单、稳定的文件名生成方式
+                    // 只使用单词和当前时间戳，避免过长或复杂的文件名
+                    const timestamp = Date.now();
+                    const audioFileName = `audio_${cleanWord}_${timestamp}.wav`;
+                    
                     // 将音频Blob转换为base64
                     const base64Audio = await blobToBase64(audioBlob);
                     
                     // 存储音频文件到Anki
-                    const audioFileName = `audio_${word}_${Date.now()}.wav`;
                     const storeAudioResponse = await fetch('http://127.0.0.1:8765', {
                         method: 'POST',
                         headers: {
@@ -2125,12 +2132,15 @@
                     
                     if (storeResult.error) {
                         console.error('存储音频文件失败:', storeResult.error);
+                        // 即使音频存储失败，仍然继续添加卡片
                     } else {
                         // 设置音频字段为文件名
                         note.fields[audioFieldSelect.value] = `[sound:${audioFileName}]`;
+                        console.log('音频文件已存储:', audioFileName);
                     }
                 } catch (error) {
                     console.error('音频处理错误:', error);
+                    // 即使音频处理失败，仍然继续添加卡片
                 }
             }
             
@@ -2156,6 +2166,7 @@
             }
             
             console.log('卡片已成功添加到Anki!');
+            alert('卡片已成功添加到Anki!');
         }
         
         // 生成当前句子的音频片段
@@ -2262,7 +2273,7 @@
             
             return new Blob([bufferArray], { type: 'audio/wav' });
         }
-        
+                
         // 写入字符串到DataView
         function writeString(view, offset, string) {
             for (let i = 0; i < string.length; i++) {
@@ -2279,7 +2290,7 @@
                 reader.readAsDataURL(blob);
             });
         }
-        
+                
         // 底部面板功能
         function openDictionaryPanel() {
             dictionaryPanel.classList.add('active');

@@ -322,10 +322,11 @@
             background: rgba(231, 76, 60, 1);
         }
         
+        /* 修复：配置设置始终可见 */
         .config-section {
             margin-top: 15px;
             padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.5);
             border-radius: 8px;
         }
         
@@ -338,14 +339,14 @@
         .config-label {
             margin-bottom: 5px;
             font-size: 0.9rem;
-            color: #bbb;
+            color: #ddd;
         }
         
         .config-input {
             padding: 8px 10px;
             border: none;
             border-radius: 5px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
             color: white;
             font-size: 0.9rem;
         }
@@ -408,7 +409,7 @@
             justify-content: center;
         }
         
-        /* 底部弹出面板 */
+        /* 修复：底部弹出面板 */
         .dictionary-panel {
             position: fixed;
             bottom: 0;
@@ -474,7 +475,7 @@
         .auto-config-section {
             margin-top: 15px;
             padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.5);
             border-radius: 8px;
         }
         
@@ -487,19 +488,19 @@
         .auto-config-label {
             margin-bottom: 5px;
             font-size: 0.9rem;
-            color: #bbb;
+            color: #ddd;
         }
         
         .auto-config-select {
             padding: 8px 10px;
             border: none;
             border-radius: 5px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
             color: white;
             font-size: 0.9rem;
         }
         
-        /* 词典面板中的搜索框 */
+        /* 修复：词典面板中的搜索框 */
         .panel-search {
             display: flex;
             gap: 10px;
@@ -525,10 +526,45 @@
             cursor: pointer;
             transition: all 0.3s;
             font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .panel-search-btn:hover, .panel-search-btn:active {
             background: rgba(46, 204, 113, 1);
+        }
+        
+        /* 修复：添加Anki按钮与搜索按钮并排 */
+        .panel-search-anki-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .panel-search-container {
+            display: flex;
+            flex: 1;
+            gap: 10px;
+        }
+        
+        .panel-anki-btn {
+            background: rgba(231, 76, 60, 0.7);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        
+        .panel-anki-btn:hover, .panel-anki-btn:active {
+            background: rgba(231, 76, 60, 1);
         }
         
         /* 原句显示区域 */
@@ -550,7 +586,7 @@
             background-color: rgba(52, 152, 219, 0.2);
         }
         
-        /* 词典结果样式 */
+        /* 修复：词典结果样式 - 固定高度并只允许释义栏滚动 */
         .dictionary-result {
             margin-top: 15px;
             padding: 15px;
@@ -603,6 +639,23 @@
             font-style: italic;
             color: #ddd;
             margin-bottom: 8px;
+        }
+        
+        /* 修复：自定义释义框 */
+        .custom-definition {
+            margin-top: 15px;
+        }
+        
+        .custom-definition textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 100px;
         }
         
         /* 字幕列表样式 */
@@ -804,8 +857,8 @@
                 bottom: 20px;
             }
             
-            /* 配置设置鼠标悬停可见 */
-            .config-section:hover, .auto-config-section:hover {
+            /* 修复：配置设置PC端始终可见 */
+            .config-section, .auto-config-section {
                 background: rgba(0, 0, 0, 0.5);
             }
         }
@@ -862,6 +915,15 @@
             .time-input {
                 max-width: 100px;
             }
+            
+            /* 修复：移动端搜索和Anki按钮布局 */
+            .panel-search-anki-container {
+                flex-direction: column;
+            }
+            
+            .panel-search-container {
+                margin-bottom: 10px;
+            }
         }
         
         /* 超小屏幕手机适配 */
@@ -897,10 +959,10 @@
                     <span id="anki-status-text">检查Anki连接状态...</span>
                 </div>
                 <div class="file-controls">
-                    <button class="anki-btn" id="check-anki-btn">检查连接</button>
-                    <button class="anki-btn" id="show-config-btn">配置设置</button>
-                    <button class="file-btn" id="audio-file-btn">选择音频/视频</button>
-                    <button class="file-btn" id="subtitle-file-btn">选择字幕</button>
+                    <button class="anki-btn" id="check-anki-btn">状态</button>
+                    <button class="anki-btn" id="show-config-btn">配置</button>
+                    <button class="file-btn" id="audio-file-btn">音频</button>
+                    <button class="file-btn" id="subtitle-file-btn">字幕</button>
                     <input type="file" id="audio-file-input" accept="audio/*,video/*" class="hidden">
                     <input type="file" id="subtitle-file-input" accept=".srt,.vtt,.txt" class="hidden">
                 </div>
@@ -1016,10 +1078,13 @@
             <button class="close-panel" id="close-panel">×</button>
         </div>
         
-        <div class="panel-search">
-            <input type="text" class="panel-search-input" id="panel-search-input" placeholder="输入要查询的单词...">
-            <button class="panel-search-btn" id="panel-search-btn">🔍</button>
-            <button class="add-to-anki-btn" id="panel-add-to-anki-btn">+ Anki</button>
+        <!-- 修复：搜索和Anki按钮并排 -->
+        <div class="panel-search-anki-container">
+            <div class="panel-search-container">
+                <input type="text" class="panel-search-input" id="panel-search-input" placeholder="输入要查询的单词...">
+                <button class="panel-search-btn" id="panel-search-btn">🔍</button>
+            </div>
+            <button class="panel-anki-btn" id="panel-add-to-anki-btn">+ Anki</button>
         </div>
         
         <div class="original-sentence" id="original-sentence">
@@ -1030,6 +1095,7 @@
             查询结果将显示在这里...
         </div>
         
+        <!-- 修复：自定义释义框 -->
         <div class="custom-definition">
             <textarea id="panel-custom-definition-input" placeholder="如果查词没有返回内容或者想自定义释义内容，请在此输入..."></textarea>
         </div>
@@ -1124,6 +1190,10 @@
         let playerWasPlaying = false;
         let audioContext = null;
         let audioBuffer = null;
+        let ankiConnected = false;
+        let ankiDecks = [];
+        let ankiModels = [];
+        let currentModelFields = [];
 
         // 文件选择事件处理
         audioFileBtn.addEventListener('click', () => {
@@ -1332,7 +1402,7 @@
                 const text = currentSubtitle.text;
                 
                 // 使用正则表达式匹配单词，包括带有标点符号的单词
-                const wordRegex = /[a-zA-Z]+(?:['’][a-zA-Z]+)*/g;
+                const wordRegex = /[a-zA-Z]+(?:[''’][a-zA-Z]+)*/g;
                 let lastIndex = 0;
                 let clickableWords = '';
                 
@@ -1391,7 +1461,7 @@
         // 更新原句显示，使单词可点击
         function updateOriginalSentence(sentence, currentWord) {
             // 使用正则表达式匹配单词，包括带有标点符号的单词
-            const wordRegex = /[a-zA-Z]+(?:['’][a-zA-Z]+)*/g;
+            const wordRegex = /[a-zA-Z]+(?:[''’][a-zA-Z]+)*/g;
             let lastIndex = 0;
             let clickableSentence = '';
             
@@ -1793,10 +1863,10 @@
             const isHidden = autoConfigSection.classList.contains('hidden');
             if (isHidden) {
                 autoConfigSection.classList.remove('hidden');
-                showConfigBtn.textContent = '隐藏配置';
+                showConfigBtn.textContent = '收起';
             } else {
                 autoConfigSection.classList.add('hidden');
-                showConfigBtn.textContent = '配置设置';
+                showConfigBtn.textContent = '配置';
             }
         });
         
@@ -1933,10 +2003,36 @@
             updateSubtitle(player.currentTime);
         });
         
+        // 修复iOS兼容性问题
+        function fixIOSCompatibility() {
+            // iOS音频播放修复
+            document.addEventListener('touchstart', function() {
+                // 确保音频上下文在用户交互后创建
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+            }, { once: true });
+            
+            // iOS文件选择修复
+            audioFileInput.addEventListener('change', function(e) {
+                // iOS文件选择后立即播放
+                if (e.target.files.length > 0) {
+                    setTimeout(() => {
+                        if (player.paused) {
+                            player.play().catch(e => console.log('iOS自动播放被阻止:', e));
+                        }
+                    }, 500);
+                }
+            });
+        }
+        
         // 初始化
         function init() {
             // 检查Anki连接
             checkAnkiConnection();
+            
+            // 修复iOS兼容性
+            fixIOSCompatibility();
         }
         
         // 启动初始化

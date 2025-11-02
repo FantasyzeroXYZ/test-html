@@ -155,7 +155,7 @@
             background: transparent;
         }
         
-        .plyr--audio .plyr__controls, .plyr--video .plyr__controls {
+        .plyr--audio .plyr__controls {
             background: transparent;
             color: white;
             padding: 10px 5px;
@@ -165,7 +165,7 @@
             color: #3498db;
         }
         
-        .plyr--audio .plyr__control, .plyr--video .plyr__control {
+        .plyr--audio .plyr__control {
             padding: 10px;
         }
         
@@ -203,8 +203,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
         }
         
         .subtitle-btn {
@@ -216,7 +214,6 @@
             cursor: pointer;
             transition: all 0.3s;
             font-size: 1rem;
-            flex: 1;
         }
         
         .subtitle-btn:hover, .subtitle-btn:active {
@@ -322,12 +319,13 @@
             background: rgba(231, 76, 60, 0.7);
             color: white;
             border: none;
-            padding: 12px 15px;
+            padding: 12px 20px;
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s;
-            font-size: 0.9rem;
-            white-space: nowrap;
+            font-size: 1rem;
+            margin-top: 15px;
+            width: 100%;
         }
         
         .add-to-anki-btn:hover, .add-to-anki-btn:active {
@@ -764,111 +762,6 @@
                 font-size: 0.7rem;
             }
         }
-        
-        /* 新增样式 */
-        .subtitle-navigation {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .nav-btn {
-            background: rgba(52, 152, 219, 0.7);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9rem;
-            flex: 1;
-        }
-        
-        .nav-btn:hover, .nav-btn:active {
-            background: rgba(52, 152, 219, 1);
-        }
-        
-        .all-subtitles-panel {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(30, 30, 40, 0.95);
-            border-radius: 15px 15px 0 0;
-            padding: 20px;
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
-            transform: translateY(100%);
-            transition: transform 0.3s ease-out;
-            z-index: 1000;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .all-subtitles-panel.active {
-            transform: translateY(0);
-        }
-        
-        .all-subtitles-list {
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-        
-        .subtitle-item {
-            padding: 12px 15px;
-            margin-bottom: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .subtitle-item:hover, .subtitle-item:active {
-            background-color: rgba(52, 152, 219, 0.2);
-        }
-        
-        .subtitle-item.active {
-            background-color: rgba(52, 152, 219, 0.3);
-        }
-        
-        .subtitle-time {
-            font-size: 0.8rem;
-            color: #3498db;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle-content {
-            font-size: 1rem;
-            line-height: 1.4;
-        }
-        
-        .panel-search-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .panel-search-input {
-            flex: 1;
-        }
-        
-        .fixed-definition {
-            height: 200px;
-            overflow-y: auto;
-        }
-        
-        .video-container {
-            width: 100%;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            overflow: hidden;
-            background: #000;
-        }
-        
-        #video-player {
-            width: 100%;
-            height: auto;
-            max-height: 400px;
-        }
     </style>
 </head>
 <body>
@@ -909,23 +802,21 @@
                     </div>
                 </div>
                 
-                <!-- 视频播放器容器 -->
-                <div class="video-container hidden" id="video-container">
-                    <video id="video-player" controls>
-                        <!-- 视频源将通过JavaScript动态设置 -->
-                    </video>
-                </div>
-                
-                <!-- 音频播放器 -->
-                <audio id="audio-player" controls>
+                <audio id="player" controls>
                     <!-- 音频源将通过JavaScript动态设置 -->
                 </audio>
                 
-                <div class="subtitle-navigation">
-                    <button class="nav-btn" id="prev-subtitle-btn">上一句</button>
-                    <button class="nav-btn" id="next-subtitle-btn">下一句</button>
-                    <button class="nav-btn" id="show-all-subtitles-btn">所有字幕</button>
+                <div class="clip-controls-in-player">
+                    <div class="clip-time-in-player">
+                        片段: <span id="start-time-player">0.00</span>s - <span id="end-time-player">0.00</span>s
+                    </div>
+                    <div class="clip-buttons-in-player">
+                        <button class="clip-btn" id="set-start-btn-player">开始</button>
+                        <button class="clip-btn" id="set-end-btn-player">结束</button>
+                        <button class="clip-btn" id="clip-audio-btn-player" disabled>截取</button>
+                    </div>
                 </div>
+                <div class="clip-status" id="clip-status-player"></div>
             </div>
         </section>
         
@@ -994,7 +885,7 @@
         </section>
     </div>
     
-    <!-- 底部弹出面板 - 词典查询 -->
+    <!-- 底部弹出面板 -->
     <div class="panel-overlay" id="panel-overlay"></div>
     <div class="dictionary-panel" id="dictionary-panel">
         <div class="panel-header">
@@ -1002,35 +893,23 @@
             <button class="close-panel" id="close-panel">×</button>
         </div>
         
-        <div class="panel-search-row">
+        <div class="panel-search">
             <input type="text" class="panel-search-input" id="panel-search-input" placeholder="输入要查询的单词...">
             <button class="panel-search-btn" id="panel-search-btn">查询</button>
-            <button class="add-to-anki-btn" id="panel-add-to-anki-btn">添加到Anki</button>
         </div>
         
         <div class="original-sentence" id="original-sentence">
             原句将显示在这里...
         </div>
         
-        <div class="dictionary-result fixed-definition" id="panel-dictionary-result">
+        <div class="dictionary-result" id="panel-dictionary-result">
             查询结果将显示在这里...
         </div>
         
         <div class="custom-definition">
             <textarea id="panel-custom-definition-input" placeholder="如果查词没有返回内容或者想自定义释义内容，请在此输入..."></textarea>
         </div>
-    </div>
-    
-    <!-- 底部弹出面板 - 所有字幕 -->
-    <div class="all-subtitles-panel" id="all-subtitles-panel">
-        <div class="panel-header">
-            <div class="panel-title">所有字幕</div>
-            <button class="close-panel" id="close-all-subtitles-panel">×</button>
-        </div>
-        
-        <div class="all-subtitles-list" id="all-subtitles-list">
-            <!-- 字幕列表将通过JavaScript动态生成 -->
-        </div>
+        <button class="add-to-anki-btn" id="panel-add-to-anki-btn">添加到Anki</button>
     </div>
     
     <footer>
@@ -1040,7 +919,7 @@
     <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
     <script>
         // 初始化Plyr播放器 
-        const audioPlayer = new Plyr('#audio-player', {
+        const player = new Plyr('#player', {
             controls: [
                 'play',
                 'progress',
@@ -1048,18 +927,6 @@
                 'duration',
                 'mute',
                 'volume'
-            ]
-        });
-
-        const videoPlayer = new Plyr('#video-player', {
-            controls: [
-                'play',
-                'progress',
-                'current-time',
-                'duration',
-                'mute',
-                'volume',
-                'fullscreen'
             ]
         });
 
@@ -1076,11 +943,6 @@
         const toggleSubtitleBtn = document.getElementById('toggle-subtitle-btn');
         const subtitleDisplay = document.getElementById('subtitle-display');
         
-        // 导航按钮
-        const prevSubtitleBtn = document.getElementById('prev-subtitle-btn');
-        const nextSubtitleBtn = document.getElementById('next-subtitle-btn');
-        const showAllSubtitlesBtn = document.getElementById('show-all-subtitles-btn');
-        
         // Anki相关元素
         const ankiStatusIndicator = document.getElementById('anki-status-indicator');
         const ankiStatusText = document.getElementById('anki-status-text');
@@ -1089,6 +951,14 @@
         const autoConfigSection = document.getElementById('auto-config-section');
         const addToAnkiBtn = document.getElementById('panel-add-to-anki-btn');
         const customDefinitionInput = document.getElementById('panel-custom-definition-input');
+        
+        // 音频截取相关元素
+        const setStartBtnPlayer = document.getElementById('set-start-btn-player');
+        const setEndBtnPlayer = document.getElementById('set-end-btn-player');
+        const clipAudioBtnPlayer = document.getElementById('clip-audio-btn-player');
+        const startTimeDisplayPlayer = document.getElementById('start-time-player');
+        const endTimeDisplayPlayer = document.getElementById('end-time-player');
+        const clipStatusPlayer = document.getElementById('clip-status-player');
         
         // 自动配置相关元素
         const deckSelect = document.getElementById('deck-select');
@@ -1100,20 +970,13 @@
         
         // 底部面板相关元素
         const dictionaryPanel = document.getElementById('dictionary-panel');
-        const allSubtitlesPanel = document.getElementById('all-subtitles-panel');
         const panelOverlay = document.getElementById('panel-overlay');
         const closePanelBtn = document.getElementById('close-panel');
-        const closeAllSubtitlesPanelBtn = document.getElementById('close-all-subtitles-panel');
         const panelDictionaryResult = document.getElementById('panel-dictionary-result');
         const panelWordTitle = document.getElementById('panel-word-title');
         const panelSearchInput = document.getElementById('panel-search-input');
         const panelSearchBtn = document.getElementById('panel-search-btn');
         const originalSentence = document.getElementById('original-sentence');
-        const allSubtitlesList = document.getElementById('all-subtitles-list');
-        
-        // 视频容器
-        const videoContainer = document.getElementById('video-container');
-        const audioPlayerElement = document.getElementById('audio-player');
         
         // 状态变量
         let subtitles = [];
@@ -1121,17 +984,19 @@
         let currentHighlightedWord = null;
         let currentWord = '';
         let currentSentence = '';
-        let currentSubtitleIndex = -1;
         let currentSubtitleStart = 0;
         let currentSubtitleEnd = 0;
         let currentAudioClip = null;
+        let clipStartTime = 0;
+        let clipEndTime = 0;
         let ankiConnected = false;
         let ankiDecks = [];
         let ankiModels = [];
         let currentModelFields = [];
         let audioFile = null;
         let playerWasPlaying = false;
-        let isVideo = false;
+        let audioContext = null;
+        let audioBuffer = null;
 
         // 文件选择事件处理
         audioFileBtn.addEventListener('click', () => {
@@ -1143,7 +1008,7 @@
         });
         
         // 音频/视频文件选择处理
-        audioFileInput.addEventListener('change', function(e) {
+        audioFileInput.addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (file) {
                 audioFile = file;
@@ -1153,75 +1018,64 @@
                 
                 // 创建文件URL并设置播放器源
                 const fileURL = URL.createObjectURL(file);
+                const audioElement = document.querySelector('#player');
                 
-                // 判断是否为视频文件
-                isVideo = file.type.startsWith('video/');
-                
-                if (isVideo) {
-                    // 显示视频播放器，隐藏音频播放器
-                    videoContainer.classList.remove('hidden');
-                    audioPlayerElement.classList.add('hidden');
-                    
-                    // 设置视频源
-                    const videoElement = document.querySelector('#video-player');
-                    
-                    // 清除之前的源
-                    while (videoElement.firstChild) {
-                        videoElement.removeChild(videoElement.firstChild);
-                    }
-                    
-                    // 添加新的源
-                    const source = document.createElement('source');
-                    source.src = fileURL;
-                    source.type = file.type;
-                    videoElement.appendChild(source);
-                    
-                    // 重新加载播放器
-                    videoPlayer.source = {
-                        type: 'video',
-                        sources: [{
-                            src: fileURL,
-                            type: file.type
-                        }]
-                    };
-                } else {
-                    // 显示音频播放器，隐藏视频播放器
-                    videoContainer.classList.add('hidden');
-                    audioPlayerElement.classList.remove('hidden');
-                    
-                    // 设置音频源
-                    const audioElement = document.querySelector('#audio-player');
-                    
-                    // 清除之前的源
-                    while (audioElement.firstChild) {
-                        audioElement.removeChild(audioElement.firstChild);
-                    }
-                    
-                    // 添加新的源
-                    const source = document.createElement('source');
-                    source.src = fileURL;
-                    source.type = file.type;
-                    audioElement.appendChild(source);
-                    
-                    // 重新加载播放器
-                    audioPlayer.source = {
-                        type: 'audio',
-                        sources: [{
-                            src: fileURL,
-                            type: file.type
-                        }]
-                    };
+                // 清除之前的源
+                while (audioElement.firstChild) {
+                    audioElement.removeChild(audioElement.firstChild);
                 }
+                
+                // 添加新的源
+                const source = document.createElement('source');
+                source.src = fileURL;
+                source.type = file.type;
+                audioElement.appendChild(source);
+                
+                // 重新加载播放器
+                player.source = {
+                    type: 'audio',
+                    sources: [{
+                        src: fileURL,
+                        type: file.type
+                    }]
+                };
                 
                 // 重置字幕
                 subtitles = [];
                 subtitleText.innerHTML = "请加载字幕文件<br><strong>点击字幕中的单词即可查询其含义</strong>";
-                currentSubtitleIndex = -1;
                 
                 // 重置音频截取
+                clipStartTime = 0;
+                clipEndTime = 0;
+                startTimeDisplayPlayer.textContent = '0.00';
+                endTimeDisplayPlayer.textContent = '0.00';
+                clipAudioBtnPlayer.disabled = true;
+                clipStatusPlayer.textContent = '';
                 currentAudioClip = null;
+                
+                // 加载音频文件到Web Audio API
+                await loadAudioBuffer(file);
             }
         });
+        
+        // 加载音频文件到Web Audio API
+        async function loadAudioBuffer(file) {
+            try {
+                // 创建AudioContext
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                // 读取文件
+                const arrayBuffer = await file.arrayBuffer();
+                audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                
+                console.log('音频文件已加载到Web Audio API');
+            } catch (error) {
+                console.error('加载音频文件失败:', error);
+                clipStatusPlayer.textContent = '音频文件加载失败，无法截取音频';
+            }
+        }
         
         // 字幕文件选择处理
         subtitleFileInput.addEventListener('change', function(e) {
@@ -1295,102 +1149,82 @@
             subtitles.sort((a, b) => a.start - b.start);
             
             // 更新初始字幕显示
-            currentSubtitleIndex = -1;
             updateSubtitle(0);
-            
-            // 更新所有字幕列表
-            updateAllSubtitlesList();
         }
 
         // 更新字幕显示
         function updateSubtitle(currentTime) {
             if (subtitles.length === 0) return;
             
-            // 查找当前时间对应的字幕
-            let newSubtitleIndex = -1;
-            for (let i = 0; i < subtitles.length; i++) {
-                if (currentTime >= subtitles[i].start && currentTime < subtitles[i].end) {
-                    newSubtitleIndex = i;
-                    break;
-                }
-            }
+            const currentSubtitle = subtitles.find(sub => 
+                currentTime >= sub.start && currentTime < sub.end
+            );
             
-            // 如果找到了新的字幕
-            if (newSubtitleIndex !== -1 && newSubtitleIndex !== currentSubtitleIndex) {
-                currentSubtitleIndex = newSubtitleIndex;
-                const currentSubtitle = subtitles[currentSubtitleIndex];
-                
+            if (currentSubtitle) {
                 // 记录当前字幕的时间轴
                 currentSubtitleStart = currentSubtitle.start;
                 currentSubtitleEnd = currentSubtitle.end;
                 
-                // 更新字幕显示
-                updateSubtitleDisplay(currentSubtitle.text);
+                // 改进的字幕文本转换，修复句末单词无法点击的问题
+                // 使用更复杂的正则表达式匹配单词，包括句末单词
+                const text = currentSubtitle.text;
+                
+                // 使用正则表达式匹配单词，包括带有标点符号的单词
+                const wordRegex = /[a-zA-Z]+(?:['’][a-zA-Z]+)*/g;
+                let lastIndex = 0;
+                let clickableWords = '';
+                
+                let match;
+                while ((match = wordRegex.exec(text)) !== null) {
+                    // 添加匹配前的非单词部分
+                    clickableWords += text.substring(lastIndex, match.index);
+                    
+                    // 添加可点击的单词
+                    clickableWords += `<span class="word" data-word="${match[0]}">${match[0]}</span>`;
+                    
+                    lastIndex = match.index + match[0].length;
+                }
+                
+                // 添加剩余的非单词部分
+                clickableWords += text.substring(lastIndex);
+                
+                subtitleText.innerHTML = clickableWords;
+                
+                // 为每个单词添加点击事件
+                document.querySelectorAll('.word').forEach(wordElem => {
+                    wordElem.addEventListener('click', function() {
+                        const word = this.getAttribute('data-word');
+                        
+                        // 点击单词时暂停播放
+                        playerWasPlaying = !player.paused;
+                        player.pause();
+                        
+                        // 查询单词并显示底部面板
+                        searchWordInPanel(word);
+                        
+                        // 高亮显示选中的单词
+                        if (currentHighlightedWord) {
+                            currentHighlightedWord.classList.remove('highlight');
+                        }
+                        this.classList.add('highlight');
+                        currentHighlightedWord = this;
+                        
+                        // 记录当前单词和句子
+                        currentWord = word;
+                        currentSentence = currentSubtitle.text;
+                        
+                        // 更新原句显示
+                        updateOriginalSentence(currentSubtitle.text, word);
+                        
+                        // 自动截取当前字幕时间轴的音频
+                        autoClipCurrentSubtitle();
+                    });
+                });
                 
                 subtitleText.style.opacity = '1';
-            } else if (newSubtitleIndex === -1) {
+            } else {
                 subtitleText.style.opacity = '0.5';
             }
-        }
-
-        // 更新字幕显示内容
-        function updateSubtitleDisplay(text) {
-            // 使用正则表达式匹配单词，包括带有标点符号的单词
-            const wordRegex = /[a-zA-Z]+(?:['’][a-zA-Z]+)*/g;
-            let lastIndex = 0;
-            let clickableWords = '';
-            
-            let match;
-            while ((match = wordRegex.exec(text)) !== null) {
-                // 添加匹配前的非单词部分
-                clickableWords += text.substring(lastIndex, match.index);
-                
-                // 添加可点击的单词
-                clickableWords += `<span class="word" data-word="${match[0]}">${match[0]}</span>`;
-                
-                lastIndex = match.index + match[0].length;
-            }
-            
-            // 添加剩余的非单词部分
-            clickableWords += text.substring(lastIndex);
-            
-            subtitleText.innerHTML = clickableWords;
-            
-            // 为每个单词添加点击事件
-            document.querySelectorAll('.word').forEach(wordElem => {
-                wordElem.addEventListener('click', function() {
-                    const word = this.getAttribute('data-word');
-                    
-                    // 点击单词时暂停播放
-                    playerWasPlaying = !getCurrentPlayer().paused;
-                    getCurrentPlayer().pause();
-                    
-                    // 查询单词并显示底部面板
-                    searchWordInPanel(word);
-                    
-                    // 高亮显示选中的单词
-                    if (currentHighlightedWord) {
-                        currentHighlightedWord.classList.remove('highlight');
-                    }
-                    this.classList.add('highlight');
-                    currentHighlightedWord = this;
-                    
-                    // 记录当前单词和句子
-                    currentWord = word;
-                    currentSentence = text;
-                    
-                    // 更新原句显示
-                    updateOriginalSentence(text, word);
-                    
-                    // 自动截取当前字幕时间轴的音频
-                    autoClipCurrentSubtitle();
-                });
-            });
-        }
-
-        // 获取当前播放器（音频或视频）
-        function getCurrentPlayer() {
-            return isVideo ? videoPlayer : audioPlayer;
         }
 
         // 更新原句显示，使单词可点击
@@ -1444,27 +1278,34 @@
             }
             
             // 使用当前字幕的时间轴
-            const startTime = currentSubtitleStart;
-            const endTime = currentSubtitleEnd;
+            clipStartTime = currentSubtitleStart;
+            clipEndTime = currentSubtitleEnd;
+            
+            // 更新显示
+            startTimeDisplayPlayer.textContent = clipStartTime.toFixed(2);
+            endTimeDisplayPlayer.textContent = clipEndTime.toFixed(2);
             
             // 创建音频片段
-            createAudioClip(startTime, endTime);
+            createAudioClip(clipStartTime, clipEndTime);
         }
 
         // 创建音频片段
         async function createAudioClip(startTime, endTime) {
-            if (!audioFile) {
-                console.log('错误：没有音频文件');
+            if (!audioFile || !audioBuffer) {
+                clipStatusPlayer.textContent = '错误：没有音频文件或音频未加载完成';
                 return;
             }
             
+            if (startTime >= endTime) {
+                clipStatusPlayer.textContent = '错误：开始时间必须小于结束时间';
+                return;
+            }
+            
+            clipStatusPlayer.textContent = '正在创建音频片段...';
+            
             try {
-                // 这里简化实现，实际应用中需要更复杂的音频处理
-                // 由于浏览器限制，这里我们只是模拟音频截取
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-                // 创建音频片段数据
-                const audioClipData = await generateAudioClipData(startTime, endTime);
+                // 实际截取音频片段
+                const audioClipData = await extractAudioClip(startTime, endTime);
                 
                 // 保存音频片段
                 currentAudioClip = {
@@ -1473,29 +1314,101 @@
                     data: audioClipData
                 };
                 
-                console.log(`音频片段已创建 (${startTime.toFixed(2)}s - ${endTime.toFixed(2)}s)`);
+                clipStatusPlayer.textContent = `音频片段已创建 (${startTime.toFixed(2)}s - ${endTime.toFixed(2)}s)`;
             } catch (error) {
-                console.error('音频片段创建失败: ' + error.message);
+                clipStatusPlayer.textContent = '音频片段创建失败: ' + error.message;
+                console.error('音频片段创建错误:', error);
             }
         }
 
-        // 生成音频片段数据（模拟）
-        async function generateAudioClipData(startTime, endTime) {
-            // 在实际应用中，这里应该使用Web Audio API或其他库来截取音频
-            // 由于浏览器限制，这里我们只是生成一个模拟的音频文件名
+        // 实际截取音频片段
+        async function extractAudioClip(startTime, endTime) {
+            return new Promise((resolve, reject) => {
+                try {
+                    // 计算样本位置
+                    const startOffset = Math.floor(startTime * audioBuffer.sampleRate);
+                    const endOffset = Math.floor(endTime * audioBuffer.sampleRate);
+                    const frameCount = endOffset - startOffset;
+                    
+                    // 创建新的AudioBuffer
+                    const newBuffer = audioContext.createBuffer(
+                        audioBuffer.numberOfChannels,
+                        frameCount,
+                        audioBuffer.sampleRate
+                    );
+                    
+                    // 复制音频数据
+                    for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
+                        const channelData = audioBuffer.getChannelData(channel);
+                        const newChannelData = newBuffer.getChannelData(channel);
+                        
+                        for (let i = 0; i < frameCount; i++) {
+                            newChannelData[i] = channelData[startOffset + i];
+                        }
+                    }
+                    
+                    // 将AudioBuffer转换为Blob
+                    const audioData = audioBufferToWav(newBuffer);
+                    const blob = new Blob([audioData], { type: 'audio/wav' });
+                    
+                    // 创建文件名
+                    const fileName = `audio_clip_${startTime.toFixed(2)}_${endTime.toFixed(2)}.wav`;
+                    
+                    // 返回音频片段数据
+                    resolve({
+                        fileName: fileName,
+                        startTime: startTime,
+                        endTime: endTime,
+                        blob: blob,
+                        url: URL.createObjectURL(blob)
+                    });
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+
+        // 将AudioBuffer转换为WAV格式
+        function audioBufferToWav(buffer) {
+            const numberOfChannels = buffer.numberOfChannels;
+            const length = buffer.length * numberOfChannels * 2 + 44;
+            const sampleRate = buffer.sampleRate;
+            const arrayBuffer = new ArrayBuffer(length);
+            const view = new DataView(arrayBuffer);
             
-            // 创建一个包含时间信息的唯一文件名
-            const fileName = `audio_clip_${startTime.toFixed(2)}_${endTime.toFixed(2)}.mp3`;
+            // WAV文件头
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, length - 8, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numberOfChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * numberOfChannels * 2, true);
+            view.setUint16(32, numberOfChannels * 2, true);
+            view.setUint16(34, 16, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, buffer.length * numberOfChannels * 2, true);
             
-            // 在实际应用中，这里应该返回实际的音频数据或URL
-            // 这里我们返回一个模拟的音频数据对象
-            return {
-                fileName: fileName,
-                startTime: startTime,
-                endTime: endTime,
-                // 在实际应用中，这里应该包含实际的音频数据
-                data: `模拟音频数据: ${fileName}`
-            };
+            // 写入音频数据
+            let offset = 44;
+            for (let i = 0; i < buffer.length; i++) {
+                for (let channel = 0; channel < numberOfChannels; channel++) {
+                    const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
+                    view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+                    offset += 2;
+                }
+            }
+            
+            return arrayBuffer;
+        }
+
+        // 辅助函数：写入字符串到DataView
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
         }
 
         // 在面板中查询单词
@@ -1584,66 +1497,32 @@
             subtitleDisplay.style.display = subtitleVisible ? 'block' : 'none';
         });
         
-        // 上一句字幕
-        prevSubtitleBtn.addEventListener('click', () => {
-            if (currentSubtitleIndex > 0) {
-                currentSubtitleIndex--;
-                const subtitle = subtitles[currentSubtitleIndex];
-                getCurrentPlayer().currentTime = subtitle.start;
-                updateSubtitleDisplay(subtitle.text);
+        // 音频截取功能
+        setStartBtnPlayer.addEventListener('click', () => {
+            clipStartTime = player.currentTime;
+            startTimeDisplayPlayer.textContent = clipStartTime.toFixed(2);
+            updateClipButtonState();
+        });
+        
+        setEndBtnPlayer.addEventListener('click', () => {
+            clipEndTime = player.currentTime;
+            endTimeDisplayPlayer.textContent = clipEndTime.toFixed(2);
+            updateClipButtonState();
+        });
+        
+        function updateClipButtonState() {
+            clipAudioBtnPlayer.disabled = clipStartTime >= clipEndTime || clipEndTime === 0;
+        }
+        
+        clipAudioBtnPlayer.addEventListener('click', async () => {
+            if (clipStartTime >= clipEndTime) {
+                clipStatusPlayer.textContent = '错误：开始时间必须小于结束时间';
+                return;
             }
-        });
-        
-        // 下一句字幕
-        nextSubtitleBtn.addEventListener('click', () => {
-            if (currentSubtitleIndex < subtitles.length - 1) {
-                currentSubtitleIndex++;
-                const subtitle = subtitles[currentSubtitleIndex];
-                getCurrentPlayer().currentTime = subtitle.start;
-                updateSubtitleDisplay(subtitle.text);
-            }
-        });
-        
-        // 显示所有字幕
-        showAllSubtitlesBtn.addEventListener('click', () => {
-            openAllSubtitlesPanel();
-        });
-        
-        // 更新所有字幕列表
-        function updateAllSubtitlesList() {
-            allSubtitlesList.innerHTML = '';
             
-            subtitles.forEach((subtitle, index) => {
-                const subtitleItem = document.createElement('div');
-                subtitleItem.className = 'subtitle-item';
-                if (index === currentSubtitleIndex) {
-                    subtitleItem.classList.add('active');
-                }
-                
-                const timeText = formatTime(subtitle.start) + ' - ' + formatTime(subtitle.end);
-                
-                subtitleItem.innerHTML = `
-                    <div class="subtitle-time">${timeText}</div>
-                    <div class="subtitle-content">${subtitle.text}</div>
-                `;
-                
-                subtitleItem.addEventListener('click', () => {
-                    getCurrentPlayer().currentTime = subtitle.start;
-                    currentSubtitleIndex = index;
-                    updateSubtitleDisplay(subtitle.text);
-                    closeAllSubtitlesPanel();
-                });
-                
-                allSubtitlesList.appendChild(subtitleItem);
-            });
-        }
-        
-        // 格式化时间显示
-        function formatTime(seconds) {
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        }
+            // 创建音频片段
+            await createAudioClip(clipStartTime, clipEndTime);
+        });
         
         // Anki连接检查
         async function checkAnkiConnection() {
@@ -1907,9 +1786,22 @@
             // 准备音频数据
             let audioData = '';
             if (currentAudioClip) {
-                // 在实际应用中，这里应该将音频数据发送到Anki
-                // 由于浏览器限制，这里我们只发送时间信息
-                audioData = `[sound:${currentAudioClip.data.fileName}]`;
+                try {
+                    // 将音频片段发送到Anki
+                    const audioResult = await storeAudioFileInAnki(
+                        currentAudioClip.data.fileName,
+                        currentAudioClip.data.blob
+                    );
+                    
+                    if (audioResult && audioResult.result) {
+                        audioData = `[sound:${currentAudioClip.data.fileName}]`;
+                    } else {
+                        throw new Error('音频文件上传失败');
+                    }
+                } catch (error) {
+                    console.error('音频文件上传失败:', error);
+                    alert('音频文件上传失败，但卡片仍会添加（不包含音频）');
+                }
             }
             
             // 准备Anki卡片数据
@@ -1965,6 +1857,40 @@
             }
         });
         
+        // 将音频文件存储到Anki
+        async function storeAudioFileInAnki(filename, blob) {
+            // 将Blob转换为base64
+            const base64Data = await blobToBase64(blob);
+            
+            // 发送到AnkiConnect
+            const response = await fetch('http://127.0.0.1:8765', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'storeMediaFile',
+                    version: 6,
+                    params: {
+                        filename: filename,
+                        data: base64Data.split(',')[1] // 移除data:audio/wav;base64,前缀
+                    }
+                })
+            });
+            
+            return await response.json();
+        }
+        
+        // 将Blob转换为base64
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+        
         // 底部面板功能
         function openDictionaryPanel() {
             dictionaryPanel.classList.add('active');
@@ -1978,29 +1904,13 @@
             document.body.style.overflow = '';
             
             // 恢复播放
-            if (playerWasPlaying && getCurrentPlayer().paused) {
-                getCurrentPlayer().play();
+            if (playerWasPlaying && player.paused) {
+                player.play();
             }
         }
         
-        function openAllSubtitlesPanel() {
-            allSubtitlesPanel.classList.add('active');
-            panelOverlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-        
-        function closeAllSubtitlesPanel() {
-            allSubtitlesPanel.classList.remove('active');
-            panelOverlay.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-        
         closePanelBtn.addEventListener('click', closeDictionaryPanel);
-        closeAllSubtitlesPanelBtn.addEventListener('click', closeAllSubtitlesPanel);
-        panelOverlay.addEventListener('click', () => {
-            closeDictionaryPanel();
-            closeAllSubtitlesPanel();
-        });
+        panelOverlay.addEventListener('click', closeDictionaryPanel);
         
         // 面板搜索功能
         panelSearchBtn.addEventListener('click', () => {
@@ -2016,16 +1926,8 @@
         });
         
         // 监听播放器时间更新
-        audioPlayer.on('timeupdate', event => {
-            if (!isVideo) {
-                updateSubtitle(audioPlayer.currentTime);
-            }
-        });
-        
-        videoPlayer.on('timeupdate', event => {
-            if (isVideo) {
-                updateSubtitle(videoPlayer.currentTime);
-            }
+        player.on('timeupdate', event => {
+            updateSubtitle(player.currentTime);
         });
         
         // 初始化

@@ -2,16 +2,21 @@ name: Deploy static site to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    branches: [ main ]     # 当 main 分支有推送时自动部署
+  workflow_dispatch:        # 允许手动触发部署
 
 jobs:
   deploy:
+    environment:
+      name: github-pages     # ✅ 必须：指定部署环境
+      url: ${{ steps.deployment.outputs.page_url }}
+
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       pages: write
-      id-token: write   # ✅ 关键：必须加这一行！
+      id-token: write
 
     steps:
       - name: Checkout repository
@@ -23,7 +28,8 @@ jobs:
       - name: Upload site files
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: .             # 你网站的根目录（index.html 所在处）
 
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4

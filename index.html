@@ -59,8 +59,9 @@
         
         .file-controls {
             display: flex;
-            flex-direction: column;
-            gap: 12px;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 8px;
             margin-bottom: 15px;
         }
         
@@ -68,13 +69,17 @@
             background: rgba(52, 152, 219, 0.7);
             color: white;
             border: none;
-            padding: 14px 20px;
+            padding: 12px 10px;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
-            font-size: 1rem;
+            font-size: 0.9rem;
             text-align: center;
-            width: 100%;
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .file-btn:hover, .file-btn:active {
@@ -186,11 +191,14 @@
             background: rgba(52, 152, 219, 0.7);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 10px 15px;
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s;
             font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .subtitle-btn:hover, .subtitle-btn:active {
@@ -211,6 +219,7 @@
             color: #ddd;
             font-size: 0.8rem;
             padding: 0 10px;
+            width: 100%;
         }
         
         .hidden {
@@ -272,7 +281,7 @@
         
         .anki-controls {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 15px;
         }
         
@@ -280,12 +289,16 @@
             background: rgba(155, 89, 182, 0.7);
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 10px 12px;
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s;
             font-size: 0.9rem;
             flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
         }
         
         .anki-btn:hover, .anki-btn:active {
@@ -337,71 +350,6 @@
             font-size: 0.9rem;
         }
         
-        .audio-clip-section {
-            margin-bottom: 10px;
-        }
-        
-        .audio-clip-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .clip-time-display {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
-        
-        .clip-time {
-            font-size: 0.9rem;
-            color: #bbb;
-        }
-        
-        .clip-btn {
-            background: rgba(241, 196, 15, 0.7);
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.8rem;
-        }
-        
-        .clip-btn:hover, .clip-btn:active {
-            background: rgba(241, 196, 15, 1);
-        }
-        
-        .clip-btn:disabled {
-            background: rgba(149, 165, 166, 0.7);
-            cursor: not-allowed;
-        }
-        
-        .clip-status {
-            text-align: center;
-            font-size: 0.9rem;
-            margin-top: 10px;
-            min-height: 20px;
-        }
-        
-        .custom-definition {
-            margin-top: 15px;
-        }
-        
-        .custom-definition textarea {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 0.9rem;
-            resize: vertical;
-            min-height: 80px;
-        }
-        
         /* 播放器中的跳转控件 */
         .jump-controls-in-player {
             display: flex;
@@ -411,6 +359,8 @@
             padding: 8px 10px;
             background: rgba(0, 0, 0, 0.3);
             border-radius: 5px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
         
         .jump-time-in-player {
@@ -421,13 +371,16 @@
         .jump-buttons-in-player {
             display: flex;
             gap: 5px;
+            flex-wrap: wrap;
         }
         
         /* 时间跳转栏 */
         .time-input-container {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-top: 10px;
+            width: 100%;
+            justify-content: center;
         }
         
         .time-input {
@@ -438,18 +391,21 @@
             background: rgba(255, 255, 255, 0.1);
             color: white;
             font-size: 0.9rem;
-            max-width: 150px;
+            max-width: 120px;
         }
         
         .time-jump-btn {
             background: rgba(52, 152, 219, 0.7);
             color: white;
             border: none;
-            padding: 8px 15px;
+            padding: 8px 12px;
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s;
             font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         /* 底部弹出面板 */
@@ -691,20 +647,57 @@
             background: rgba(52, 152, 219, 0.4);
         }
         
-        /* GitHub链接 */
+        /* GitHub链接样式 */
         .github-link {
             margin-top: 15px;
             text-align: center;
         }
         
         .github-link a {
-            color: #3498db;
-            text-decoration: none;
-            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            transition: color 0.3s, transform 0.3s;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
         }
         
         .github-link a:hover {
-            text-decoration: underline;
+            color: #3498db;
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .github-link svg {
+            width: 24px;
+            height: 24px;
+        }
+        
+        /* 图标按钮样式 */
+        .icon-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(52, 152, 219, 0.7);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .icon-btn:hover, .icon-btn:active {
+            background: rgba(52, 152, 219, 1);
+        }
+        
+        .icon-btn svg {
+            width: 16px;
+            height: 16px;
         }
         
         /* 移动设备横屏适配 */
@@ -764,6 +757,7 @@
             .time-input-container {
                 margin-top: 0;
                 margin-left: 10px;
+                width: auto;
             }
             
             .auto-config-row {
@@ -817,7 +811,7 @@
         }
         
         /* 小屏幕手机适配 */
-        @media (max-width: 360px) {
+        @media (max-width: 767px) {
             .container {
                 padding: 15px;
             }
@@ -842,8 +836,49 @@
             }
             
             .subtitle-btn {
-                padding: 8px 15px;
+                padding: 8px 12px;
                 font-size: 0.9rem;
+            }
+            
+            .file-btn {
+                padding: 10px 8px;
+                font-size: 0.8rem;
+            }
+            
+            .anki-btn {
+                padding: 8px 10px;
+                font-size: 0.8rem;
+            }
+            
+            .jump-controls-in-player {
+                flex-direction: column;
+            }
+            
+            .time-input-container {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .time-input {
+                max-width: 100px;
+            }
+        }
+        
+        /* 超小屏幕手机适配 */
+        @media (max-width: 360px) {
+            .file-btn {
+                padding: 8px 6px;
+                font-size: 0.75rem;
+            }
+            
+            .anki-btn {
+                padding: 8px 6px;
+                font-size: 0.75rem;
+            }
+            
+            .subtitle-btn {
+                padding: 6px 8px;
+                font-size: 0.8rem;
             }
         }
     </style>
@@ -928,9 +963,21 @@
                 
                 <div class="jump-controls-in-player">
                     <div class="jump-buttons-in-player">
-                        <button class="subtitle-btn" id="prev-sentence-btn">上一句</button>
-                        <button class="subtitle-btn" id="next-sentence-btn">下一句</button>
-                        <button class="subtitle-btn" id="show-subtitle-list-btn">全部字幕</button>
+                        <button class="icon-btn" id="prev-sentence-btn" title="上一句">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                            </svg>
+                        </button>
+                        <button class="icon-btn" id="next-sentence-btn" title="下一句">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                            </svg>
+                        </button>
+                        <button class="icon-btn" id="show-subtitle-list-btn" title="全部字幕">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M4 6h16v2H4zm0 4h16v2H4zm0 4h16v2H4zm0 4h16v2H4z"/>
+                            </svg>
+                        </button>
                     </div>
                     <div class="time-input-container">
                         <input type="number" class="time-input" id="time-jump-input" placeholder="时间(秒)" step="0.1" min="0">
@@ -952,6 +999,13 @@
             <p class="hint">提示：直接点击字幕中的单词，该单词会自动查询并显示释义</p>
         </section>
         
+        <div class="github-link">
+            <a href="https://github.com/FantasyzeroXYZ/test-html" target="_blank" title="查看项目源码">
+                <svg width="32" height="32" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+            </a>
+        </div>
     </div>
     
     <!-- 底部弹出面板 -->

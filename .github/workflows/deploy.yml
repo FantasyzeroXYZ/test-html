@@ -1,17 +1,29 @@
-name: Deploy static site to Pages
+name: Deploy static site to GitHub Pages
 
 on:
   push:
-    branches: [ main ]   # 或者 master，取决于你的默认分支
-  workflow_dispatch:
+    branches: [ main ]   # 当 main 分支有推送时自动部署
+  workflow_dispatch:      # 也可以手动触发部署
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload site files
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: .  # 当前目录（含 HTML 文件）
-      - uses: actions/deploy-pages@v4
+          path: .   # 上传当前目录下所有静态文件（HTML、CSS、JS）
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4

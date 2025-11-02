@@ -416,12 +416,13 @@
             background: rgba(231, 76, 60, 0.7);
             color: white;
             border: none;
-            padding: 8px 15px;
+            padding: 12px 20px;
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s;
-            font-size: 0.9rem;
-            margin-top: 10px;
+            font-size: 1rem;
+            margin-top: 15px;
+            width: 100%;
         }
         
         .add-to-anki-btn:hover, .add-to-anki-btn:active {
@@ -809,7 +810,7 @@
             <div class="subtitle-controls">
                 <button class="subtitle-btn" id="toggle-subtitle-btn">显示/隐藏字幕</button>
             </div>
-            <p class="hint">提示：直接点击字幕中的单词，该单词会自动填入查询框并显示释义</p>
+            <p class="hint">提示：直接点击字幕中的单词，该单词会自动查询并显示释义</p>
         </section>
         
         <section class="dictionary-section">
@@ -964,6 +965,8 @@
         let currentHighlightedWord = null;
         let currentWord = '';
         let currentSentence = '';
+        let currentSubtitleStart = 0;
+        let currentSubtitleEnd = 0;
         let currentAudioClip = null;
         let clipStartTime = 0;
         let clipEndTime = 0;
@@ -1112,6 +1115,10 @@
             );
             
             if (currentSubtitle) {
+                // 记录当前字幕的时间轴
+                currentSubtitleStart = currentSubtitle.start;
+                currentSubtitleEnd = currentSubtitle.end;
+                
                 // 改进的字幕文本转换，修复句末单词无法点击的问题
                 // 使用更复杂的正则表达式匹配单词，包括句末单词
                 const text = currentSubtitle.text;
@@ -1159,6 +1166,9 @@
                         // 记录当前单词和句子
                         currentWord = word;
                         currentSentence = currentSubtitle.text;
+                        
+                        // 自动截取当前字幕时间轴的音频
+                        autoClipCurrentSubtitle();
                     });
                 });
                 
@@ -1166,6 +1176,31 @@
             } else {
                 subtitleText.style.opacity = '0.5';
             }
+        }
+
+        // 自动截取当前字幕时间轴的音频
+        function autoClipCurrentSubtitle() {
+            if (currentSubtitleStart >= currentSubtitleEnd) {
+                console.log('字幕时间轴无效');
+                return;
+            }
+            
+            // 使用当前字幕的时间轴
+            clipStartTime = currentSubtitleStart;
+            clipEndTime = currentSubtitleEnd;
+            
+            // 更新显示
+            startTimeDisplayPlayer.textContent = clipStartTime.toFixed(2);
+            endTimeDisplayPlayer.textContent = clipEndTime.toFixed(2);
+            
+            // 模拟截取音频
+            currentAudioClip = {
+                start: clipStartTime,
+                end: clipEndTime,
+                data: `audio_clip_${Date.now()}.mp3`
+            };
+            
+            clipStatusPlayer.textContent = `已自动截取当前字幕音频 (${clipStartTime.toFixed(2)}s - ${clipEndTime.toFixed(2)}s)`;
         }
 
         // 使用Free Dictionary API查询单词
@@ -1182,6 +1217,8 @@
             if (showPanel) {
                 panelDictionaryResult.innerHTML = '<div class="loading">查询中...</div>';
                 panelWordTitle.textContent = `查询: ${word}`;
+                // 显示底部面板
+                openDictionaryPanel();
             } else {
                 dictionaryResult.innerHTML = '<div class="loading">查询中...</div>';
             }

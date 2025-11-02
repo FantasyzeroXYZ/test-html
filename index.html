@@ -568,21 +568,14 @@
             background: rgba(231, 76, 60, 1);
         }
         
-        /* 原句显示区域 - 添加句子预览按钮 */
-        .original-sentence-container {
-            display: flex;
-            align-items: center;
+        /* 原句显示区域 */
+        .original-sentence {
             margin-bottom: 15px;
             padding: 12px;
             background: rgba(0, 0, 0, 0.3);
             border-radius: 5px;
             line-height: 1.5;
             font-size: 1rem;
-            gap: 10px;
-        }
-        
-        .original-sentence {
-            flex: 1;
         }
         
         .sentence-word {
@@ -592,26 +585,6 @@
         
         .sentence-word:hover, .sentence-word:active {
             background-color: rgba(52, 152, 219, 0.2);
-        }
-        
-        .sentence-audio-btn {
-            background: rgba(52, 152, 219, 0.7);
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-        
-        .sentence-audio-btn:hover, .sentence-audio-btn:active {
-            background: rgba(52, 152, 219, 1);
         }
         
         /* 修复：词典结果样式 - 固定高度并只允许释义栏滚动 */
@@ -820,24 +793,6 @@
             height: 16px;
         }
         
-        /* 音频预览部分 */
-        .audio-preview {
-            margin-top: 15px;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 5px;
-        }
-        
-        .audio-preview-title {
-            font-size: 0.9rem;
-            margin-bottom: 8px;
-            color: #ddd;
-        }
-        
-        .audio-preview-player {
-            width: 100%;
-        }
-        
         /* 移动设备横屏适配 */
         @media (min-width: 768px) {
             .container {
@@ -1009,17 +964,6 @@
             .panel-search-container {
                 margin-bottom: 10px;
             }
-            
-            /* 移动端原句和按钮布局 */
-            .original-sentence-container {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .sentence-audio-btn {
-                align-self: flex-end;
-                margin-top: 8px;
-            }
         }
         
         /* 超小屏幕手机适配 */
@@ -1183,20 +1127,8 @@
             <button class="panel-anki-btn" id="panel-add-to-anki-btn">+ Anki</button>
         </div>
         
-        <!-- 原句显示区域 - 添加句子预览按钮 -->
-        <div class="original-sentence-container">
-            <div class="original-sentence" id="original-sentence">
-                原句将显示在这里...
-            </div>
-            <button class="sentence-audio-btn" id="sentence-audio-btn">播放句子</button>
-        </div>
-        
-        <!-- 音频预览 -->
-        <div class="audio-preview">
-            <div class="audio-preview-title">当前句子音频预览:</div>
-            <audio class="audio-preview-player" id="audio-preview-player" controls>
-                <!-- 音频片段将动态设置 -->
-            </audio>
+        <div class="original-sentence" id="original-sentence">
+            原句将显示在这里...
         </div>
         
         <!-- 标签页导航 -->
@@ -1297,10 +1229,8 @@
         const panelSearchInput = document.getElementById('panel-search-input');
         const panelSearchBtn = document.getElementById('panel-search-btn');
         const originalSentence = document.getElementById('original-sentence');
-        const audioPreviewPlayer = document.getElementById('audio-preview-player');
         
         // 新增元素
-        const sentenceAudioBtn = document.getElementById('sentence-audio-btn');
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabPanes = document.querySelectorAll('.tab-pane');
         
@@ -1319,8 +1249,6 @@
         let ankiDecks = [];
         let ankiModels = [];
         let currentModelFields = [];
-        let currentAudioClip = null; // 存储当前音频片段的URL
-        let currentAudioBlob = null; // 存储当前音频片段的Blob对象
         let activeTab = 'dictionary-tab'; // 当前激活的标签页
 
         // 文件选择事件处理
@@ -1589,130 +1517,7 @@
                     
                     // 更新原句显示
                     updateOriginalSentence(currentSentence, word);
-                    
-                    // 生成当前句子的音频片段
-                    generateAudioClip(currentSubtitleIndex);
                 }
-            }
-        }
-
-        // 生成当前句子的音频片段
-        function generateAudioClip(subtitleIndex) {
-            if (!audioBuffer || !audioContext) {
-                console.log('音频未加载，无法生成音频片段');
-                return;
-            }
-            
-            const subtitle = subtitles[subtitleIndex];
-            const startTime = Math.max(0, subtitle.start);
-            const endTime = Math.min(audioBuffer.duration, subtitle.end);
-            
-            // 计算开始和结束的样本位置
-            const startOffset = Math.floor(startTime * audioBuffer.sampleRate);
-            const endOffset = Math.floor(endTime * audioBuffer.sampleRate);
-            const length = endOffset - startOffset;
-            
-            if (length <= 0) {
-                console.log('无效的音频片段长度');
-                return;
-            }
-            
-            // 创建新的音频缓冲区
-            const newBuffer = audioContext.createBuffer(
-                audioBuffer.numberOfChannels,
-                length,
-                audioBuffer.sampleRate
-            );
-            
-            // 复制音频数据
-            for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
-                const channelData = audioBuffer.getChannelData(channel);
-                const newChannelData = newBuffer.getChannelData(channel);
-                
-                for (let i = 0; i < length; i++) {
-                    newChannelData[i] = channelData[startOffset + i];
-                }
-            }
-            
-            // 将音频缓冲区转换为WAV格式
-            const wavBlob = bufferToWav(newBuffer);
-            
-            // 创建音频URL
-            if (currentAudioClip) {
-                URL.revokeObjectURL(currentAudioClip);
-            }
-            currentAudioClip = URL.createObjectURL(wavBlob);
-            currentAudioBlob = wavBlob; // 保存Blob对象
-            
-            // 设置预览播放器
-            audioPreviewPlayer.src = currentAudioClip;
-            audioPreviewPlayer.load();
-            
-            console.log('音频片段已生成');
-        }
-        
-        // 将AudioBuffer转换为WAV Blob
-        function bufferToWav(buffer) {
-            const numChannels = buffer.numberOfChannels;
-            const sampleRate = buffer.sampleRate;
-            const length = buffer.length;
-            const bytesPerSample = 2;
-            const blockAlign = numChannels * bytesPerSample;
-            
-            // 计算数据大小
-            const dataSize = length * blockAlign;
-            
-            // 创建WAV文件头
-            const bufferArray = new ArrayBuffer(44 + dataSize);
-            const view = new DataView(bufferArray);
-            
-            // RIFF标识
-            writeString(view, 0, 'RIFF');
-            // 文件长度
-            view.setUint32(4, 36 + dataSize, true);
-            // WAVE标识
-            writeString(view, 8, 'WAVE');
-            // fmt chunk
-            writeString(view, 12, 'fmt ');
-            // fmt chunk长度
-            view.setUint32(16, 16, true);
-            // 音频格式 (1 = PCM)
-            view.setUint16(20, 1, true);
-            // 声道数
-            view.setUint16(22, numChannels, true);
-            // 采样率
-            view.setUint32(24, sampleRate, true);
-            // 字节率
-            view.setUint32(28, sampleRate * blockAlign, true);
-            // 块对齐
-            view.setUint16(32, blockAlign, true);
-            // 位深度
-            view.setUint16(34, bytesPerSample * 8, true);
-            // data chunk
-            writeString(view, 36, 'data');
-            // data chunk长度
-            view.setUint32(40, dataSize, true);
-            
-            // 写入PCM数据
-            const offset = 44;
-            let index = 0;
-            
-            for (let i = 0; i < length; i++) {
-                for (let channel = 0; channel < numChannels; channel++) {
-                    const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
-                    const int16Sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
-                    view.setInt16(offset + index, int16Sample, true);
-                    index += 2;
-                }
-            }
-            
-            return new Blob([bufferArray], { type: 'audio/wav' });
-        }
-        
-        // 写入字符串到DataView
-        function writeString(view, offset, string) {
-            for (let i = 0; i < string.length; i++) {
-                view.setUint8(offset + i, string.charCodeAt(i));
             }
         }
 
@@ -2188,11 +1993,14 @@
                 tags: ['audio-player']
             };
             
-            // 如果有音频片段，上传到Anki
-            if (currentAudioBlob) {
+            // 在添加Anki时生成音频片段
+            if (audioBuffer && audioContext && currentSubtitleIndex >= 0) {
                 try {
+                    // 生成音频片段
+                    const audioBlob = await generateAudioClip(currentSubtitleIndex);
+                    
                     // 将音频Blob转换为base64
-                    const base64Audio = await blobToBase64(currentAudioBlob);
+                    const base64Audio = await blobToBase64(audioBlob);
                     
                     // 存储音频文件到Anki
                     const audioFileName = `audio_${word}_${Date.now()}.wav`;
@@ -2261,6 +2069,118 @@
             }
         });
         
+        // 生成当前句子的音频片段
+        function generateAudioClip(subtitleIndex) {
+            return new Promise((resolve, reject) => {
+                if (!audioBuffer || !audioContext) {
+                    reject(new Error('音频未加载，无法生成音频片段'));
+                    return;
+                }
+                
+                const subtitle = subtitles[subtitleIndex];
+                const startTime = Math.max(0, subtitle.start);
+                const endTime = Math.min(audioBuffer.duration, subtitle.end);
+                
+                // 计算开始和结束的样本位置
+                const startOffset = Math.floor(startTime * audioBuffer.sampleRate);
+                const endOffset = Math.floor(endTime * audioBuffer.sampleRate);
+                const length = endOffset - startOffset;
+                
+                if (length <= 0) {
+                    reject(new Error('无效的音频片段长度'));
+                    return;
+                }
+                
+                // 创建新的音频缓冲区
+                const newBuffer = audioContext.createBuffer(
+                    audioBuffer.numberOfChannels,
+                    length,
+                    audioBuffer.sampleRate
+                );
+                
+                // 复制音频数据
+                for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
+                    const channelData = audioBuffer.getChannelData(channel);
+                    const newChannelData = newBuffer.getChannelData(channel);
+                    
+                    for (let i = 0; i < length; i++) {
+                        newChannelData[i] = channelData[startOffset + i];
+                    }
+                }
+                
+                // 将音频缓冲区转换为WAV格式
+                const wavBlob = bufferToWav(newBuffer);
+                
+                console.log('音频片段已生成');
+                resolve(wavBlob);
+            });
+        }
+        
+        // 将AudioBuffer转换为WAV Blob
+        function bufferToWav(buffer) {
+            const numChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const length = buffer.length;
+            const bytesPerSample = 2;
+            const blockAlign = numChannels * bytesPerSample;
+            
+            // 计算数据大小
+            const dataSize = length * blockAlign;
+            
+            // 创建WAV文件头
+            const bufferArray = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(bufferArray);
+            
+            // RIFF标识
+            writeString(view, 0, 'RIFF');
+            // 文件长度
+            view.setUint32(4, 36 + dataSize, true);
+            // WAVE标识
+            writeString(view, 8, 'WAVE');
+            // fmt chunk
+            writeString(view, 12, 'fmt ');
+            // fmt chunk长度
+            view.setUint32(16, 16, true);
+            // 音频格式 (1 = PCM)
+            view.setUint16(20, 1, true);
+            // 声道数
+            view.setUint16(22, numChannels, true);
+            // 采样率
+            view.setUint32(24, sampleRate, true);
+            // 字节率
+            view.setUint32(28, sampleRate * blockAlign, true);
+            // 块对齐
+            view.setUint16(32, blockAlign, true);
+            // 位深度
+            view.setUint16(34, bytesPerSample * 8, true);
+            // data chunk
+            writeString(view, 36, 'data');
+            // data chunk长度
+            view.setUint32(40, dataSize, true);
+            
+            // 写入PCM数据
+            const offset = 44;
+            let index = 0;
+            
+            for (let i = 0; i < length; i++) {
+                for (let channel = 0; channel < numChannels; channel++) {
+                    const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
+                    const int16Sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+                    view.setInt16(offset + index, int16Sample, true);
+                    index += 2;
+                }
+            }
+            
+            return new Blob([bufferArray], { type: 'audio/wav' });
+        }
+        
+        // 写入字符串到DataView
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+        
         // 将Blob转换为Base64
         function blobToBase64(blob) {
             return new Promise((resolve, reject) => {
@@ -2323,15 +2243,6 @@
                 // 更新当前激活的标签页
                 activeTab = tabId;
             });
-        });
-        
-        // 新增：句子预览按钮功能
-        sentenceAudioBtn.addEventListener('click', () => {
-            if (audioPreviewPlayer.src) {
-                audioPreviewPlayer.play();
-            } else {
-                alert('当前没有可播放的句子音频片段');
-            }
         });
         
         // 监听播放器时间更新

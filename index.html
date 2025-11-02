@@ -2016,8 +2016,8 @@
         definitionFieldSelect.addEventListener('change', saveConfig);
         audioFieldSelect.addEventListener('change', saveConfig);
         
-        // 添加到Anki - 使用统一的addNote方法
-        addToAnkiBtn.addEventListener('click', async () => {
+        // 修复：简化Anki添加流程，移除异步等待
+        addToAnkiBtn.addEventListener('click', () => {
             if (isProcessingAnki) return;
             
             if (!ankiConnected) {
@@ -2053,92 +2053,80 @@
                 return;
             }
             
+            // 防止重复点击
+            isProcessingAnki = true;
+            addToAnkiBtn.disabled = true;
+            
             // 立即关闭面板并恢复播放
             closeDictionaryPanel();
             
-            // 防止重复点击
-            isProcessingAnki = true;
-            addToAnkiBtn.disabled = true;
-            
-            try {
-                // 后台处理音频和添加卡片
-                await processAnkiCard(word, definition);
-            } catch (error) {
-                console.error('Anki处理错误:', error);
-            } finally {
-                // 重置处理状态
-                isProcessingAnki = false;
-                addToAnkiBtn.disabled = false;
-                
-                // 重置表单
-                customDefinitionInput.value = '';
-                panelSearchInput.value = '';
-                panelDictionaryResult.innerHTML = '查询结果将显示在这里...';
-            }
+            // 使用setTimeout避免阻塞UI
+            setTimeout(() => {
+                processAnkiCard(word, definition)
+                    .then(() => {
+                        console.log('卡片添加成功');
+                    })
+                    .catch(error => {
+                        console.error('添加卡片失败:', error);
+                        alert('添加卡片失败: ' + error.message);
+                    })
+                    .finally(() => {
+                        // 重置处理状态
+                        isProcessingAnki = false;
+                        addToAnkiBtn.disabled = false;
+                        
+                        // 重置表单
+                        customDefinitionInput.value = '';
+                        panelSearchInput.value = '';
+                        panelDictionaryResult.innerHTML = '查询结果将显示在这里...';
+                    });
+            }, 100);
         });
         
-        // 处理Anki卡片的后台函数 - 先存储文件，再添加卡片
+        // 修复：简化Anki卡片处理流程
         async function processAnkiCard(word, definition) {
-            if (!ankiConnected) {
-                alert('请先连接Anki!');
-                return;
-            }
+            // 准备Anki卡片数据
+            const note = {
+                deckName: deckSelect.value,
+                modelName: modelSelect.value,
+                fields: {
+                    [wordFieldSelect.value]: word,
+                    [sentenceFieldSelect.value]: currentSentence,
+                    [definitionFieldSelect.value]: definition
+                },
+                options: {
+                    allowDuplicate: false
+                },
+                tags: ['audio-player']
+            };
             
-            if (!word.trim()) {
-                alert('请输入要添加的单词!');
-                return;
-            }
-            
-            // 防止重复点击
-            if (isProcessingAnki) return;
-            isProcessingAnki = true;
-            addToAnkiBtn.disabled = true;
-            
-            try {
-                let audioFileName = '';
-                
-                // 1. 首先处理音频文件（如果存在）
-                if (audioBuffer && audioContext && currentSubtitleIndex >= 0) {
-                    audioFileName = await processAudioFile(word);
+            // 如果有音频，先处理音频
+            if (audioBuffer && audioContext && currentSubtitleIndex >= 0) {
+                try {
+                    const audioFileName = await processAudioFile(word);
+                    if (audioFileName) {
+                        note.fields[audioFieldSelect.value] = `[sound:${audioFileName}]`;
+                    }
+                } catch (error) {
+                    console.error('音频处理失败:', error);
+                    // 即使音频处理失败，仍然继续添加卡片
                 }
-                
-                // 2. 然后添加卡片到Anki
-                await addCardToAnki(word, definition, audioFileName);
-                
-                alert('卡片已成功添加到Anki!');
-                
-            } catch (error) {
-                console.error('Anki处理错误:', error);
-                alert('添加卡片失败: ' + error.message);
-            } finally {
-                // 重置处理状态
-                isProcessingAnki = false;
-                addToAnkiBtn.disabled = false;
-                
-                // 关闭面板
-                closeDictionaryPanel();
-                
-                // 重置表单
-                customDefinitionInput.value = '';
-                panelSearchInput.value = '';
-                panelDictionaryResult.innerHTML = '查询结果将显示在这里...';
             }
+            
+            // 添加卡片到Anki
+            await addCardToAnki(note);
         }
 
-        // 单独处理音频文件存储
+        // 修复：简化音频文件处理
         async function processAudioFile(word) {
             try {
                 // 生成音频片段
                 const audioBlob = await generateAudioClip(currentSubtitleIndex);
                 
-                // 生成文件名
-                const cleanWord = word
-                    .replace(/[^a-z]/gi, '')
-                    .toLowerCase()
-                    .substring(0, 8);
-                
-                const randomSuffix = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-                const audioFileName = `${cleanWord}${randomSuffix}.wav`;
+                // 生成简单的文件名
+                const cleanWord = word.replace(/[^a-z]/gi, '').toLowerCase().substring(0, 8);
+                const timestamp = Date.now().toString().slice(-6);
+                const audioFileName = `audio_${cleanWord}_${timestamp}.wav`;
                 
                 console.log('准备存储音频文件:', audioFileName);
                 
@@ -2165,80 +2153,19 @@
                 
                 if (storeResult.error) {
                     console.error('存储音频文件失败:', storeResult.error);
-                    throw new Error('音频文件存储失败: ' + storeResult.error);
-                } else {
-                    console.log('音频文件存储成功:', audioFileName);
-                    
-                    // 验证文件是否真的存储成功
-                    await verifyFileStored(audioFileName);
-                    
-                    return audioFileName;
+                    return null;
                 }
+                
+                console.log('音频文件存储成功:', audioFileName);
+                return audioFileName;
             } catch (error) {
                 console.error('音频处理错误:', error);
-                throw error; // 重新抛出错误，让调用者处理
+                return null;
             }
         }
 
-        // 验证文件是否成功存储
-        async function verifyFileStored(filename) {
-            try {
-                // 等待一小段时间让文件存储完成
-                await new Promise(resolve => setTimeout(resolve, 300));
-                
-                const response = await fetch('http://127.0.0.1:8765', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        action: 'getMediaFilesNames',
-                        version: 6,
-                        params: {
-                            pattern: filename
-                        }
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.result && result.result.includes(filename)) {
-                    console.log('✓ 文件验证成功:', filename);
-                    return true;
-                } else {
-                    console.log('✗ 文件验证失败，未找到文件:', filename);
-                    return false;
-                }
-            } catch (error) {
-                console.error('文件验证错误:', error);
-                return false;
-            }
-        }
-
-        // 添加卡片到Anki
-        async function addCardToAnki(word, definition, audioFileName) {
-            // 准备Anki卡片数据
-            const note = {
-                deckName: deckSelect.value,
-                modelName: modelSelect.value,
-                fields: {
-                    [wordFieldSelect.value]: word,
-                    [sentenceFieldSelect.value]: currentSentence,
-                    [definitionFieldSelect.value]: definition
-                },
-                options: {
-                    allowDuplicate: false
-                },
-                tags: ['audio-player']
-            };
-            
-            // 如果有音频文件，添加到字段中
-            if (audioFileName) {
-                note.fields[audioFieldSelect.value] = `[sound:${audioFileName}]`;
-                console.log('在卡片中引用音频文件:', audioFileName);
-            }
-            
-            // 添加卡片到Anki
+        // 修复：简化添加卡片到Anki
+        async function addCardToAnki(note) {
             const response = await fetch('http://127.0.0.1:8765', {
                 method: 'POST',
                 headers: {
@@ -2260,77 +2187,8 @@
             }
             
             console.log('卡片添加成功，卡片ID:', result.result);
-            return result.result;
-        }
-
-        // 使用指定文件名处理音频和添加卡片
-        async function processWithFileName(audioFileName, audioBlob, note) {
-            try {
-                // 将音频Blob转换为base64
-                const base64Audio = await blobToBase64(audioBlob);
-                
-                // 存储音频文件到Anki
-                const storeAudioResponse = await fetch('http://127.0.0.1:8765', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        action: 'storeMediaFile',
-                        version: 6,
-                        params: {
-                            filename: audioFileName,
-                            data: base64Audio.split(',')[1]
-                        }
-                    })
-                });
-                
-                const storeResult = await storeAudioResponse.json();
-                
-                if (storeResult.error) {
-                    console.error('存储音频文件失败:', storeResult.error);
-                    // 即使音频存储失败，仍然继续添加卡片
-                } else {
-                    // 设置音频字段为文件名 - 确保完全一致
-                    const fieldValue = `[sound:${audioFileName}]`;
-                    note.fields[audioFieldSelect.value] = fieldValue;
-                    console.log('音频文件已存储，字段引用设置为:', fieldValue);
-                }
-                
-                // 添加卡片到Anki
-                return await addNoteToAnki(note);
-                
-            } catch (error) {
-                console.error('处理音频文件错误:', error);
-                return await addNoteToAnki(note);
-            }
-        }
-
-        // 添加卡片到Anki的通用函数
-        async function addNoteToAnki(note) {
-            const response = await fetch('http://127.0.0.1:8765', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    action: 'addNote',
-                    version: 6,
-                    params: {
-                        note: note
-                    }
-                })
-            });
-            
-            const result = await response.json();
-            
-            if (result.error) {
-                throw new Error(result.error);
-            }
-            
-            console.log('卡片已成功添加到Anki!');
             alert('卡片已成功添加到Anki!');
-            return result;
+            return result.result;
         }
 
         // 生成当前句子的音频片段

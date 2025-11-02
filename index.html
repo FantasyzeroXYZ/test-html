@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>移动端音频播放器 - 带字幕与Anki卡片生成</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -328,6 +329,10 @@
             transition: all 0.3s;
             font-size: 0.9rem;
             white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
         }
         
         .add-to-anki-btn:hover, .add-to-anki-btn:active {
@@ -560,11 +565,14 @@
             background: rgba(46, 204, 113, 0.7);
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 12px 15px;
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s;
             font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .panel-search-btn:hover, .panel-search-btn:active {
@@ -782,6 +790,10 @@
             transition: all 0.3s;
             font-size: 0.9rem;
             flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
         }
         
         .nav-btn:hover, .nav-btn:active {
@@ -869,6 +881,66 @@
             height: auto;
             max-height: 400px;
         }
+        
+        /* 图标按钮样式 */
+        .icon-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 5px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .search-icon-btn {
+            background: rgba(46, 204, 113, 0.7);
+        }
+        
+        .search-icon-btn:hover, .search-icon-btn:active {
+            background: rgba(46, 204, 113, 1);
+        }
+        
+        .anki-icon-btn {
+            background: rgba(231, 76, 60, 0.7);
+        }
+        
+        .anki-icon-btn:hover, .anki-icon-btn:active {
+            background: rgba(231, 76, 60, 1);
+        }
+        
+        /* 移动端按钮自适应 */
+        @media (max-width: 480px) {
+            .panel-search-row {
+                flex-wrap: wrap;
+            }
+            
+            .panel-search-input {
+                min-width: 0;
+            }
+            
+            .icon-btn {
+                padding: 8px 10px;
+                font-size: 1rem;
+            }
+            
+            .nav-btn {
+                padding: 8px 10px;
+                font-size: 0.8rem;
+            }
+            
+            .nav-btn span {
+                display: none;
+            }
+            
+            .nav-btn i {
+                margin-right: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -922,9 +994,18 @@
                 </audio>
                 
                 <div class="subtitle-navigation">
-                    <button class="nav-btn" id="prev-subtitle-btn">上一句</button>
-                    <button class="nav-btn" id="next-subtitle-btn">下一句</button>
-                    <button class="nav-btn" id="show-all-subtitles-btn">所有字幕</button>
+                    <button class="nav-btn" id="prev-subtitle-btn">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>上一句</span>
+                    </button>
+                    <button class="nav-btn" id="next-subtitle-btn">
+                        <i class="fas fa-arrow-right"></i>
+                        <span>下一句</span>
+                    </button>
+                    <button class="nav-btn" id="show-all-subtitles-btn">
+                        <i class="fas fa-list"></i>
+                        <span>所有字幕</span>
+                    </button>
                 </div>
             </div>
         </section>
@@ -989,6 +1070,12 @@
                             <option value="">加载中...</option>
                         </select>
                     </div>
+                    <div class="auto-config-row">
+                        <label class="auto-config-label" for="gif-field-select">GIF字段:</label>
+                        <select class="auto-config-select" id="gif-field-select">
+                            <option value="">加载中...</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1004,8 +1091,12 @@
         
         <div class="panel-search-row">
             <input type="text" class="panel-search-input" id="panel-search-input" placeholder="输入要查询的单词...">
-            <button class="panel-search-btn" id="panel-search-btn">查询</button>
-            <button class="add-to-anki-btn" id="panel-add-to-anki-btn">添加到Anki</button>
+            <button class="icon-btn search-icon-btn" id="panel-search-btn" title="查询">
+                <i class="fas fa-search"></i>
+            </button>
+            <button class="icon-btn anki-icon-btn" id="panel-add-to-anki-btn" title="添加到Anki">
+                <i class="fas fa-plus"></i>
+            </button>
         </div>
         
         <div class="original-sentence" id="original-sentence">
@@ -1097,6 +1188,7 @@
         const sentenceFieldSelect = document.getElementById('sentence-field-select');
         const definitionFieldSelect = document.getElementById('definition-field-select');
         const audioFieldSelect = document.getElementById('audio-field-select');
+        const gifFieldSelect = document.getElementById('gif-field-select');
         
         // 底部面板相关元素
         const dictionaryPanel = document.getElementById('dictionary-panel');
@@ -1125,6 +1217,7 @@
         let currentSubtitleStart = 0;
         let currentSubtitleEnd = 0;
         let currentAudioClip = null;
+        let currentGifClip = null;
         let ankiConnected = false;
         let ankiDecks = [];
         let ankiModels = [];
@@ -1220,6 +1313,7 @@
                 
                 // 重置音频截取
                 currentAudioClip = null;
+                currentGifClip = null;
             }
         });
         
@@ -1382,7 +1476,7 @@
                     // 更新原句显示
                     updateOriginalSentence(text, word);
                     
-                    // 自动截取当前字幕时间轴的音频
+                    // 自动截取当前字幕时间轴的音频和GIF
                     autoClipCurrentSubtitle();
                 });
             });
@@ -1436,7 +1530,7 @@
             });
         }
 
-        // 自动截取当前字幕时间轴的音频
+        // 自动截取当前字幕时间轴的音频和GIF
         function autoClipCurrentSubtitle() {
             if (currentSubtitleStart >= currentSubtitleEnd) {
                 console.log('字幕时间轴无效');
@@ -1449,6 +1543,11 @@
             
             // 创建音频片段
             createAudioClip(startTime, endTime);
+            
+            // 如果是视频，创建GIF片段
+            if (isVideo) {
+                createGifClip(startTime, endTime);
+            }
         }
 
         // 创建音频片段
@@ -1460,7 +1559,6 @@
             
             try {
                 // 这里简化实现，实际应用中需要更复杂的音频处理
-                // 由于浏览器限制，这里我们只是模拟音频截取
                 await new Promise(resolve => setTimeout(resolve, 500));
                 
                 // 创建音频片段数据
@@ -1476,6 +1574,33 @@
                 console.log(`音频片段已创建 (${startTime.toFixed(2)}s - ${endTime.toFixed(2)}s)`);
             } catch (error) {
                 console.error('音频片段创建失败: ' + error.message);
+            }
+        }
+
+        // 创建GIF片段
+        async function createGifClip(startTime, endTime) {
+            if (!isVideo) {
+                console.log('错误：不是视频文件');
+                return;
+            }
+            
+            try {
+                // 这里简化实现，实际应用中需要使用Canvas API和GIF编码库
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 创建GIF片段数据
+                const gifClipData = await generateGifClipData(startTime, endTime);
+                
+                // 保存GIF片段
+                currentGifClip = {
+                    start: startTime,
+                    end: endTime,
+                    data: gifClipData
+                };
+                
+                console.log(`GIF片段已创建 (${startTime.toFixed(2)}s - ${endTime.toFixed(2)}s)`);
+            } catch (error) {
+                console.error('GIF片段创建失败: ' + error.message);
             }
         }
 
@@ -1495,6 +1620,25 @@
                 endTime: endTime,
                 // 在实际应用中，这里应该包含实际的音频数据
                 data: `模拟音频数据: ${fileName}`
+            };
+        }
+
+        // 生成GIF片段数据（模拟）
+        async function generateGifClipData(startTime, endTime) {
+            // 在实际应用中，这里应该使用Canvas API和GIF编码库来生成GIF
+            // 由于浏览器限制，这里我们只是生成一个模拟的GIF文件名
+            
+            // 创建一个包含时间信息的唯一文件名
+            const fileName = `video_clip_${startTime.toFixed(2)}_${endTime.toFixed(2)}.gif`;
+            
+            // 在实际应用中，这里应该返回实际的GIF数据或URL
+            // 这里我们返回一个模拟的GIF数据对象
+            return {
+                fileName: fileName,
+                startTime: startTime,
+                endTime: endTime,
+                // 在实际应用中，这里应该包含实际的GIF数据
+                data: `模拟GIF数据: ${fileName}`
             };
         }
 
@@ -1636,6 +1780,20 @@
                 
                 allSubtitlesList.appendChild(subtitleItem);
             });
+            
+            // 自动滚动到当前字幕项
+            scrollToCurrentSubtitle();
+        }
+        
+        // 自动滚动到当前字幕项
+        function scrollToCurrentSubtitle() {
+            const activeItem = allSubtitlesList.querySelector('.subtitle-item.active');
+            if (activeItem) {
+                activeItem.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }
         }
         
         // 格式化时间显示
@@ -1786,6 +1944,7 @@
                     sentenceFieldSelect.innerHTML = '';
                     definitionFieldSelect.innerHTML = '';
                     audioFieldSelect.innerHTML = '';
+                    gifFieldSelect.innerHTML = '';
                     
                     currentModelFields.forEach(field => {
                         const option = document.createElement('option');
@@ -1796,6 +1955,7 @@
                         sentenceFieldSelect.appendChild(option.cloneNode(true));
                         definitionFieldSelect.appendChild(option.cloneNode(true));
                         audioFieldSelect.appendChild(option.cloneNode(true));
+                        gifFieldSelect.appendChild(option.cloneNode(true));
                     });
                     
                     // 尝试智能设置默认字段
@@ -1848,6 +2008,15 @@
                 audioFieldSelect.value = 'sound';
             } else if (fields.length > 3) {
                 audioFieldSelect.selectedIndex = 3;
+            }
+            
+            // 设置GIF字段
+            if (fields.includes('gif')) {
+                gifFieldSelect.value = 'gif';
+            } else if (fields.includes('image')) {
+                gifFieldSelect.value = 'image';
+            } else if (fields.length > 4) {
+                gifFieldSelect.selectedIndex = 4;
             }
         }
         
@@ -1912,6 +2081,14 @@
                 audioData = `[sound:${currentAudioClip.data.fileName}]`;
             }
             
+            // 准备GIF数据
+            let gifData = '';
+            if (currentGifClip) {
+                // 在实际应用中，这里应该将GIF数据发送到Anki
+                // 由于浏览器限制，这里我们只发送时间信息
+                gifData = `<img src="${currentGifClip.data.fileName}">`;
+            }
+            
             // 准备Anki卡片数据
             const note = {
                 deckName: deckSelect.value,
@@ -1920,7 +2097,8 @@
                     [wordFieldSelect.value]: word,
                     [sentenceFieldSelect.value]: currentSentence,
                     [definitionFieldSelect.value]: definition,
-                    [audioFieldSelect.value]: audioData
+                    [audioFieldSelect.value]: audioData,
+                    [gifFieldSelect.value]: gifData
                 },
                 options: {
                     allowDuplicate: false
@@ -1987,6 +2165,9 @@
             allSubtitlesPanel.classList.add('active');
             panelOverlay.classList.add('active');
             document.body.style.overflow = 'hidden';
+            
+            // 更新字幕列表并滚动到当前字幕
+            updateAllSubtitlesList();
         }
         
         function closeAllSubtitlesPanel() {

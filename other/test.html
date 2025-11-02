@@ -220,103 +220,6 @@
             background: rgba(52, 152, 219, 1);
         }
         
-        .dictionary-section {
-            margin-bottom: 20px;
-        }
-        
-        .dictionary-container {
-            background: rgba(30, 30, 40, 0.9);
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        .dictionary-header {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .dictionary-input {
-            flex-grow: 1;
-            padding: 12px 15px;
-            border: none;
-            border-radius: 5px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 1rem;
-        }
-        
-        .dictionary-btn {
-            background: rgba(46, 204, 113, 0.7);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 1rem;
-        }
-        
-        .dictionary-btn:hover, .dictionary-btn:active {
-            background: rgba(46, 204, 113, 1);
-        }
-        
-        .dictionary-result {
-            margin-top: 15px;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 5px;
-            min-height: 100px;
-            line-height: 1.6;
-            max-height: 300px;
-            overflow-y: auto;
-            font-size: 0.95rem;
-        }
-        
-        .word-header {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .word-title {
-            font-size: 1.3rem;
-            font-weight: bold;
-            margin-right: 15px;
-        }
-        
-        .phonetic {
-            color: #3498db;
-            font-style: italic;
-        }
-        
-        .meaning-section {
-            margin-bottom: 15px;
-        }
-        
-        .part-of-speech {
-            font-weight: bold;
-            color: #2ecc71;
-            margin-bottom: 5px;
-        }
-        
-        .definition {
-            margin-left: 15px;
-            margin-bottom: 5px;
-        }
-        
-        .example {
-            margin-left: 15px;
-            font-style: italic;
-            color: #ddd;
-            margin-bottom: 8px;
-        }
-        
         .hint {
             text-align: center;
             color: #bbb;
@@ -634,6 +537,112 @@
             font-size: 0.9rem;
         }
         
+        /* 词典面板中的搜索框 */
+        .panel-search {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .panel-search-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .panel-search-btn {
+            background: rgba(46, 204, 113, 0.7);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .panel-search-btn:hover, .panel-search-btn:active {
+            background: rgba(46, 204, 113, 1);
+        }
+        
+        /* 原句显示区域 */
+        .original-sentence {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            line-height: 1.5;
+            font-size: 1rem;
+        }
+        
+        .sentence-word {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .sentence-word:hover, .sentence-word:active {
+            background-color: rgba(52, 152, 219, 0.2);
+        }
+        
+        /* 词典结果样式 */
+        .dictionary-result {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            min-height: 100px;
+            line-height: 1.6;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 0.95rem;
+        }
+        
+        .word-header {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .word-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        
+        .phonetic {
+            color: #3498db;
+            font-style: italic;
+        }
+        
+        .meaning-section {
+            margin-bottom: 15px;
+        }
+        
+        .part-of-speech {
+            font-weight: bold;
+            color: #2ecc71;
+            margin-bottom: 5px;
+        }
+        
+        .definition {
+            margin-left: 15px;
+            margin-bottom: 5px;
+        }
+        
+        .example {
+            margin-left: 15px;
+            font-style: italic;
+            color: #ddd;
+            margin-bottom: 8px;
+        }
+        
         /* 移动设备横屏适配 */
         @media (min-width: 768px) {
             .container {
@@ -653,10 +662,6 @@
             }
             
             .file-info {
-                flex-direction: row;
-            }
-            
-            .dictionary-header {
                 flex-direction: row;
             }
             
@@ -828,18 +833,6 @@
             <p class="hint">提示：直接点击字幕中的单词，该单词会自动查询并显示释义</p>
         </section>
         
-        <section class="dictionary-section">
-            <div class="dictionary-container">
-                <div class="dictionary-header">
-                    <input type="text" class="dictionary-input" id="dictionary-input" placeholder="输入要查询的单词...">
-                    <button class="dictionary-btn" id="dictionary-btn">查询词汇</button>
-                </div>
-                <div class="dictionary-result" id="dictionary-result">
-                    查询结果将显示在这里...
-                </div>
-            </div>
-        </section>
-        
         <section class="anki-section">
             <div class="anki-container">
                 <div class="anki-status">
@@ -899,9 +892,20 @@
             <div class="panel-title" id="panel-word-title">单词查询</div>
             <button class="close-panel" id="close-panel">×</button>
         </div>
+        
+        <div class="panel-search">
+            <input type="text" class="panel-search-input" id="panel-search-input" placeholder="输入要查询的单词...">
+            <button class="panel-search-btn" id="panel-search-btn">查询</button>
+        </div>
+        
+        <div class="original-sentence" id="original-sentence">
+            原句将显示在这里...
+        </div>
+        
         <div class="dictionary-result" id="panel-dictionary-result">
             查询结果将显示在这里...
         </div>
+        
         <div class="custom-definition">
             <textarea id="panel-custom-definition-input" placeholder="如果查词没有返回内容或者想自定义释义内容，请在此输入..."></textarea>
         </div>
@@ -936,9 +940,6 @@
         const trackTitle = document.getElementById('track-title');
         const trackDescription = document.getElementById('track-description');
         const subtitleText = document.getElementById('subtitle-text');
-        const dictionaryInput = document.getElementById('dictionary-input');
-        const dictionaryBtn = document.getElementById('dictionary-btn');
-        const dictionaryResult = document.getElementById('dictionary-result');
         const toggleSubtitleBtn = document.getElementById('toggle-subtitle-btn');
         const subtitleDisplay = document.getElementById('subtitle-display');
         
@@ -973,6 +974,9 @@
         const closePanelBtn = document.getElementById('close-panel');
         const panelDictionaryResult = document.getElementById('panel-dictionary-result');
         const panelWordTitle = document.getElementById('panel-word-title');
+        const panelSearchInput = document.getElementById('panel-search-input');
+        const panelSearchBtn = document.getElementById('panel-search-btn');
+        const originalSentence = document.getElementById('original-sentence');
         
         // 状态变量
         let subtitles = [];
@@ -990,6 +994,9 @@
         let ankiModels = [];
         let currentModelFields = [];
         let audioFile = null;
+        let playerWasPlaying = false;
+        let audioContext = null;
+        let audioBuffer = null;
 
         // 文件选择事件处理
         audioFileBtn.addEventListener('click', () => {
@@ -1001,7 +1008,7 @@
         });
         
         // 音频/视频文件选择处理
-        audioFileInput.addEventListener('change', function(e) {
+        audioFileInput.addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (file) {
                 audioFile = file;
@@ -1045,8 +1052,30 @@
                 clipAudioBtnPlayer.disabled = true;
                 clipStatusPlayer.textContent = '';
                 currentAudioClip = null;
+                
+                // 加载音频文件到Web Audio API
+                await loadAudioBuffer(file);
             }
         });
+        
+        // 加载音频文件到Web Audio API
+        async function loadAudioBuffer(file) {
+            try {
+                // 创建AudioContext
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                // 读取文件
+                const arrayBuffer = await file.arrayBuffer();
+                audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                
+                console.log('音频文件已加载到Web Audio API');
+            } catch (error) {
+                console.error('加载音频文件失败:', error);
+                clipStatusPlayer.textContent = '音频文件加载失败，无法截取音频';
+            }
+        }
         
         // 字幕文件选择处理
         subtitleFileInput.addEventListener('change', function(e) {
@@ -1165,13 +1194,13 @@
                 document.querySelectorAll('.word').forEach(wordElem => {
                     wordElem.addEventListener('click', function() {
                         const word = this.getAttribute('data-word');
-                        dictionaryInput.value = word;
                         
                         // 点击单词时暂停播放
+                        playerWasPlaying = !player.paused;
                         player.pause();
                         
                         // 查询单词并显示底部面板
-                        searchWord(word, true);
+                        searchWordInPanel(word);
                         
                         // 高亮显示选中的单词
                         if (currentHighlightedWord) {
@@ -1184,6 +1213,9 @@
                         currentWord = word;
                         currentSentence = currentSubtitle.text;
                         
+                        // 更新原句显示
+                        updateOriginalSentence(currentSubtitle.text, word);
+                        
                         // 自动截取当前字幕时间轴的音频
                         autoClipCurrentSubtitle();
                     });
@@ -1193,6 +1225,49 @@
             } else {
                 subtitleText.style.opacity = '0.5';
             }
+        }
+
+        // 更新原句显示，使单词可点击
+        function updateOriginalSentence(sentence, currentWord) {
+            // 使用正则表达式匹配单词，包括带有标点符号的单词
+            const wordRegex = /[a-zA-Z]+(?:['’][a-zA-Z]+)*/g;
+            let lastIndex = 0;
+            let clickableSentence = '';
+            
+            let match;
+            while ((match = wordRegex.exec(sentence)) !== null) {
+                // 添加匹配前的非单词部分
+                clickableSentence += sentence.substring(lastIndex, match.index);
+                
+                // 添加可点击的单词，当前单词高亮显示
+                const wordClass = match[0].toLowerCase() === currentWord.toLowerCase() ? 'sentence-word highlight' : 'sentence-word';
+                clickableSentence += `<span class="${wordClass}" data-word="${match[0]}">${match[0]}</span>`;
+                
+                lastIndex = match.index + match[0].length;
+            }
+            
+            // 添加剩余的非单词部分
+            clickableSentence += sentence.substring(lastIndex);
+            
+            originalSentence.innerHTML = clickableSentence;
+            
+            // 为原句中的单词添加点击事件
+            document.querySelectorAll('.sentence-word').forEach(wordElem => {
+                wordElem.addEventListener('click', function() {
+                    const word = this.getAttribute('data-word');
+                    panelSearchInput.value = word;
+                    searchWordInPanel(word);
+                    
+                    // 高亮显示选中的单词
+                    document.querySelectorAll('.sentence-word').forEach(w => {
+                        w.classList.remove('highlight');
+                    });
+                    this.classList.add('highlight');
+                    
+                    // 更新当前单词
+                    currentWord = word;
+                });
+            });
         }
 
         // 自动截取当前字幕时间轴的音频
@@ -1216,20 +1291,21 @@
 
         // 创建音频片段
         async function createAudioClip(startTime, endTime) {
-            if (!audioFile) {
-                clipStatusPlayer.textContent = '错误：没有音频文件';
+            if (!audioFile || !audioBuffer) {
+                clipStatusPlayer.textContent = '错误：没有音频文件或音频未加载完成';
+                return;
+            }
+            
+            if (startTime >= endTime) {
+                clipStatusPlayer.textContent = '错误：开始时间必须小于结束时间';
                 return;
             }
             
             clipStatusPlayer.textContent = '正在创建音频片段...';
             
             try {
-                // 这里简化实现，实际应用中需要更复杂的音频处理
-                // 由于浏览器限制，这里我们只是模拟音频截取
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-                // 创建音频片段数据
-                const audioClipData = await generateAudioClipData(startTime, endTime);
+                // 实际截取音频片段
+                const audioClipData = await extractAudioClip(startTime, endTime);
                 
                 // 保存音频片段
                 currentAudioClip = {
@@ -1245,44 +1321,109 @@
             }
         }
 
-        // 生成音频片段数据（模拟）
-        async function generateAudioClipData(startTime, endTime) {
-            // 在实际应用中，这里应该使用Web Audio API或其他库来截取音频
-            // 由于浏览器限制，这里我们只是生成一个模拟的音频文件名
-            
-            // 创建一个包含时间信息的唯一文件名
-            const fileName = `audio_clip_${startTime.toFixed(2)}_${endTime.toFixed(2)}.mp3`;
-            
-            // 在实际应用中，这里应该返回实际的音频数据或URL
-            // 这里我们返回一个模拟的音频数据对象
-            return {
-                fileName: fileName,
-                startTime: startTime,
-                endTime: endTime,
-                // 在实际应用中，这里应该包含实际的音频数据
-                data: `模拟音频数据: ${fileName}`
-            };
+        // 实际截取音频片段
+        async function extractAudioClip(startTime, endTime) {
+            return new Promise((resolve, reject) => {
+                try {
+                    // 计算样本位置
+                    const startOffset = Math.floor(startTime * audioBuffer.sampleRate);
+                    const endOffset = Math.floor(endTime * audioBuffer.sampleRate);
+                    const frameCount = endOffset - startOffset;
+                    
+                    // 创建新的AudioBuffer
+                    const newBuffer = audioContext.createBuffer(
+                        audioBuffer.numberOfChannels,
+                        frameCount,
+                        audioBuffer.sampleRate
+                    );
+                    
+                    // 复制音频数据
+                    for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
+                        const channelData = audioBuffer.getChannelData(channel);
+                        const newChannelData = newBuffer.getChannelData(channel);
+                        
+                        for (let i = 0; i < frameCount; i++) {
+                            newChannelData[i] = channelData[startOffset + i];
+                        }
+                    }
+                    
+                    // 将AudioBuffer转换为Blob
+                    const audioData = audioBufferToWav(newBuffer);
+                    const blob = new Blob([audioData], { type: 'audio/wav' });
+                    
+                    // 创建文件名
+                    const fileName = `audio_clip_${startTime.toFixed(2)}_${endTime.toFixed(2)}.wav`;
+                    
+                    // 返回音频片段数据
+                    resolve({
+                        fileName: fileName,
+                        startTime: startTime,
+                        endTime: endTime,
+                        blob: blob,
+                        url: URL.createObjectURL(blob)
+                    });
+                } catch (error) {
+                    reject(error);
+                }
+            });
         }
 
-        // 使用Free Dictionary API查询单词
-        async function searchWord(word, showPanel = false) {
-            if (!word.trim()) {
-                if (showPanel) {
-                    panelDictionaryResult.innerHTML = '<div class="error">请输入要查询的单词</div>';
-                } else {
-                    dictionaryResult.innerHTML = '<div class="error">请输入要查询的单词</div>';
+        // 将AudioBuffer转换为WAV格式
+        function audioBufferToWav(buffer) {
+            const numberOfChannels = buffer.numberOfChannels;
+            const length = buffer.length * numberOfChannels * 2 + 44;
+            const sampleRate = buffer.sampleRate;
+            const arrayBuffer = new ArrayBuffer(length);
+            const view = new DataView(arrayBuffer);
+            
+            // WAV文件头
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, length - 8, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numberOfChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * numberOfChannels * 2, true);
+            view.setUint16(32, numberOfChannels * 2, true);
+            view.setUint16(34, 16, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, buffer.length * numberOfChannels * 2, true);
+            
+            // 写入音频数据
+            let offset = 44;
+            for (let i = 0; i < buffer.length; i++) {
+                for (let channel = 0; channel < numberOfChannels; channel++) {
+                    const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
+                    view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+                    offset += 2;
                 }
+            }
+            
+            return arrayBuffer;
+        }
+
+        // 辅助函数：写入字符串到DataView
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+
+        // 在面板中查询单词
+        async function searchWordInPanel(word) {
+            if (!word.trim()) {
+                panelDictionaryResult.innerHTML = '<div class="error">请输入要查询的单词</div>';
                 return;
             }
             
-            if (showPanel) {
-                panelDictionaryResult.innerHTML = '<div class="loading">查询中...</div>';
-                panelWordTitle.textContent = `查询: ${word}`;
-                // 显示底部面板
-                openDictionaryPanel();
-            } else {
-                dictionaryResult.innerHTML = '<div class="loading">查询中...</div>';
-            }
+            // 确保面板已打开
+            openDictionaryPanel();
+            
+            panelDictionaryResult.innerHTML = '<div class="loading">查询中...</div>';
+            panelWordTitle.textContent = `查询: ${word}`;
+            panelSearchInput.value = word;
             
             try {
                 const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
@@ -1296,66 +1437,11 @@
                 }
                 
                 const data = await response.json();
-                if (showPanel) {
-                    displayWordDataInPanel(data[0]);
-                } else {
-                    displayWordData(data[0]);
-                }
+                displayWordDataInPanel(data[0]);
             } catch (error) {
-                if (showPanel) {
-                    panelDictionaryResult.innerHTML = `<div class="error">${error.message}</div>`;
-                } else {
-                    dictionaryResult.innerHTML = `<div class="error">${error.message}</div>`;
-                }
+                panelDictionaryResult.innerHTML = `<div class="error">${error.message}</div>`;
                 console.error('查询错误:', error);
             }
-        }
-        
-        // 显示单词数据在主界面
-        function displayWordData(wordData) {
-            let html = '';
-            
-            // 单词标题和音标
-            html += `<div class="word-header">`;
-            html += `<div class="word-title">${wordData.word}</div>`;
-            
-            if (wordData.phonetic) {
-                html += `<div class="phonetic">${wordData.phonetic}</div>`;
-            } else if (wordData.phonetics && wordData.phonetics.length > 0) {
-                const phonetic = wordData.phonetics.find(p => p.text) || wordData.phonetics[0];
-                if (phonetic && phonetic.text) {
-                    html += `<div class="phonetic">${phonetic.text}</div>`;
-                }
-            }
-            
-            html += `</div>`;
-            
-            // 词义解释
-            if (wordData.meanings && wordData.meanings.length > 0) {
-                wordData.meanings.forEach(meaning => {
-                    html += `<div class="meaning-section">`;
-                    html += `<div class="part-of-speech">${meaning.partOfSpeech}</div>`;
-                    
-                    if (meaning.definitions && meaning.definitions.length > 0) {
-                        meaning.definitions.forEach((def, index) => {
-                            if (index < 3) { // 只显示前三个定义
-                                html += `<div class="definition">${index + 1}. ${def.definition}</div>`;
-                                if (def.example) {
-                                    html += `<div class="example">例句: "${def.example}"</div>`;
-                                }
-                            }
-                        });
-                    }
-                    
-                    html += `</div>`;
-                });
-            } else {
-                html += `<div class="meaning-section">`;
-                html += `<div class="definition">未找到该单词的详细释义。</div>`;
-                html += `</div>`;
-            }
-            
-            dictionaryResult.innerHTML = html;
         }
         
         // 显示单词数据在底部面板
@@ -1404,20 +1490,6 @@
             
             panelDictionaryResult.innerHTML = html;
         }
-        
-        // 查询按钮事件
-        dictionaryBtn.addEventListener('click', () => {
-            const word = dictionaryInput.value.trim();
-            searchWord(word);
-        });
-        
-        // 输入框回车事件
-        dictionaryInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const word = dictionaryInput.value.trim();
-                searchWord(word);
-            }
-        });
         
         // 显示/隐藏字幕
         toggleSubtitleBtn.addEventListener('click', () => {
@@ -1685,7 +1757,7 @@
                 return;
             }
             
-            const word = dictionaryInput.value.trim();
+            const word = panelSearchInput.value.trim();
             if (!word) {
                 alert('请输入要添加的单词!');
                 return;
@@ -1714,9 +1786,22 @@
             // 准备音频数据
             let audioData = '';
             if (currentAudioClip) {
-                // 在实际应用中，这里应该将音频数据发送到Anki
-                // 由于浏览器限制，这里我们只发送时间信息
-                audioData = `[sound:${currentAudioClip.data.fileName}]`;
+                try {
+                    // 将音频片段发送到Anki
+                    const audioResult = await storeAudioFileInAnki(
+                        currentAudioClip.data.fileName,
+                        currentAudioClip.data.blob
+                    );
+                    
+                    if (audioResult && audioResult.result) {
+                        audioData = `[sound:${currentAudioClip.data.fileName}]`;
+                    } else {
+                        throw new Error('音频文件上传失败');
+                    }
+                } catch (error) {
+                    console.error('音频文件上传失败:', error);
+                    alert('音频文件上传失败，但卡片仍会添加（不包含音频）');
+                }
             }
             
             // 准备Anki卡片数据
@@ -1763,14 +1848,48 @@
                 
                 // 重置表单
                 customDefinitionInput.value = '';
-                dictionaryInput.value = '';
-                dictionaryResult.innerHTML = '查询结果将显示在这里...';
+                panelSearchInput.value = '';
+                panelDictionaryResult.innerHTML = '查询结果将显示在这里...';
                 
             } catch (error) {
                 alert('添加卡片失败: ' + error.message);
                 console.error('Anki添加卡片错误:', error);
             }
         });
+        
+        // 将音频文件存储到Anki
+        async function storeAudioFileInAnki(filename, blob) {
+            // 将Blob转换为base64
+            const base64Data = await blobToBase64(blob);
+            
+            // 发送到AnkiConnect
+            const response = await fetch('http://127.0.0.1:8765', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'storeMediaFile',
+                    version: 6,
+                    params: {
+                        filename: filename,
+                        data: base64Data.split(',')[1] // 移除data:audio/wav;base64,前缀
+                    }
+                })
+            });
+            
+            return await response.json();
+        }
+        
+        // 将Blob转换为base64
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
         
         // 底部面板功能
         function openDictionaryPanel() {
@@ -1783,10 +1902,28 @@
             dictionaryPanel.classList.remove('active');
             panelOverlay.classList.remove('active');
             document.body.style.overflow = '';
+            
+            // 恢复播放
+            if (playerWasPlaying && player.paused) {
+                player.play();
+            }
         }
         
         closePanelBtn.addEventListener('click', closeDictionaryPanel);
         panelOverlay.addEventListener('click', closeDictionaryPanel);
+        
+        // 面板搜索功能
+        panelSearchBtn.addEventListener('click', () => {
+            const word = panelSearchInput.value.trim();
+            searchWordInPanel(word);
+        });
+        
+        panelSearchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const word = panelSearchInput.value.trim();
+                searchWordInPanel(word);
+            }
+        });
         
         // 监听播放器时间更新
         player.on('timeupdate', event => {

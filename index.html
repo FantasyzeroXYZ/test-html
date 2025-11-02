@@ -6,6 +6,7 @@
     <title>英语学习音频播放器</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <style>
+        /* 样式保持不变，与之前相同 */
         * {
             margin: 0;
             padding: 0;
@@ -567,14 +568,21 @@
             background: rgba(231, 76, 60, 1);
         }
         
-        /* 原句显示区域 */
-        .original-sentence {
+        /* 原句显示区域 - 添加句子预览按钮 */
+        .original-sentence-container {
+            display: flex;
+            align-items: center;
             margin-bottom: 15px;
             padding: 12px;
             background: rgba(0, 0, 0, 0.3);
             border-radius: 5px;
             line-height: 1.5;
             font-size: 1rem;
+            gap: 10px;
+        }
+        
+        .original-sentence {
+            flex: 1;
         }
         
         .sentence-word {
@@ -584,6 +592,26 @@
         
         .sentence-word:hover, .sentence-word:active {
             background-color: rgba(52, 152, 219, 0.2);
+        }
+        
+        .sentence-audio-btn {
+            background: rgba(52, 152, 219, 0.7);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .sentence-audio-btn:hover, .sentence-audio-btn:active {
+            background: rgba(52, 152, 219, 1);
         }
         
         /* 修复：词典结果样式 - 固定高度并只允许释义栏滚动 */
@@ -639,6 +667,45 @@
             font-style: italic;
             color: #ddd;
             margin-bottom: 8px;
+        }
+        
+        /* 标签页样式 */
+        .dictionary-tabs {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 15px;
+        }
+        
+        .tab-button {
+            background: transparent;
+            color: #bbb;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 2px solid transparent;
+            font-size: 0.95rem;
+        }
+        
+        .tab-button.active {
+            color: #3498db;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .tab-button:hover {
+            color: #3498db;
+        }
+        
+        .tab-content {
+            position: relative;
+        }
+        
+        .tab-pane {
+            display: none;
+        }
+        
+        .tab-pane.active {
+            display: block;
         }
         
         /* 修复：自定义释义框 */
@@ -751,6 +818,24 @@
         .icon-btn svg {
             width: 16px;
             height: 16px;
+        }
+        
+        /* 音频预览部分 */
+        .audio-preview {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        
+        .audio-preview-title {
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: #ddd;
+        }
+        
+        .audio-preview-player {
+            width: 100%;
         }
         
         /* 移动设备横屏适配 */
@@ -924,6 +1009,17 @@
             .panel-search-container {
                 margin-bottom: 10px;
             }
+            
+            /* 移动端原句和按钮布局 */
+            .original-sentence-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .sentence-audio-btn {
+                align-self: flex-end;
+                margin-top: 8px;
+            }
         }
         
         /* 超小屏幕手机适配 */
@@ -1087,17 +1183,40 @@
             <button class="panel-anki-btn" id="panel-add-to-anki-btn">+ Anki</button>
         </div>
         
-        <div class="original-sentence" id="original-sentence">
-            原句将显示在这里...
+        <!-- 原句显示区域 - 添加句子预览按钮 -->
+        <div class="original-sentence-container">
+            <div class="original-sentence" id="original-sentence">
+                原句将显示在这里...
+            </div>
+            <button class="sentence-audio-btn" id="sentence-audio-btn">播放句子</button>
         </div>
         
-        <div class="dictionary-result" id="panel-dictionary-result">
-            查询结果将显示在这里...
+        <!-- 音频预览 -->
+        <div class="audio-preview">
+            <div class="audio-preview-title">当前句子音频预览:</div>
+            <audio class="audio-preview-player" id="audio-preview-player" controls>
+                <!-- 音频片段将动态设置 -->
+            </audio>
         </div>
         
-        <!-- 修复：自定义释义框 -->
-        <div class="custom-definition">
-            <textarea id="panel-custom-definition-input" placeholder="如果查词没有返回内容或者想自定义释义内容，请在此输入..."></textarea>
+        <!-- 标签页导航 -->
+        <div class="dictionary-tabs">
+            <button class="tab-button active" data-tab="dictionary-tab">词典释义</button>
+            <button class="tab-button" data-tab="custom-tab">自定义释义</button>
+        </div>
+        
+        <!-- 标签页内容 -->
+        <div class="tab-content">
+            <div id="dictionary-tab" class="tab-pane active">
+                <div class="dictionary-result" id="panel-dictionary-result">
+                    查询结果将显示在这里...
+                </div>
+            </div>
+            <div id="custom-tab" class="tab-pane">
+                <div class="custom-definition">
+                    <textarea id="panel-custom-definition-input" placeholder="如果查词没有返回内容或者想自定义释义内容，请在此输入..."></textarea>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -1178,6 +1297,12 @@
         const panelSearchInput = document.getElementById('panel-search-input');
         const panelSearchBtn = document.getElementById('panel-search-btn');
         const originalSentence = document.getElementById('original-sentence');
+        const audioPreviewPlayer = document.getElementById('audio-preview-player');
+        
+        // 新增元素
+        const sentenceAudioBtn = document.getElementById('sentence-audio-btn');
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabPanes = document.querySelectorAll('.tab-pane');
         
         // 状态变量
         let subtitles = [];
@@ -1195,6 +1320,8 @@
         let ankiModels = [];
         let currentModelFields = [];
         let currentAudioClip = null; // 存储当前音频片段的URL
+        let currentAudioBlob = null; // 存储当前音频片段的Blob对象
+        let activeTab = 'dictionary-tab'; // 当前激活的标签页
 
         // 文件选择事件处理
         audioFileBtn.addEventListener('click', () => {
@@ -1477,13 +1604,18 @@
             }
             
             const subtitle = subtitles[subtitleIndex];
-            const startTime = subtitle.start;
-            const endTime = subtitle.end;
+            const startTime = Math.max(0, subtitle.start);
+            const endTime = Math.min(audioBuffer.duration, subtitle.end);
             
             // 计算开始和结束的样本位置
             const startOffset = Math.floor(startTime * audioBuffer.sampleRate);
             const endOffset = Math.floor(endTime * audioBuffer.sampleRate);
             const length = endOffset - startOffset;
+            
+            if (length <= 0) {
+                console.log('无效的音频片段长度');
+                return;
+            }
             
             // 创建新的音频缓冲区
             const newBuffer = audioContext.createBuffer(
@@ -1510,6 +1642,11 @@
                 URL.revokeObjectURL(currentAudioClip);
             }
             currentAudioClip = URL.createObjectURL(wavBlob);
+            currentAudioBlob = wavBlob; // 保存Blob对象
+            
+            // 设置预览播放器
+            audioPreviewPlayer.src = currentAudioClip;
+            audioPreviewPlayer.load();
             
             console.log('音频片段已生成');
         }
@@ -1519,36 +1656,15 @@
             const numChannels = buffer.numberOfChannels;
             const sampleRate = buffer.sampleRate;
             const length = buffer.length;
+            const bytesPerSample = 2;
+            const blockAlign = numChannels * bytesPerSample;
+            
+            // 计算数据大小
+            const dataSize = length * blockAlign;
             
             // 创建WAV文件头
-            const wavHeader = createWavHeader(numChannels, sampleRate, 16, length);
-            
-            // 合并头部和音频数据
-            const interleaved = interleave(buffer);
-            const wavBytes = new Uint8Array(wavHeader.length + interleaved.length * 2);
-            
-            // 写入WAV头部
-            wavBytes.set(wavHeader, 0);
-            
-            // 写入PCM数据
-            const dataView = new DataView(wavBytes.buffer, wavHeader.length);
-            let offset = 0;
-            for (let i = 0; i < interleaved.length; i++) {
-                dataView.setInt16(offset, interleaved[i] * 0x7FFF, true);
-                offset += 2;
-            }
-            
-            return new Blob([wavBytes], { type: 'audio/wav' });
-        }
-        
-        // 创建WAV文件头
-        function createWavHeader(numChannels, sampleRate, bitsPerSample, dataLength) {
-            const byteRate = sampleRate * numChannels * bitsPerSample / 8;
-            const blockAlign = numChannels * bitsPerSample / 8;
-            const dataSize = dataLength * numChannels * bitsPerSample / 8;
-            
-            const buffer = new ArrayBuffer(44);
-            const view = new DataView(buffer);
+            const bufferArray = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(bufferArray);
             
             // RIFF标识
             writeString(view, 0, 'RIFF');
@@ -1567,17 +1683,30 @@
             // 采样率
             view.setUint32(24, sampleRate, true);
             // 字节率
-            view.setUint32(28, byteRate, true);
+            view.setUint32(28, sampleRate * blockAlign, true);
             // 块对齐
             view.setUint16(32, blockAlign, true);
             // 位深度
-            view.setUint16(34, bitsPerSample, true);
+            view.setUint16(34, bytesPerSample * 8, true);
             // data chunk
             writeString(view, 36, 'data');
             // data chunk长度
             view.setUint32(40, dataSize, true);
             
-            return new Uint8Array(buffer);
+            // 写入PCM数据
+            const offset = 44;
+            let index = 0;
+            
+            for (let i = 0; i < length; i++) {
+                for (let channel = 0; channel < numChannels; channel++) {
+                    const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
+                    const int16Sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+                    view.setInt16(offset + index, int16Sample, true);
+                    index += 2;
+                }
+            }
+            
+            return new Blob([bufferArray], { type: 'audio/wav' });
         }
         
         // 写入字符串到DataView
@@ -1585,22 +1714,6 @@
             for (let i = 0; i < string.length; i++) {
                 view.setUint8(offset + i, string.charCodeAt(i));
             }
-        }
-        
-        // 交错音频通道
-        function interleave(buffer) {
-            const numChannels = buffer.numberOfChannels;
-            const length = buffer.length;
-            const result = new Float32Array(length * numChannels);
-            
-            for (let channel = 0; channel < numChannels; channel++) {
-                const channelData = buffer.getChannelData(channel);
-                for (let i = 0; i < length; i++) {
-                    result[i * numChannels + channel] = channelData[i];
-                }
-            }
-            
-            return result;
         }
 
         // 更新原句显示，使单词可点击
@@ -2039,17 +2152,19 @@
             
             // 获取词典内容
             let definition = '';
-            const definitionElements = panelDictionaryResult.querySelectorAll('.definition');
-            if (definitionElements.length > 0) {
-                definitionElements.forEach(el => {
-                    definition += el.textContent + '\n';
-                });
-            }
             
-            // 如果用户输入了自定义释义，使用自定义释义
-            const customDefinition = customDefinitionInput.value.trim();
-            if (customDefinition) {
-                definition = customDefinition;
+            // 根据当前激活的标签页获取释义
+            if (activeTab === 'dictionary-tab') {
+                // 从词典释义标签页获取内容
+                const definitionElements = panelDictionaryResult.querySelectorAll('.definition');
+                if (definitionElements.length > 0) {
+                    definitionElements.forEach(el => {
+                        definition += el.textContent + '\n';
+                    });
+                }
+            } else if (activeTab === 'custom-tab') {
+                // 从自定义释义标签页获取内容
+                definition = customDefinitionInput.value.trim();
             }
             
             if (!definition) {
@@ -2074,10 +2189,10 @@
             };
             
             // 如果有音频片段，上传到Anki
-            if (currentAudioClip) {
+            if (currentAudioBlob) {
                 try {
                     // 将音频Blob转换为base64
-                    const base64Audio = await blobToBase64(currentAudioClip);
+                    const base64Audio = await blobToBase64(currentAudioBlob);
                     
                     // 存储音频文件到Anki
                     const audioFileName = `audio_${word}_${Date.now()}.wav`;
@@ -2190,6 +2305,32 @@
             if (e.key === 'Enter') {
                 const word = panelSearchInput.value.trim();
                 searchWordInPanel(word);
+            }
+        });
+        
+        // 新增：标签页切换功能
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.getAttribute('data-tab');
+                
+                // 更新激活的标签页
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabPanes.forEach(pane => pane.classList.remove('active'));
+                
+                button.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+                
+                // 更新当前激活的标签页
+                activeTab = tabId;
+            });
+        });
+        
+        // 新增：句子预览按钮功能
+        sentenceAudioBtn.addEventListener('click', () => {
+            if (audioPreviewPlayer.src) {
+                audioPreviewPlayer.play();
+            } else {
+                alert('当前没有可播放的句子音频片段');
             }
         });
         

@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>英语学习视频播放器</title>
+    <title>外语学习媒体播放器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            -webkit-tap-highlight-color: transparent;
         }
         
         body {
@@ -104,12 +104,142 @@
             border-radius: 8px;
             overflow: hidden;
             position: relative;
+            display: none;
+        }
+        
+        .video-player.active {
+            display: block;
         }
         
         .video-player video {
             width: 100%;
             height: 100%;
             object-fit: contain;
+        }
+        
+        .audio-player {
+            width: 100%;
+            margin-top: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+            display: none;
+        }
+        
+        .audio-player.active {
+            display: block;
+        }
+        
+        .audio-player-container {
+            width: 100%;
+        }
+        
+        .audio-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .audio-progress-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            position: relative;
+        }
+        
+        .audio-time {
+            font-size: 0.8rem;
+            color: #ddd;
+            min-width: 40px;
+        }
+        
+        .audio-progress {
+            flex: 1;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .audio-progress-filled {
+            height: 100%;
+            background: #3498db;
+            width: 0%;
+            transition: width 0.1s;
+        }
+        
+        .progress-thumb {
+            position: absolute;
+            top: 50%;
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        
+        .audio-volume-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+        
+        .audio-volume {
+            flex: 1;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .audio-volume-filled {
+            height: 100%;
+            background: #2ecc71;
+            width: 50%;
+        }
+        
+        .volume-thumb {
+            position: absolute;
+            top: 50%;
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        
+        .audio-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .audio-btn {
+            background: transparent;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .audio-btn.active {
+            color: #3498db;
+            transform: scale(1.1);
         }
         
         .video-subtitles {
@@ -125,6 +255,7 @@
             z-index: 10;
             cursor: text;
             user-select: text;
+            pointer-events: none;
         }
         
         .video-subtitles span {
@@ -135,6 +266,7 @@
             max-width: 90%;
             cursor: text;
             user-select: text;
+            pointer-events: auto;
         }
         
         .video-controls {
@@ -143,6 +275,7 @@
             justify-content: center;
             gap: 10px;
             margin-top: 15px;
+            flex-wrap: wrap;
         }
         
         .control-btn {
@@ -305,10 +438,20 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
+        .anki-status-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
         .anki-status {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
+            flex: 1;
+            min-width: 200px;
         }
         
         .status-indicator {
@@ -329,7 +472,6 @@
         .anki-controls {
             display: flex;
             gap: 8px;
-            margin-bottom: 15px;
         }
         
         .anki-btn {
@@ -341,7 +483,6 @@
             cursor: pointer;
             transition: all 0.3s;
             font-size: 0.9rem;
-            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -820,6 +961,218 @@
             height: 16px;
         }
         
+        /* 媒体类型选择器 */
+        .media-type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+        
+        .media-type-btn {
+            background: rgba(52, 152, 219, 0.3);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .media-type-btn.active {
+            background: rgba(52, 152, 219, 0.9);
+        }
+        
+        /* 语言模式选择器 */
+        .language-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+        
+        .language-btn {
+            background: rgba(155, 89, 182, 0.3);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .language-btn.active {
+            background: rgba(155, 89, 182, 0.9);
+        }
+        
+        /* 全屏样式 */
+        .video-player:-webkit-full-screen {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .video-player:-moz-full-screen {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .video-player:-ms-fullscreen {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .video-player:fullscreen {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .video-player:-webkit-full-screen .video-subtitles {
+            font-size: 1.5rem;
+            bottom: 50px;
+        }
+        
+        .video-player:-moz-full-screen .video-subtitles {
+            font-size: 1.5rem;
+            bottom: 50px;
+        }
+        
+        .video-player:-ms-fullscreen .video-subtitles {
+            font-size: 1.5rem;
+            bottom: 50px;
+        }
+        
+        .video-player:fullscreen .video-subtitles {
+            font-size: 1.5rem;
+            bottom: 50px;
+        }
+        
+        /* 音频滚动字幕样式 */
+        .audio-subtitles {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .audio-subtitles.active {
+            display: block;
+        }
+        
+        .audio-subtitle-item {
+            padding: 8px 10px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        
+        .audio-subtitle-item:hover, .audio-subtitle-item:active {
+            background: rgba(52, 152, 219, 0.2);
+        }
+        
+        .audio-subtitle-item.active {
+            background: rgba(52, 152, 219, 0.4);
+        }
+        
+        /* 追加词汇按钮样式 */
+        .append-word-btn {
+            background: rgba(241, 196, 15, 0.7);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            width: 50px;
+        }
+        
+        .append-word-btn:hover, .append-word-btn:active {
+            background: rgba(241, 196, 15, 1);
+        }
+        
+        /* 顶部按钮布局 */
+        .top-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        
+        .media-mode-btn {
+            background: rgba(52, 152, 219, 0.7);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+        }
+        
+        .media-mode-btn:hover, .media-mode-btn:active {
+            background: rgba(52, 152, 219, 1);
+        }
+        
+        .language-mode-btn {
+            background: rgba(155, 89, 182, 0.7);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+        }
+        
+        .language-mode-btn:hover, .language-mode-btn:active {
+            background: rgba(155, 89, 182, 1);
+        }
+        
+        .import-controls {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+            justify-content: flex-end;
+        }
+        
+        .import-btn {
+            background: rgba(52, 152, 219, 0.7);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+        }
+        
+        .import-btn:hover, .import-btn:active {
+            background: rgba(52, 152, 219, 1);
+        }
+        
         /* 移动设备横屏适配 */
         @media (min-width: 768px) {
             .container {
@@ -989,6 +1342,31 @@
             .panel-anki-btn {
                 width: 50px;
             }
+            
+            /* Anki状态行在移动端的布局 */
+            .anki-status-row {
+                flex-direction: row;
+                align-items: center;
+            }
+            
+            .anki-status {
+                min-width: auto;
+            }
+            
+            .anki-controls {
+                flex: 1;
+                justify-content: flex-end;
+            }
+            
+            /* 顶部按钮布局在移动端的适配 */
+            .top-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .import-controls {
+                justify-content: space-between;
+            }
         }
         
         /* 超小屏幕手机适配 */
@@ -1020,25 +1398,46 @@
 </head>
 <body>
     <header>
-        <h1>英语学习视频播放器</h1>
-        <p class="subtitle">支持视频播放、字幕显示与Anki卡片生成功能</p>
+        <h1>外语学习媒体播放器</h1>
+        <p class="subtitle">支持视频/音频播放、字幕显示与Anki卡片生成功能</p>
     </header>
     
     <div class="container">
         <section class="anki-section">
             <div class="anki-container">
-                <div class="anki-status">
-                    <div class="status-indicator" id="anki-status-indicator"></div>
-                    <span id="anki-status-text">检查Anki连接状态...</span>
+                <div class="anki-status-row">
+                    <div class="anki-status">
+                        <div class="status-indicator" id="anki-status-indicator"></div>
+                        <span id="anki-status-text">检查Anki连接状态...</span>
+                    </div>
+                    <div class="anki-controls">
+                        <button class="anki-btn" id="check-anki-btn">状态</button>
+                        <button class="anki-btn" id="show-config-btn">配置</button>
+                    </div>
                 </div>
-                <div class="file-controls">
-                    <button class="anki-btn" id="check-anki-btn">状态</button>
-                    <button class="anki-btn" id="show-config-btn">配置</button>
-                    <button class="file-btn" id="video-file-btn">视频</button>
-                    <button class="file-btn" id="subtitle-file-btn">字幕</button>
-                    <input type="file" id="video-file-input" accept="video/*" class="hidden">
-                    <input type="file" id="subtitle-file-input" accept=".srt,.vtt,.txt" class="hidden">
+                
+                <!-- 顶部控制按钮 -->
+                <div class="top-controls">
+                    <button class="media-mode-btn" id="media-mode-btn">
+                        <i class="fas fa-video"></i> 视频模式
+                    </button>
+                    <button class="language-mode-btn" id="language-mode-btn">
+                        <i class="fas fa-language"></i> 英语模式
+                    </button>
+                    <div class="import-controls">
+                        <button class="import-btn" id="subtitle-import-btn">
+                            <i class="fas fa-closed-captioning"></i> 字幕
+                        </button>
+                        <button class="import-btn" id="media-import-btn">
+                            <i class="fas fa-file-video"></i> 视频
+                        </button>
+                    </div>
                 </div>
+                
+                <input type="file" id="video-file-input" accept="video/*" class="hidden">
+                <input type="file" id="audio-file-input" accept="audio/*" class="hidden">
+                <input type="file" id="subtitle-file-input" accept=".srt,.vtt,.txt" class="hidden">
+                
                 <div class="auto-config-section hidden" id="auto-config-section">
                     <div class="auto-config-row">
                         <label class="auto-config-label" for="deck-select">牌组:</label>
@@ -1090,15 +1489,15 @@
             <div class="player-container">
                 <div class="audio-info">
                     <div class="album-art">
-                        <i>▶</i>
+                        <i id="media-icon">▶</i>
                     </div>
                     <div class="track-info">
-                        <h2 id="track-title">请选择视频文件</h2>
-                        <p id="track-description">支持 MP4, AVI, MKV, WebM 等格式</p>
+                        <h2 id="track-title">请选择媒体文件</h2>
+                        <p id="track-description">支持 MP4, AVI, MKV, MP3, WAV 等格式</p>
                     </div>
                 </div>
                 
-                <div class="video-player">
+                <div class="video-player" id="video-player">
                     <video id="player" controls>
                         <!-- 视频源将通过JavaScript动态设置 -->
                     </video>
@@ -1107,21 +1506,49 @@
                     </div>
                 </div>
                 
+                <div class="audio-player" id="audio-player">
+                    <div class="audio-player-container">
+                        <div class="audio-controls">
+                            <div class="audio-progress-container">
+                                <span class="audio-time" id="audio-current-time">0:00</span>
+                                <div class="audio-progress" id="audio-progress">
+                                    <div class="audio-progress-filled" id="audio-progress-filled"></div>
+                                    <div class="progress-thumb" id="progress-thumb"></div>
+                                </div>
+                                <span class="audio-time" id="audio-duration">0:00</span>
+                            </div>
+                            <div class="audio-volume-container">
+                                <span>🔊</span>
+                                <div class="audio-volume" id="audio-volume">
+                                    <div class="audio-volume-filled" id="audio-volume-filled"></div>
+                                    <div class="volume-thumb" id="volume-thumb"></div>
+                                </div>
+                            </div>
+                            <div class="audio-buttons">
+                                <button class="audio-btn" id="audio-play-pause-btn">▶</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="audio-subtitles" id="audio-subtitles">
+                        <!-- 音频滚动字幕将动态生成 -->
+                    </div>
+                </div>
+                
                 <div class="video-controls">
                     <button class="control-btn" id="prev-sentence-btn" title="上一句">
-                        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                            <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
-                        </svg>
+                        <i class="fas fa-step-backward"></i>
                     </button>
                     <button class="control-btn" id="next-sentence-btn" title="下一句">
-                        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                            <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
-                        </svg>
+                        <i class="fas fa-step-forward"></i>
+                    </button>
+                    <button class="control-btn" id="toggle-video-subtitles-btn" title="切换视频内字幕">
+                        <i class="fas fa-closed-captioning"></i>
                     </button>
                     <button class="control-btn" id="show-subtitle-list-btn" title="全部字幕">
-                        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                            <path d="M4 6h16v2H4zm0 4h16v2H4zm0 4h16v2H4zm0 4h16v2H4z"/>
-                        </svg>
+                        <i class="fas fa-list"></i>
+                    </button>
+                    <button class="control-btn" id="toggle-audio-subtitles-btn" title="切换音频字幕">
+                        <i class="fas fa-volume-up"></i>
                     </button>
                     <div class="time-input-container">
                         <input type="number" class="time-input" id="time-jump-input" placeholder="时间(秒)" step="0.1" min="0">
@@ -1145,9 +1572,7 @@
         
         <div class="github-link">
             <a href="https://github.com/FantasyzeroXYZ/test-html" target="_blank" title="查看项目源码">
-                <svg width="32" height="32" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87-.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-                </svg>
+                <i class="fab fa-github"></i>
             </a>
         </div>
     </div>
@@ -1164,12 +1589,15 @@
         <div class="panel-search-anki-container">
             <div class="panel-search-container">
                 <input type="text" class="panel-search-input" id="panel-search-input" placeholder="输入要查询的单词...">
-                <button class="panel-search-btn" id="panel-search-btn">🔍</button>
+                <button class="panel-search-btn" id="panel-search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button class="append-word-btn" id="append-word-btn" title="追加词汇">
+                    <i class="fas fa-plus"></i>
+                </button>
             </div>
             <button class="panel-anki-btn" id="panel-add-to-anki-btn" title="添加到Anki">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                </svg>
+                <i class="fas fa-plus-circle"></i>
             </button>
         </div>
         
@@ -1181,6 +1609,7 @@
         <div class="dictionary-tabs">
             <button class="tab-button active" data-tab="dictionary-tab">词典释义</button>
             <button class="tab-button" data-tab="custom-tab">自定义释义</button>
+            <button class="tab-button" data-tab="web-tab">网页查询</button>
         </div>
         
         <!-- 标签页内容 -->
@@ -1193,6 +1622,11 @@
             <div id="custom-tab" class="tab-pane">
                 <div class="custom-definition">
                     <textarea id="panel-custom-definition-input" placeholder="如果查词没有返回内容或者想自定义释义内容，请在此输入..."></textarea>
+                </div>
+            </div>
+            <div id="web-tab" class="tab-pane">
+                <div class="dictionary-result" id="panel-web-result">
+                    <iframe id="web-search-frame" style="width: 100%; height: 300px; border: none;" src="about:blank"></iframe>
                 </div>
             </div>
         </div>
@@ -1211,14 +1645,20 @@
     </div>
     
     <footer>
-        <p>网页视频播放器 - 专为语言学习设计 | 部署于 GitHub Pages</p>
+        <p>网页媒体播放器 - 专为语言学习设计 | 部署于 GitHub Pages</p>
     </footer>
 
+    <!-- 引入MeCab JS库 -->
+    <script src="https://cdn.jsdelivr.net/npm/mecab-wasm@0.1.0-browser/mecab.js"></script>
+    
     <script>
         // 获取DOM元素
-        const videoFileBtn = document.getElementById('video-file-btn');
-        const subtitleFileBtn = document.getElementById('subtitle-file-btn');
+        const mediaModeBtn = document.getElementById('media-mode-btn');
+        const languageModeBtn = document.getElementById('language-mode-btn');
+        const subtitleImportBtn = document.getElementById('subtitle-import-btn');
+        const mediaImportBtn = document.getElementById('media-import-btn');
         const videoFileInput = document.getElementById('video-file-input');
+        const audioFileInput = document.getElementById('audio-file-input');
         const subtitleFileInput = document.getElementById('subtitle-file-input');
         const trackTitle = document.getElementById('track-title');
         const trackDescription = document.getElementById('track-description');
@@ -1227,6 +1667,24 @@
         const subtitleDisplay = document.getElementById('subtitle-display');
         const videoPlayer = document.getElementById('player');
         const videoSubtitles = document.getElementById('video-subtitles');
+        const mediaIcon = document.getElementById('media-icon');
+        
+        // 媒体类型选择
+        const videoPlayerContainer = document.getElementById('video-player');
+        const audioPlayerContainer = document.getElementById('audio-player');
+        
+        // 音频播放器控件
+        const audioCurrentTime = document.getElementById('audio-current-time');
+        const audioDuration = document.getElementById('audio-duration');
+        const audioProgress = document.getElementById('audio-progress');
+        const audioProgressFilled = document.getElementById('audio-progress-filled');
+        const progressThumb = document.getElementById('progress-thumb');
+        const audioVolume = document.getElementById('audio-volume');
+        const audioVolumeFilled = document.getElementById('audio-volume-filled');
+        const volumeThumb = document.getElementById('volume-thumb');
+        const audioPlayPauseBtn = document.getElementById('audio-play-pause-btn');
+        const audioSubtitles = document.getElementById('audio-subtitles');
+        const toggleAudioSubtitlesBtn = document.getElementById('toggle-audio-subtitles-btn');
         
         // Anki相关元素
         const ankiStatusIndicator = document.getElementById('anki-status-indicator');
@@ -1246,6 +1704,7 @@
         const showSubtitleListBtn = document.getElementById('show-subtitle-list-btn');
         const subtitleListPanel = document.getElementById('subtitle-list-panel');
         const closeSubtitleListPanel = document.getElementById('close-subtitle-list-panel');
+        const toggleVideoSubtitlesBtn = document.getElementById('toggle-video-subtitles-btn');
         
         // 自动配置相关元素
         const deckSelect = document.getElementById('deck-select');
@@ -1265,6 +1724,8 @@
         const panelSearchInput = document.getElementById('panel-search-input');
         const panelSearchBtn = document.getElementById('panel-search-btn');
         const originalSentence = document.getElementById('original-sentence');
+        const appendWordBtn = document.getElementById('append-word-btn');
+        const webSearchFrame = document.getElementById('web-search-frame');
         
         // 新增元素
         const tabButtons = document.querySelectorAll('.tab-button');
@@ -1273,11 +1734,15 @@
         // 状态变量
         let subtitles = [];
         let subtitleVisible = true;
+        let videoSubtitlesVisible = true;
+        let audioSubtitlesVisible = false;
         let currentHighlightedWord = null;
         let currentWord = '';
         let currentSentence = '';
         let currentSubtitleIndex = -1;
-        let videoFile = null;
+        let currentMediaFile = null;
+        let currentMediaType = 'video'; // 'video' 或 'audio'
+        let currentLanguageMode = 'english'; // 'english' 或 'japanese'
         let playerWasPlaying = false;
         let ankiConnected = false;
         let ankiDecks = [];
@@ -1285,7 +1750,24 @@
         let currentModelFields = [];
         let activeTab = 'dictionary-tab'; // 当前激活的标签页
         let isProcessingAnki = false; // 防止重复点击
-        let videoContext = null; // 用于截图
+        let audioContext = null;
+        let audioBuffer = null;
+        let audioElement = null;
+        let isDraggingProgress = false;
+        let isDraggingVolume = false;
+        let japaneseWords = []; // 存储日语分词结果
+        let currentWordIndex = 0; // 当前追加词汇的索引
+        let mecab = null; // MeCab实例
+
+        // 初始化MeCab
+        async function initMeCab() {
+            try {
+                mecab = await MeCab.create();
+                console.log('MeCab初始化成功');
+            } catch (error) {
+                console.error('MeCab初始化失败:', error);
+            }
+        }
 
         // 存储配置到localStorage
         function saveConfig() {
@@ -1296,7 +1778,9 @@
                 sentenceField: sentenceFieldSelect.value,
                 definitionField: definitionFieldSelect.value,
                 audioField: audioFieldSelect.value,
-                imageField: imageFieldSelect.value
+                imageField: imageFieldSelect.value,
+                languageMode: currentLanguageMode,
+                mediaType: currentMediaType
             };
             localStorage.setItem('ankiConfig', JSON.stringify(config));
         }
@@ -1314,32 +1798,80 @@
                     if (config.definitionField) definitionFieldSelect.value = config.definitionField;
                     if (config.audioField) audioFieldSelect.value = config.audioField;
                     if (config.imageField) imageFieldSelect.value = config.imageField;
+                    if (config.languageMode) {
+                        currentLanguageMode = config.languageMode;
+                        updateLanguageModeButton();
+                    }
+                    if (config.mediaType) {
+                        currentMediaType = config.mediaType;
+                        updateMediaModeButton();
+                    }
                 } catch (e) {
                     console.error('加载配置失败:', e);
                 }
             }
         }
 
+        // 更新语言模式按钮文本
+        function updateLanguageModeButton() {
+            languageModeBtn.innerHTML = currentLanguageMode === 'english' ? 
+                '<i class="fas fa-language"></i> 英语模式' : 
+                '<i class="fas fa-language"></i> 日语模式';
+        }
+
+        // 更新媒体模式按钮文本
+        function updateMediaModeButton() {
+            mediaModeBtn.innerHTML = currentMediaType === 'video' ? 
+                '<i class="fas fa-video"></i> 视频模式' : 
+                '<i class="fas fa-music"></i> 音频模式';
+            updateImportButton();
+        }
+
+        // 更新导入按钮文本
+        function updateImportButton() {
+            mediaImportBtn.innerHTML = currentMediaType === 'video' ? 
+                '<i class="fas fa-file-video"></i> 视频' : 
+                '<i class="fas fa-file-audio"></i> 音频';
+        }
+
         // 文件选择事件处理
-        videoFileBtn.addEventListener('click', () => {
-            videoFileInput.click();
+        subtitleImportBtn.addEventListener('click', () => {
+            subtitleFileInput.click();
         });
         
-        subtitleFileBtn.addEventListener('click', () => {
-            subtitleFileInput.click();
+        mediaImportBtn.addEventListener('click', () => {
+            if (currentMediaType === 'video') {
+                videoFileInput.click();
+            } else {
+                audioFileInput.click();
+            }
         });
         
         // 视频文件选择处理
         videoFileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                videoFile = file;
+                currentMediaFile = file;
+                currentMediaType = 'video';
                 trackTitle.textContent = file.name.replace(/\.[^/.]+$/, ""); // 移除扩展名
                 trackDescription.textContent = `文件大小: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
+                mediaIcon.className = 'fas fa-video';
+                
+                // 暂停音频播放器（如果正在播放）
+                if (audioElement && !audioElement.paused) {
+                    audioElement.pause();
+                    audioPlayPauseBtn.textContent = '▶';
+                }
                 
                 // 创建文件URL并设置播放器源
                 const fileURL = URL.createObjectURL(file);
                 videoPlayer.src = fileURL;
+                
+                // 切换到视频模式
+                switchToVideoMode();
+                
+                // 显示视频播放器
+                videoPlayerContainer.classList.add('active');
                 
                 // 重置字幕
                 subtitles = [];
@@ -1348,6 +1880,295 @@
                 updateSubtitleList();
             }
         });
+        
+        // 音频文件选择处理
+        audioFileInput.addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                currentMediaFile = file;
+                currentMediaType = 'audio';
+                trackTitle.textContent = file.name.replace(/\.[^/.]+$/, ""); // 移除扩展名
+                trackDescription.textContent = `文件大小: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
+                mediaIcon.className = 'fas fa-music';
+                
+                // 暂停视频播放器（如果正在播放）
+                if (!videoPlayer.paused) {
+                    videoPlayer.pause();
+                }
+                
+                // 创建文件URL并设置播放器源
+                const fileURL = URL.createObjectURL(file);
+                
+                // 创建音频元素
+                if (!audioElement) {
+                    audioElement = new Audio();
+                }
+                audioElement.src = fileURL;
+                
+                // 初始化音频控件
+                initAudioControls();
+                
+                // 切换到音频模式
+                switchToAudioMode();
+                
+                // 显示音频播放器
+                audioPlayerContainer.classList.add('active');
+                
+                // 重置字幕
+                subtitles = [];
+                subtitleText.innerHTML = "无字幕";
+                videoSubtitles.innerHTML = "";
+                updateSubtitleList();
+                updateAudioSubtitles();
+                
+                // 加载音频文件到Web Audio API
+                await loadAudioBuffer(file);
+            }
+        });
+        
+        // 初始化音频控件
+        function initAudioControls() {
+            // 更新音频时长
+            audioElement.addEventListener('loadedmetadata', () => {
+                audioDuration.textContent = formatTime(audioElement.duration);
+                updateProgressThumb();
+                updateVolumeThumb();
+            });
+            
+            // 播放/暂停按钮
+            audioPlayPauseBtn.addEventListener('click', () => {
+                if (audioElement.paused) {
+                    audioElement.play();
+                    audioPlayPauseBtn.textContent = '⏸';
+                    audioPlayPauseBtn.classList.add('active');
+                } else {
+                    audioElement.pause();
+                    audioPlayPauseBtn.textContent = '▶';
+                    audioPlayPauseBtn.classList.remove('active');
+                }
+            });
+            
+            // 进度条点击
+            audioProgress.addEventListener('click', (e) => {
+                const rect = audioProgress.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                audioElement.currentTime = percent * audioElement.duration;
+                updateProgressThumb();
+            });
+            
+            // 进度条拖动
+            progressThumb.addEventListener('mousedown', startDragProgress);
+            progressThumb.addEventListener('touchstart', startDragProgress);
+            
+            // 音量条点击
+            audioVolume.addEventListener('click', (e) => {
+                const rect = audioVolume.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                audioElement.volume = percent;
+                updateVolumeThumb();
+            });
+            
+            // 音量条拖动
+            volumeThumb.addEventListener('mousedown', startDragVolume);
+            volumeThumb.addEventListener('touchstart', startDragVolume);
+            
+            // 更新进度条和时间显示
+            audioElement.addEventListener('timeupdate', () => {
+                const percent = (audioElement.currentTime / audioElement.duration) * 100;
+                audioProgressFilled.style.width = `${percent}%`;
+                audioCurrentTime.textContent = formatTime(audioElement.currentTime);
+                
+                if (!isDraggingProgress) {
+                    updateProgressThumb();
+                }
+                
+                // 更新音频字幕
+                updateAudioSubtitles();
+            });
+            
+            // 音频播放状态变化
+            audioElement.addEventListener('play', () => {
+                audioPlayPauseBtn.textContent = '⏸';
+                audioPlayPauseBtn.classList.add('active');
+            });
+            
+            audioElement.addEventListener('pause', () => {
+                audioPlayPauseBtn.textContent = '▶';
+                audioPlayPauseBtn.classList.remove('active');
+            });
+            
+            // 更新音频字幕
+            audioElement.addEventListener('timeupdate', () => {
+                updateSubtitle(audioElement.currentTime);
+            });
+        }
+        
+        // 开始拖动进度条
+        function startDragProgress(e) {
+            e.preventDefault();
+            isDraggingProgress = true;
+            
+            const moveHandler = (e) => {
+                if (!isDraggingProgress) return;
+                
+                const rect = audioProgress.getBoundingClientRect();
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                let percent = (clientX - rect.left) / rect.width;
+                percent = Math.max(0, Math.min(1, percent));
+                
+                audioElement.currentTime = percent * audioElement.duration;
+                updateProgressThumb();
+            };
+            
+            const upHandler = () => {
+                isDraggingProgress = false;
+                document.removeEventListener('mousemove', moveHandler);
+                document.removeEventListener('touchmove', moveHandler);
+                document.removeEventListener('mouseup', upHandler);
+                document.removeEventListener('touchend', upHandler);
+            };
+            
+            document.addEventListener('mousemove', moveHandler);
+            document.addEventListener('touchmove', moveHandler);
+            document.addEventListener('mouseup', upHandler);
+            document.addEventListener('touchend', upHandler);
+        }
+        
+        // 开始拖动音量条
+        function startDragVolume(e) {
+            e.preventDefault();
+            isDraggingVolume = true;
+            
+            const moveHandler = (e) => {
+                if (!isDraggingVolume) return;
+                
+                const rect = audioVolume.getBoundingClientRect();
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                let percent = (clientX - rect.left) / rect.width;
+                percent = Math.max(0, Math.min(1, percent));
+                
+                audioElement.volume = percent;
+                updateVolumeThumb();
+            };
+            
+            const upHandler = () => {
+                isDraggingVolume = false;
+                document.removeEventListener('mousemove', moveHandler);
+                document.removeEventListener('touchmove', moveHandler);
+                document.removeEventListener('mouseup', upHandler);
+                document.removeEventListener('touchend', upHandler);
+            };
+            
+            document.addEventListener('mousemove', moveHandler);
+            document.addEventListener('touchmove', moveHandler);
+            document.addEventListener('mouseup', upHandler);
+            document.addEventListener('touchend', upHandler);
+        }
+        
+        // 更新进度条滑块位置
+        function updateProgressThumb() {
+            if (!audioElement.duration) return;
+            const percent = (audioElement.currentTime / audioElement.duration) * 100;
+            progressThumb.style.left = `${percent}%`;
+        }
+        
+        // 更新音量滑块位置
+        function updateVolumeThumb() {
+            const percent = audioElement.volume * 100;
+            audioVolumeFilled.style.width = `${percent}%`;
+            volumeThumb.style.left = `${percent}%`;
+        }
+        
+        // 切换到视频模式
+        function switchToVideoMode() {
+            currentMediaType = 'video';
+            updateMediaModeButton();
+            videoPlayerContainer.classList.add('active');
+            audioPlayerContainer.classList.remove('active');
+            updateControlButtons();
+        }
+        
+        // 切换到音频模式
+        function switchToAudioMode() {
+            currentMediaType = 'audio';
+            updateMediaModeButton();
+            audioPlayerContainer.classList.add('active');
+            videoPlayerContainer.classList.remove('active');
+            updateControlButtons();
+        }
+        
+        // 更新控制按钮显示
+        function updateControlButtons() {
+            // 视频相关按钮
+            const videoControls = [toggleVideoSubtitlesBtn];
+            // 音频相关按钮
+            const audioControls = [toggleAudioSubtitlesBtn];
+            
+            if (currentMediaType === 'video') {
+                videoControls.forEach(btn => btn.style.display = 'flex');
+                audioControls.forEach(btn => btn.style.display = 'none');
+            } else {
+                videoControls.forEach(btn => btn.style.display = 'none');
+                audioControls.forEach(btn => btn.style.display = 'flex');
+            }
+        }
+        
+        // 切换语言模式
+        function toggleLanguageMode() {
+            currentLanguageMode = currentLanguageMode === 'english' ? 'japanese' : 'english';
+            updateLanguageModeButton();
+            saveConfig();
+        }
+        
+        // 切换媒体模式
+        function toggleMediaMode() {
+            currentMediaType = currentMediaType === 'video' ? 'audio' : 'video';
+            updateMediaModeButton();
+            saveConfig();
+            
+            // 如果已有媒体文件，切换到对应的播放器
+            if (currentMediaFile) {
+                if (currentMediaType === 'video') {
+                    switchToVideoMode();
+                } else {
+                    switchToAudioMode();
+                }
+            }
+        }
+        
+        // 模式切换事件
+        mediaModeBtn.addEventListener('click', toggleMediaMode);
+        
+        // 语言模式切换事件
+        languageModeBtn.addEventListener('click', toggleLanguageMode);
+        
+        // 切换音频字幕显示
+        toggleAudioSubtitlesBtn.addEventListener('click', () => {
+            audioSubtitlesVisible = !audioSubtitlesVisible;
+            if (audioSubtitlesVisible) {
+                audioSubtitles.classList.add('active');
+            } else {
+                audioSubtitles.classList.remove('active');
+            }
+        });
+        
+        // 加载音频文件到Web Audio API
+        async function loadAudioBuffer(file) {
+            try {
+                // 创建AudioContext
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                // 读取文件
+                const arrayBuffer = await file.arrayBuffer();
+                audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                
+                console.log('音频文件已加载到Web Audio API');
+            } catch (error) {
+                console.error('加载音频文件失败:', error);
+            }
+        }
         
         // 字幕文件选择处理
         subtitleFileInput.addEventListener('change', function(e) {
@@ -1409,6 +2230,7 @@
             
             // 更新字幕列表
             updateSubtitleList();
+            updateAudioSubtitles();
             
             // 更新初始字幕显示
             updateSubtitle(0);
@@ -1432,7 +2254,11 @@
                 listItem.textContent = `${formatTime(subtitle.start)} - ${formatTime(subtitle.end)}: ${subtitle.text}`;
                 listItem.addEventListener('click', () => {
                     // 跳转到该字幕开始时间
-                    videoPlayer.currentTime = subtitle.start;
+                    if (currentMediaType === 'video') {
+                        videoPlayer.currentTime = subtitle.start;
+                    } else {
+                        audioElement.currentTime = subtitle.start;
+                    }
                     currentSubtitleIndex = index;
                     updateActiveSubtitleItem();
                     closeSubtitleListPanelFunc();
@@ -1443,10 +2269,276 @@
             updateActiveSubtitleItem();
         }
         
+        // 更新音频滚动字幕
+        function updateAudioSubtitles() {
+            audioSubtitles.innerHTML = '';
+            
+            if (subtitles.length === 0) {
+                const emptyItem = document.createElement('div');
+                emptyItem.className = 'audio-subtitle-item';
+                emptyItem.textContent = '无字幕';
+                audioSubtitles.appendChild(emptyItem);
+                return;
+            }
+            
+            subtitles.forEach((subtitle, index) => {
+                const subtitleItem = document.createElement('div');
+                subtitleItem.className = 'audio-subtitle-item';
+                if (index === currentSubtitleIndex) {
+                    subtitleItem.classList.add('active');
+                }
+                
+                // 根据语言模式创建可点击的内容
+                if (currentLanguageMode === 'english') {
+                    // 英语模式：创建可点击的单词
+                    const text = subtitle.text;
+                    const wordRegex = /[a-zA-Z]+(?:[''’][a-zA-Z]+)*/g;
+                    let lastIndex = 0;
+                    let clickableWords = '';
+                    
+                    let match;
+                    while ((match = wordRegex.exec(text)) !== null) {
+                        // 添加匹配前的非单词部分
+                        clickableWords += text.substring(lastIndex, match.index);
+                        
+                        // 添加可点击的单词
+                        clickableWords += `<span class="word" data-word="${match[0]}">${match[0]}</span>`;
+                        
+                        lastIndex = match.index + match[0].length;
+                    }
+                    
+                    // 添加剩余的非单词部分
+                    clickableWords += text.substring(lastIndex);
+                    
+                    subtitleItem.innerHTML = clickableWords;
+                } else {
+                    // 日语模式：显示原始文本，点击整个句子
+                    subtitleItem.textContent = subtitle.text;
+                }
+                
+                // 添加点击事件
+                subtitleItem.addEventListener('click', (e) => {
+                    if (currentLanguageMode === 'english') {
+                        // 英语模式：点击单词查询
+                        if (e.target.classList.contains('word')) {
+                            const word = e.target.getAttribute('data-word');
+                            
+                            // 点击单词时暂停播放
+                            if (currentMediaType === 'audio') {
+                                playerWasPlaying = !audioElement.paused;
+                                audioElement.pause();
+                            }
+                            
+                            // 查询单词并显示底部面板
+                            searchWordInPanel(word);
+                            
+                            // 记录当前单词和句子
+                            currentWord = word;
+                            if (currentSubtitleIndex >= 0) {
+                                currentSentence = subtitles[currentSubtitleIndex].text;
+                                
+                                // 更新原句显示
+                                updateOriginalSentence(currentSentence, word);
+                            }
+                        }
+                    } else {
+                        // 日语模式：点击句子，显示分词结果
+                        const sentence = subtitle.text;
+                        
+                        // 点击句子时暂停播放
+                        if (currentMediaType === 'audio') {
+                            playerWasPlaying = !audioElement.paused;
+                            audioElement.pause();
+                        }
+                        
+                        // 显示日语分词结果
+                        showJapaneseWordSegmentation(sentence);
+                        
+                        // 记录当前句子
+                        currentSentence = sentence;
+                    }
+                });
+                
+                audioSubtitles.appendChild(subtitleItem);
+            });
+            
+            // 滚动到当前字幕（但不强制滚动页面）
+            if (currentSubtitleIndex >= 0) {
+                const activeItem = audioSubtitles.children[currentSubtitleIndex];
+                if (activeItem) {
+                    // 使用平滑滚动，但不强制滚动整个页面
+                    activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+        }
+        
+        // 显示日语分词结果
+        async function showJapaneseWordSegmentation(sentence) {
+            if (!mecab) {
+                console.error('MeCab未初始化');
+                return;
+            }
+            
+            try {
+                // 使用MeCab进行日语分词
+                const result = await mecab.parse(sentence);
+                japaneseWords = result.map(item => item[0]);
+                currentWordIndex = 0;
+                
+                // 打开字典面板
+                openDictionaryPanel();
+                
+                // 显示分词结果
+                panelDictionaryResult.innerHTML = `
+                    <div class="word-header">
+                        <div class="word-title">日语分词结果</div>
+                    </div>
+                    <div class="meaning-section">
+                        <div class="part-of-speech">句子: ${sentence}</div>
+                        <div class="definition">分词结果:</div>
+                        <div class="definition">
+                            ${japaneseWords.map((word, index) => `<span class="word ${index === 0 ? 'highlight' : ''}" data-word="${word}" data-index="${index}">${word}</span>`).join(' ')}
+                        </div>
+                        <div class="example">提示: 点击任意分词进行查询</div>
+                    </div>
+                `;
+                
+                // 为分词结果添加点击事件
+                panelDictionaryResult.querySelectorAll('.word').forEach(wordElement => {
+                    wordElement.addEventListener('click', () => {
+                        const word = wordElement.getAttribute('data-word');
+                        const index = parseInt(wordElement.getAttribute('data-index'));
+                        
+                        // 高亮显示选中的单词
+                        panelDictionaryResult.querySelectorAll('.word').forEach(w => {
+                            w.classList.remove('highlight');
+                        });
+                        wordElement.classList.add('highlight');
+                        
+                        currentWordIndex = index;
+                        panelSearchInput.value = word;
+                        
+                        // 油猴脚本接口：分词点击回调
+                        if (window.japaneseWordClicked) {
+                            window.japaneseWordClicked(word, index);
+                        } else {
+                            // 默认行为：查询日语单词
+                            searchJapaneseWordInPanel(word);
+                        }
+                    });
+                });
+                
+                panelWordTitle.textContent = `日语分词`;
+                originalSentence.textContent = sentence;
+                
+                // 油猴脚本接口：分词完成回调
+                if (window.japaneseSegmentationComplete) {
+                    window.japaneseSegmentationComplete(sentence, japaneseWords);
+                }
+            } catch (error) {
+                console.error('日语分词失败:', error);
+                panelDictionaryResult.innerHTML = `<div class="error">日语分词失败: ${error.message}</div>`;
+            }
+        }
+        
+        // 查询日语单词
+        async function searchJapaneseWordInPanel(word) {
+            if (!word.trim()) {
+                panelDictionaryResult.innerHTML = '<div class="error">请输入要查询的单词</div>';
+                return;
+            }
+            
+            // 确保面板已打开
+            openDictionaryPanel();
+            
+            panelDictionaryResult.innerHTML = '<div class="loading">查询中...</div>';
+            panelWordTitle.textContent = `查询: ${word}`;
+            panelSearchInput.value = word;
+            
+            // 油猴脚本接口：日语查询回调
+            if (window.japaneseWordSearch) {
+                window.japaneseWordSearch(word);
+            } else {
+                // 默认行为：使用Jisho API查询日语单词
+                try {
+                    const response = await fetch(`https://jisho.org/api/v1/search/words?keyword=${encodeURIComponent(word)}`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`API请求失败: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    displayJapaneseWordDataInPanel(data);
+                } catch (error) {
+                    panelDictionaryResult.innerHTML = `<div class="error">${error.message}</div>`;
+                    console.error('查询错误:', error);
+                }
+            }
+        }
+        
+        // 显示日语单词数据在底部面板
+        function displayJapaneseWordDataInPanel(wordData) {
+            let html = '';
+            
+            if (wordData.data && wordData.data.length > 0) {
+                const word = wordData.data[0];
+                
+                // 单词标题和读音
+                html += `<div class="word-header">`;
+                html += `<div class="word-title">${word.japanese[0].word || word.japanese[0].reading}</div>`;
+                
+                if (word.japanese[0].reading) {
+                    html += `<div class="phonetic">${word.japanese[0].reading}</div>`;
+                }
+                
+                html += `</div>`;
+                
+                // 词义解释
+                if (word.senses && word.senses.length > 0) {
+                    word.senses.forEach((sense, index) => {
+                        if (index < 3) { // 只显示前三个定义
+                            html += `<div class="meaning-section">`;
+                            html += `<div class="part-of-speech">${sense.parts_of_speech.join(', ')}</div>`;
+                            
+                            if (sense.english_definitions && sense.english_definitions.length > 0) {
+                                sense.english_definitions.forEach((def, defIndex) => {
+                                    if (defIndex < 3) { // 只显示前三个英文定义
+                                        html += `<div class="definition">${defIndex + 1}. ${def}</div>`;
+                                    }
+                                });
+                            }
+                            
+                            html += `</div>`;
+                        }
+                    });
+                } else {
+                    html += `<div class="meaning-section">`;
+                    html += `<div class="definition">未找到该单词的详细释义。</div>`;
+                    html += `</div>`;
+                }
+            } else {
+                html += `<div class="meaning-section">`;
+                html += `<div class="definition">未找到该单词的详细释义。</div>`;
+                html += `</div>`;
+            }
+            
+            panelDictionaryResult.innerHTML = html;
+        }
+        
         // 更新当前激活的字幕项
         function updateActiveSubtitleItem() {
             const items = subtitleList.querySelectorAll('.subtitle-item');
             items.forEach((item, index) => {
+                if (index === currentSubtitleIndex) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+            
+            // 更新音频滚动字幕
+            const audioItems = audioSubtitles.querySelectorAll('.audio-subtitle-item');
+            audioItems.forEach((item, index) => {
                 if (index === currentSubtitleIndex) {
                     item.classList.add('active');
                 } else {
@@ -1484,44 +2576,78 @@
                 currentSubtitleIndex = foundIndex;
                 
                 // 更新视频内字幕
-                videoSubtitles.innerHTML = `<span>${currentSubtitle.text}</span>`;
-                
-                // 改进的字幕文本转换，修复句末单词无法点击的问题
-                const text = currentSubtitle.text;
-                
-                // 使用正则表达式匹配单词，包括带有标点符号的单词
-                const wordRegex = /[a-zA-Z]+(?:[''’][a-zA-Z]+)*/g;
-                let lastIndex = 0;
-                let clickableWords = '';
-                
-                let match;
-                while ((match = wordRegex.exec(text)) !== null) {
-                    // 添加匹配前的非单词部分
-                    clickableWords += text.substring(lastIndex, match.index);
-                    
-                    // 添加可点击的单词
-                    clickableWords += `<span class="word" data-word="${match[0]}">${match[0]}</span>`;
-                    
-                    lastIndex = match.index + match[0].length;
+                if (videoSubtitlesVisible && currentMediaType === 'video') {
+                    videoSubtitles.innerHTML = `<span>${currentSubtitle.text}</span>`;
+                } else {
+                    videoSubtitles.innerHTML = "";
                 }
                 
-                // 添加剩余的非单词部分
-                clickableWords += text.substring(lastIndex);
+                // 改进的字幕文本转换
+                const text = currentSubtitle.text;
                 
-                subtitleText.innerHTML = clickableWords;
+                if (currentLanguageMode === 'english') {
+                    // 英语模式：创建可点击的单词
+                    const wordRegex = /[a-zA-Z]+(?:[''’][a-zA-Z]+)*/g;
+                    let lastIndex = 0;
+                    let clickableWords = '';
+                    
+                    let match;
+                    while ((match = wordRegex.exec(text)) !== null) {
+                        // 添加匹配前的非单词部分
+                        clickableWords += text.substring(lastIndex, match.index);
+                        
+                        // 添加可点击的单词
+                        clickableWords += `<span class="word" data-word="${match[0]}">${match[0]}</span>`;
+                        
+                        lastIndex = match.index + match[0].length;
+                    }
+                    
+                    // 添加剩余的非单词部分
+                    clickableWords += text.substring(lastIndex);
+                    
+                    subtitleText.innerHTML = clickableWords;
+                    
+                    // 修复：使用事件委托解决单词点击问题
+                    subtitleText.removeEventListener('click', handleWordClick);
+                    subtitleText.addEventListener('click', handleWordClick);
+                } else {
+                    // 日语模式：显示原始文本
+                    subtitleText.innerHTML = text;
+                    
+                    // 日语模式下点击整个句子
+                    subtitleText.addEventListener('click', () => {
+                        // 点击句子时暂停播放
+                        if (currentMediaType === 'video') {
+                            playerWasPlaying = !videoPlayer.paused;
+                            videoPlayer.pause();
+                        } else {
+                            playerWasPlaying = !audioElement.paused;
+                            audioElement.pause();
+                        }
+                        
+                        // 显示日语分词结果
+                        showJapaneseWordSegmentation(text);
+                        
+                        // 记录当前句子
+                        currentSentence = text;
+                    });
+                }
+                
                 subtitleText.style.opacity = '1';
-                
-                // 修复：使用事件委托解决单词点击问题
-                subtitleText.removeEventListener('click', handleWordClick);
-                subtitleText.addEventListener('click', handleWordClick);
                 
             } else {
                 // 不在任何字幕时间范围内，显示灰色状态
                 subtitleText.style.opacity = '0.5';
                 videoSubtitles.innerHTML = "";
+                currentSubtitleIndex = -1;
             }
             
             updateActiveSubtitleItem();
+            
+            // 更新音频滚动字幕
+            if (currentMediaType === 'audio') {
+                updateAudioSubtitles();
+            }
         }
 
         // 修复：使用事件委托处理单词点击
@@ -1530,8 +2656,13 @@
                 const word = e.target.getAttribute('data-word');
                 
                 // 点击单词时暂停播放
-                playerWasPlaying = !videoPlayer.paused;
-                videoPlayer.pause();
+                if (currentMediaType === 'video') {
+                    playerWasPlaying = !videoPlayer.paused;
+                    videoPlayer.pause();
+                } else {
+                    playerWasPlaying = !audioElement.paused;
+                    audioElement.pause();
+                }
                 
                 // 查询单词并显示底部面板
                 searchWordInPanel(word);
@@ -1687,6 +2818,16 @@
             subtitleDisplay.style.display = subtitleVisible ? 'block' : 'none';
         });
         
+        // 切换视频内字幕显示
+        toggleVideoSubtitlesBtn.addEventListener('click', () => {
+            videoSubtitlesVisible = !videoSubtitlesVisible;
+            if (!videoSubtitlesVisible) {
+                videoSubtitles.innerHTML = "";
+            } else if (currentSubtitleIndex >= 0) {
+                videoSubtitles.innerHTML = `<span>${subtitles[currentSubtitleIndex].text}</span>`;
+            }
+        });
+        
         // 上一句跳转
         prevSentenceBtn.addEventListener('click', () => {
             if (subtitles.length === 0) return;
@@ -1694,7 +2835,11 @@
             let targetIndex = currentSubtitleIndex - 1;
             if (targetIndex < 0) targetIndex = 0;
             
-            videoPlayer.currentTime = subtitles[targetIndex].start;
+            if (currentMediaType === 'video') {
+                videoPlayer.currentTime = subtitles[targetIndex].start;
+            } else {
+                audioElement.currentTime = subtitles[targetIndex].start;
+            }
             currentSubtitleIndex = targetIndex;
             updateActiveSubtitleItem();
         });
@@ -1706,7 +2851,11 @@
             let targetIndex = currentSubtitleIndex + 1;
             if (targetIndex >= subtitles.length) targetIndex = subtitles.length - 1;
             
-            videoPlayer.currentTime = subtitles[targetIndex].start;
+            if (currentMediaType === 'video') {
+                videoPlayer.currentTime = subtitles[targetIndex].start;
+            } else {
+                audioElement.currentTime = subtitles[targetIndex].start;
+            }
             currentSubtitleIndex = targetIndex;
             updateActiveSubtitleItem();
         });
@@ -1715,7 +2864,11 @@
         timeJumpBtn.addEventListener('click', () => {
             const time = parseFloat(timeJumpInput.value);
             if (!isNaN(time) && time >= 0) {
-                videoPlayer.currentTime = time;
+                if (currentMediaType === 'video') {
+                    videoPlayer.currentTime = time;
+                } else {
+                    audioElement.currentTime = time;
+                }
             }
         });
         
@@ -1723,7 +2876,11 @@
             if (e.key === 'Enter') {
                 const time = parseFloat(timeJumpInput.value);
                 if (!isNaN(time) && time >= 0) {
-                    videoPlayer.currentTime = time;
+                    if (currentMediaType === 'video') {
+                        videoPlayer.currentTime = time;
+                    } else {
+                        audioElement.currentTime = time;
+                    }
                 }
             }
         });
@@ -1748,6 +2905,40 @@
         }
         
         closeSubtitleListPanel.addEventListener('click', closeSubtitleListPanelFunc);
+        
+        // 追加词汇功能
+        appendWordBtn.addEventListener('click', () => {
+            if (currentLanguageMode === 'japanese' && japaneseWords.length > 0) {
+                currentWordIndex++;
+                if (currentWordIndex >= japaneseWords.length) {
+                    currentWordIndex = japaneseWords.length - 1;
+                }
+                
+                // 构建追加后的词汇
+                let combinedWord = '';
+                for (let i = 0; i <= currentWordIndex; i++) {
+                    combinedWord += japaneseWords[i];
+                }
+                
+                panelSearchInput.value = combinedWord;
+                
+                // 油猴脚本接口：追加词汇回调
+                if (window.japaneseWordAppended) {
+                    window.japaneseWordAppended(combinedWord, currentWordIndex);
+                } else {
+                    // 默认行为：查询日语单词
+                    searchJapaneseWordInPanel(combinedWord);
+                }
+                
+                // 高亮显示追加的词汇
+                panelDictionaryResult.querySelectorAll('.word').forEach(w => {
+                    w.classList.remove('highlight');
+                    if (parseInt(w.getAttribute('data-index')) === currentWordIndex) {
+                        w.classList.add('highlight');
+                    }
+                });
+            }
+        });
         
         // Anki连接检查
         async function checkAnkiConnection() {
@@ -2074,7 +3265,7 @@
             }, 100);
         });
         
-        // 修复：在processAnkiCard函数中，确保图片字段引用正确
+        // 修复音频截取问题 - 使用之前成功的代码
         async function processAnkiCard(word, definition) {
             // 准备Anki卡片数据
             const note = {
@@ -2088,11 +3279,26 @@
                 options: {
                     allowDuplicate: false
                 },
-                tags: ['video-player']
+                tags: ['media-player']
             };
             
+            // 如果有音频，先处理音频
+            if (audioBuffer && audioContext && currentSubtitleIndex >= 0) {
+                try {
+                    const audioFileName = await processAudioFile(word);
+                    if (audioFileName) {
+                        // 确保音频字段引用格式正确
+                        note.fields[audioFieldSelect.value] = `[sound:${audioFileName}]`;
+                        console.log('音频字段设置:', audioFileName);
+                    }
+                } catch (error) {
+                    console.error('音频处理失败:', error);
+                    // 即使音频处理失败，仍然继续添加卡片
+                }
+            }
+            
             // 如果有图片字段设置，则截图
-            if (imageFieldSelect.value && videoFile) {
+            if (imageFieldSelect.value && currentMediaType === 'video' && currentMediaFile) {
                 try {
                     const imageFileName = await captureVideoFrame(word);
                     if (imageFileName) {
@@ -2110,12 +3316,60 @@
         }
 
         // 生成文件名
+        function generateAudioFileName(word) {
+            const cleanWord = word.replace(/[^a-z]/gi, '').toLowerCase() || 'audio';
+            // 增加时间戳避免重名
+            let fileName = `audio_${cleanWord}_${Date.now()}.wav`;
+            fileName = fileName.replace(/[^\w.\-]/g, '_');
+            return fileName;
+        }
+        
         function generateImageFileName(word) {
             const cleanWord = word.replace(/[^a-z]/gi, '').toLowerCase() || 'screenshot';
             // 增加时间戳避免重名
             let fileName = `screenshot_${cleanWord}_${Date.now()}.jpg`;
             fileName = fileName.replace(/[^\w.\-]/g, '_');
             return fileName;
+        }
+
+        // 处理音频文件并返回实际存储名
+        async function processAudioFile(word) {
+            try {
+                const audioBlob = await generateAudioClip(currentSubtitleIndex);
+                const audioFileName = generateAudioFileName(word);
+                console.log('准备存储音频文件:', audioFileName);
+
+                const base64Audio = await blobToBase64(audioBlob);
+
+                const response = await fetch('http://127.0.0.1:8765', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'storeMediaFile',
+                        version: 6,
+                        params: {
+                            filename: audioFileName,
+                            data: base64Audio.split(',')[1],
+                            deleteExisting: true // ✅ 允许覆盖，防止自动改名
+                        }
+                    })
+                });
+
+                const result = await response.json();
+                if (result.error) {
+                    console.error('存储音频文件失败:', result.error);
+                    return null;
+                }
+
+                // ✅ 使用返回的 result 字段（实际文件名）
+                const storedName = result.result || audioFileName;
+                console.log('音频文件实际存储名:', storedName);
+                return storedName;
+
+            } catch (error) {
+                console.error('音频处理错误:', error);
+                return null;
+            }
         }
 
         // 截图功能
@@ -2177,6 +3431,118 @@
             });
         }
 
+        // 生成当前句子的音频片段
+        function generateAudioClip(subtitleIndex) {
+            return new Promise((resolve, reject) => {
+                if (!audioBuffer || !audioContext) {
+                    reject(new Error('音频未加载，无法生成音频片段'));
+                    return;
+                }
+                
+                const subtitle = subtitles[subtitleIndex];
+                const startTime = Math.max(0, subtitle.start);
+                const endTime = Math.min(audioBuffer.duration, subtitle.end);
+                
+                // 计算开始和结束的样本位置
+                const startOffset = Math.floor(startTime * audioBuffer.sampleRate);
+                const endOffset = Math.floor(endTime * audioBuffer.sampleRate);
+                const length = endOffset - startOffset;
+                
+                if (length <= 0) {
+                    reject(new Error('无效的音频片段长度'));
+                    return;
+                }
+                
+                // 创建新的音频缓冲区
+                const newBuffer = audioContext.createBuffer(
+                    audioBuffer.numberOfChannels,
+                    length,
+                    audioBuffer.sampleRate
+                );
+                
+                // 复制音频数据
+                for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
+                    const channelData = audioBuffer.getChannelData(channel);
+                    const newChannelData = newBuffer.getChannelData(channel);
+                    
+                    for (let i = 0; i < length; i++) {
+                        newChannelData[i] = channelData[startOffset + i];
+                    }
+                }
+                
+                // 将音频缓冲区转换为WAV格式
+                const wavBlob = bufferToWav(newBuffer);
+                
+                console.log('音频片段已生成');
+                resolve(wavBlob);
+            });
+        }
+        
+        // 将AudioBuffer转换为WAV Blob
+        function bufferToWav(buffer) {
+            const numChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const length = buffer.length;
+            const bytesPerSample = 2;
+            const blockAlign = numChannels * bytesPerSample;
+            
+            // 计算数据大小
+            const dataSize = length * blockAlign;
+            
+            // 创建WAV文件头
+            const bufferArray = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(bufferArray);
+            
+            // RIFF标识
+            writeString(view, 0, 'RIFF');
+            // 文件长度
+            view.setUint32(4, 36 + dataSize, true);
+            // WAVE标识
+            writeString(view, 8, 'WAVE');
+            // fmt chunk
+            writeString(view, 12, 'fmt ');
+            // fmt chunk长度
+            view.setUint32(16, 16, true);
+            // 音频格式 (1 = PCM)
+            view.setUint16(20, 1, true);
+            // 声道数
+            view.setUint16(22, numChannels, true);
+            // 采样率
+            view.setUint32(24, sampleRate, true);
+            // 字节率
+            view.setUint32(28, sampleRate * blockAlign, true);
+            // 块对齐
+            view.setUint16(32, blockAlign, true);
+            // 位深度
+            view.setUint16(34, bytesPerSample * 8, true);
+            // data chunk
+            writeString(view, 36, 'data');
+            // data chunk长度
+            view.setUint32(40, dataSize, true);
+            
+            // 写入PCM数据
+            const offset = 44;
+            let index = 0;
+            
+            for (let i = 0; i < length; i++) {
+                for (let channel = 0; channel < numChannels; channel++) {
+                    const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
+                    const int16Sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+                    view.setInt16(offset + index, int16Sample, true);
+                    index += 2;
+                }
+            }
+            
+            return new Blob([bufferArray], { type: 'audio/wav' });
+        }
+                
+        // 写入字符串到DataView
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+
         // 处理整张卡片
         async function processAnkiCard(word, definition) {
             const note = {
@@ -2188,11 +3554,24 @@
                     [definitionFieldSelect.value]: definition
                 },
                 options: { allowDuplicate: false },
-                tags: ['video-player']
+                tags: ['media-player']
             };
 
+            // 若有音频，先处理音频
+            if (audioBuffer && audioContext && currentSubtitleIndex >= 0) {
+                try {
+                    const storedAudioName = await processAudioFile(word);
+                    if (storedAudioName) {
+                        note.fields[audioFieldSelect.value] = `[sound:${storedAudioName}]`;
+                        console.log('音频字段设置:', storedAudioName);
+                    }
+                } catch (error) {
+                    console.error('音频处理失败:', error);
+                }
+            }
+
             // 若有图片字段设置，则截图
-            if (imageFieldSelect.value && videoFile) {
+            if (imageFieldSelect.value && currentMediaType === 'video' && currentMediaFile) {
                 try {
                     const storedImageName = await captureVideoFrame(word);
                     if (storedImageName) {
@@ -2308,8 +3687,14 @@
             document.body.style.overflow = '';
             
             // 恢复播放
-            if (playerWasPlaying && videoPlayer.paused) {
-                videoPlayer.play();
+            if (playerWasPlaying) {
+                if (currentMediaType === 'video' && videoPlayer.paused) {
+                    videoPlayer.play();
+                } else if (currentMediaType === 'audio' && audioElement.paused) {
+                    audioElement.play();
+                    audioPlayPauseBtn.textContent = '⏸';
+                    audioPlayPauseBtn.classList.add('active');
+                }
             }
         }
         
@@ -2322,13 +3707,21 @@
         // 面板搜索功能
         panelSearchBtn.addEventListener('click', () => {
             const word = panelSearchInput.value.trim();
-            searchWordInPanel(word);
+            if (currentLanguageMode === 'english') {
+                searchWordInPanel(word);
+            } else {
+                searchJapaneseWordInPanel(word);
+            }
         });
         
         panelSearchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 const word = panelSearchInput.value.trim();
-                searchWordInPanel(word);
+                if (currentLanguageMode === 'english') {
+                    searchWordInPanel(word);
+                } else {
+                    searchJapaneseWordInPanel(word);
+                }
             }
         });
         
@@ -2346,48 +3739,84 @@
                 
                 // 更新当前激活的标签页
                 activeTab = tabId;
+                
+                // 如果是网页查询标签，加载预设的网页
+                if (tabId === 'web-tab') {
+                    const word = panelSearchInput.value.trim();
+                    if (word) {
+                        loadWebSearch(word);
+                    }
+                }
             });
         });
+        
+        // 加载网页查询
+        function loadWebSearch(word) {
+            if (!word) return;
+            
+            // 油猴脚本接口：网页查询回调
+            if (window.webSearch) {
+                window.webSearch(word);
+            } else {
+                // 默认行为：使用Jisho进行日语查询
+                const url = currentLanguageMode === 'japanese' ? 
+                    `https://jisho.org/search/${encodeURIComponent(word)}` :
+                    `https://www.youdao.com/result?word=${encodeURIComponent(word)}&lang=en`;
+                webSearchFrame.src = url;
+            }
+        }
         
         // 监听播放器时间更新
         videoPlayer.addEventListener('timeupdate', event => {
             updateSubtitle(videoPlayer.currentTime);
         });
         
-        // 修复iOS兼容性问题
-        function fixIOSCompatibility() {
-            // iOS音频播放修复
-            document.addEventListener('touchstart', function() {
-                // 确保音频上下文在用户交互后创建
-                if (videoContext && videoContext.state === 'suspended') {
-                    videoContext.resume();
-                }
-            }, { once: true });
-            
-            // iOS文件选择修复
-            videoFileInput.addEventListener('change', function(e) {
-                // iOS文件选择后立即播放
-                if (e.target.files.length > 0) {
-                    setTimeout(() => {
-                        if (videoPlayer.paused) {
-                            videoPlayer.play().catch(e => console.log('iOS自动播放被阻止:', e));
-                        }
-                    }, 500);
-                }
-            });
-        }
-        
         // 初始化
-        function init() {
+        async function init() {
             // 检查Anki连接
             checkAnkiConnection();
             
-            // 修复iOS兼容性
-            fixIOSCompatibility();
+            // 加载配置
+            loadConfig();
+            
+            // 更新按钮状态
+            updateLanguageModeButton();
+            updateMediaModeButton();
+            updateControlButtons();
+            
+            // 初始化MeCab
+            await initMeCab();
         }
         
         // 启动初始化
         init();
+        
+        // 油猴脚本接口
+        window.mediaPlayer = {
+            // 设置日语分词结果
+            setJapaneseSegmentation: (words) => {
+                japaneseWords = words;
+                currentWordIndex = 0;
+            },
+            
+            // 设置日语查询结果
+            setJapaneseWordData: (html) => {
+                panelDictionaryResult.innerHTML = html;
+            },
+            
+            // 设置网页查询URL
+            setWebSearchUrl: (url) => {
+                webSearchFrame.src = url;
+            },
+            
+            // 获取当前状态
+            getState: () => ({
+                currentWord: currentWord,
+                currentSentence: currentSentence,
+                currentLanguageMode: currentLanguageMode,
+                currentMediaType: currentMediaType
+            })
+        };
     </script>
 </body>
 </html>

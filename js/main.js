@@ -1,132 +1,159 @@
-// 主入口文件 - 协调各模块功能
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM加载完成，开始初始化播放器...');
-    
-    try {
-        // 初始化播放器
-        const player = initPlayer();
+// 主程序入口文件 - 外语学习媒体播放器
+import { Player } from './modules/player.js';
+import { Subtitle } from './modules/subtitle.js';
+import { Dictionary } from './modules/dictionary.js';
+import { Anki } from './modules/anki.js';
+import { Japanese } from './modules/japanese.js';
+import { UI } from './modules/ui.js';
+import { FileHandler } from './utils/file-handler.js';
+import { TimeUtils } from './utils/time-utils.js';
+import { Config } from './utils/config.js';
+
+class ForeignLanguageMediaPlayer {
+    constructor() {
+        this.modules = {};
+        this.state = {
+            currentWord: '',
+            currentSentence: '',
+            currentLanguageMode: 'english',
+            currentMediaType: 'video',
+            currentSubtitleIndex: -1,
+            playerWasPlaying: false,
+            ankiConnected: false,
+            isProcessingAnki: false
+        };
         
-        // 初始化文件处理
-        initFileHandlers(player);
-        
-        // 初始化字幕系统
-        const subtitleManager = initSubtitleSystem(player);
-        
-        // 初始化词典系统
-        const dictionaryManager = initDictionarySystem(player, subtitleManager);
-        
-        // 初始化UI交互
-        initUIInteractions(player, subtitleManager, dictionaryManager);
-        
-        console.log('音频播放器初始化完成');
-    } catch (error) {
-        console.error('初始化过程中出现错误:', error);
+        this.init();
     }
+
+    async init() {
+        try {
+            // 初始化工具模块
+            this.modules.config = new Config();
+            this.modules.timeUtils = new TimeUtils();
+            this.modules.fileHandler = new FileHandler();
+            
+            // 初始化功能模块
+            this.modules.player = new Player(this);
+            this.modules.subtitle = new Subtitle(this);
+            this.modules.dictionary = new Dictionary(this);
+            this.modules.anki = new Anki(this);
+            this.modules.japanese = new Japanese(this);
+            this.modules.ui = new UI(this);
+            
+            // 加载配置
+            this.modules.config.load();
+            
+            // 初始化UI
+            await this.modules.ui.init();
+            
+            // 检查Anki连接
+            await this.modules.anki.checkConnection();
+            
+            // 初始化日语分词
+            await this.modules.japanese.init();
+            
+            console.log('外语学习媒体播放器初始化完成');
+            
+        } catch (error) {
+            console.error('初始化失败:', error);
+            this.modules.ui.showError('初始化失败: ' + error.message);
+        }
+    }
+
+    // 状态管理方法
+    setState(newState) {
+        this.state = { ...this.state, ...newState };
+        this.notifyModules('stateChanged', this.state);
+    }
+
+    getState() {
+        return { ...this.state };
+    }
+
+    // 模块间通信
+    notifyModules(event, data) {
+        Object.values(this.modules).forEach(module => {
+            if (module.handleEvent && typeof module.handleEvent === 'function') {
+                module.handleEvent(event, data);
+            }
+        });
+    }
+
+    // 公共API - 供油猴脚本或其他外部脚本使用
+    getPublicAPI() {
+        return {
+            // 设置日语分词结果
+            setJapaneseSegmentation: (words) => {
+                this.modules.japanese.setWords(words);
+            },
+            
+            // 设置日语查询结果
+            setJapaneseWordData: (html) => {
+                this.modules.dictionary.setJapaneseResult(html);
+            },
+            
+            // 设置网页查询URL
+            setWebSearchUrl: (url) => {
+                this.modules.dictionary.setWebSearchUrl(url);
+            },
+            
+            // 获取当前状态
+            getState: () => this.getState(),
+            
+            // 日语分词完成回调
+            onJapaneseSegmentationComplete: (callback) => {
+                this.modules.japanese.onSegmentationComplete = callback;
+            },
+            
+            // 日语单词点击回调
+            onJapaneseWordClicked: (callback) => {
+                this.modules.japanese.onWordClicked = callback;
+            },
+            
+            // 日语单词查询回调
+            onJapaneseWordSearch: (callback) => {
+                this.modules.japanese.onWordSearch = callback;
+            },
+            
+            // 日语词汇追加回调
+            onJapaneseWordAppended: (callback) => {
+                this.modules.japanese.onWordAppended = callback;
+            },
+            
+            // 网页查询回调
+            onWebSearch: (callback) => {
+                this.modules.dictionary.onWebSearch = callback;
+            }
+        };
+    }
+
+    // 销毁方法
+    destroy() {
+        Object.values(this.modules).forEach(module => {
+            if (module.destroy && typeof module.destroy === 'function') {
+                module.destroy();
+            }
+        });
+    }
+}
+
+// 全局访问
+window.ForeignLanguageMediaPlayer = ForeignLanguageMediaPlayer;
+
+// 自动初始化
+document.addEventListener('DOMContentLoaded', () => {
+    window.mediaPlayerApp = new ForeignLanguageMediaPlayer();
+    
+    // 暴露公共API给油猴脚本
+    window.mediaPlayer = window.mediaPlayerApp.getPublicAPI();
 });
 
-// 初始化文件处理
-function initFileHandlers(player) {
-    console.log('初始化文件处理...');
-    
-    const audioFileBtn = document.getElementById('audio-file-btn');
-    const subtitleFileBtn = document.getElementById('subtitle-file-btn');
-    const audioFileInput = document.getElementById('audio-file-input');
-    const subtitleFileInput = document.getElementById('subtitle-file-input');
-    const audioFileName = document.getElementById('audio-file-name');
-    const subtitleFileName = document.getElementById('subtitle-file-name');
-    const trackTitle = document.getElementById('track-title');
-    const trackDescription = document.getElementById('track-description');
-    
-    if (!audioFileBtn || !subtitleFileBtn) {
-        console.error('文件按钮元素未找到');
-        return;
-    }
-    
-    // 文件选择事件处理
-    audioFileBtn.addEventListener('click', () => {
-        console.log('点击音频文件按钮');
-        audioFileInput.click();
-    });
-    
-    subtitleFileBtn.addEventListener('click', () => {
-        console.log('点击字幕文件按钮');
-        subtitleFileInput.click();
-    });
-    
-    // 音频/视频文件选择处理
-    audioFileInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            console.log('选择音频文件:', file.name);
-            audioFileName.textContent = file.name;
-            trackTitle.textContent = file.name.replace(/\.[^/.]+$/, ""); // 移除扩展名
-            trackDescription.textContent = `文件大小: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
-            
-            // 处理音频文件
-            handleAudioFileSelect(file, player);
-        }
-    });
-    
-    // 字幕文件选择处理
-    subtitleFileInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            console.log('选择字幕文件:', file.name);
-            subtitleFileName.textContent = file.name;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const content = e.target.result;
-                // 调用字幕模块的解析函数
-                if (window.subtitleManager) {
-                    window.subtitleManager.parseSubtitle(content);
-                }
-            };
-            reader.onerror = function(error) {
-                console.error('读取字幕文件失败:', error);
-            };
-            reader.readAsText(file);
-        }
-    });
-}
+// 错误处理
+window.addEventListener('error', (event) => {
+    console.error('全局错误:', event.error);
+});
 
-// 初始化UI交互
-function initUIInteractions(player, subtitleManager, dictionaryManager) {
-    console.log('初始化UI交互...');
-    
-    const toggleSubtitleBtn = document.getElementById('toggle-subtitle-btn');
-    const dictionaryInput = document.getElementById('dictionary-input');
-    const dictionaryBtn = document.getElementById('dictionary-btn');
-    
-    if (!toggleSubtitleBtn || !dictionaryInput || !dictionaryBtn) {
-        console.error('UI元素未找到');
-        return;
-    }
-    
-    // 显示/隐藏字幕
-    toggleSubtitleBtn.addEventListener('click', () => {
-        subtitleManager.toggleSubtitle();
-    });
-    
-    // 查询按钮事件
-    dictionaryBtn.addEventListener('click', () => {
-        const word = dictionaryInput.value.trim();
-        dictionaryManager.searchWord(word);
-    });
-    
-    // 输入框回车事件
-    dictionaryInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const word = dictionaryInput.value.trim();
-            dictionaryManager.searchWord(word);
-        }
-    });
-    
-    // 将字幕管理器设为全局，供其他模块访问
-    window.subtitleManager = subtitleManager;
-}
-
-// 导出函数供其他模块使用
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { initFileHandlers, initUIInteractions };
-}
+window.addEventListener('unhandledrejection', (event) => {
+    console.error('未处理的Promise拒绝:', event.reason);
+});

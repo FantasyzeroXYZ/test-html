@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>英语学习媒体播放器</title>
+    <title>英语学习视频播放器</title>
     <style>
         * {
             margin: 0;
@@ -112,11 +112,6 @@
             object-fit: contain;
         }
         
-        .audio-player {
-            width: 100%;
-            margin-top: 15px;
-        }
-        
         .video-subtitles {
             position: absolute;
             bottom: 20px;
@@ -130,7 +125,6 @@
             z-index: 10;
             cursor: text;
             user-select: text;
-            pointer-events: none;
         }
         
         .video-subtitles span {
@@ -141,7 +135,6 @@
             max-width: 90%;
             cursor: text;
             user-select: text;
-            pointer-events: auto;
         }
         
         .video-controls {
@@ -150,7 +143,6 @@
             justify-content: center;
             gap: 10px;
             margin-top: 15px;
-            flex-wrap: wrap;
         }
         
         .control-btn {
@@ -313,19 +305,10 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
-        .anki-status-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        
         .anki-status {
             display: flex;
             align-items: center;
-            flex: 1;
-            min-width: 200px;
+            margin-bottom: 15px;
         }
         
         .status-indicator {
@@ -346,6 +329,7 @@
         .anki-controls {
             display: flex;
             gap: 8px;
+            margin-bottom: 15px;
         }
         
         .anki-btn {
@@ -357,6 +341,7 @@
             cursor: pointer;
             transition: all 0.3s;
             font-size: 0.9rem;
+            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -835,70 +820,6 @@
             height: 16px;
         }
         
-        /* 媒体类型选择器 */
-        .media-type-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            justify-content: center;
-        }
-        
-        .media-type-btn {
-            background: rgba(52, 152, 219, 0.3);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9rem;
-        }
-        
-        .media-type-btn.active {
-            background: rgba(52, 152, 219, 0.9);
-        }
-        
-        /* 全屏样式 */
-        .video-player:-webkit-full-screen {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .video-player:-moz-full-screen {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .video-player:-ms-fullscreen {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .video-player:fullscreen {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .video-player:-webkit-full-screen .video-subtitles {
-            font-size: 1.5rem;
-            bottom: 50px;
-        }
-        
-        .video-player:-moz-full-screen .video-subtitles {
-            font-size: 1.5rem;
-            bottom: 50px;
-        }
-        
-        .video-player:-ms-fullscreen .video-subtitles {
-            font-size: 1.5rem;
-            bottom: 50px;
-        }
-        
-        .video-player:fullscreen .video-subtitles {
-            font-size: 1.5rem;
-            bottom: 50px;
-        }
-        
         /* 移动设备横屏适配 */
         @media (min-width: 768px) {
             .container {
@@ -1068,22 +989,6 @@
             .panel-anki-btn {
                 width: 50px;
             }
-            
-            /* Anki状态行在移动端的布局 */
-            .anki-status-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .anki-status {
-                min-width: auto;
-                margin-bottom: 10px;
-            }
-            
-            .anki-controls {
-                width: 100%;
-                justify-content: space-between;
-            }
         }
         
         /* 超小屏幕手机适配 */
@@ -1115,29 +1020,23 @@
 </head>
 <body>
     <header>
-        <h1>英语学习媒体播放器</h1>
-        <p class="subtitle">支持视频/音频播放、字幕显示与Anki卡片生成功能</p>
+        <h1>英语学习视频播放器</h1>
+        <p class="subtitle">支持视频播放、字幕显示与Anki卡片生成功能</p>
     </header>
     
     <div class="container">
         <section class="anki-section">
             <div class="anki-container">
-                <div class="anki-status-row">
-                    <div class="anki-status">
-                        <div class="status-indicator" id="anki-status-indicator"></div>
-                        <span id="anki-status-text">检查Anki连接状态...</span>
-                    </div>
-                    <div class="anki-controls">
-                        <button class="anki-btn" id="check-anki-btn">状态</button>
-                        <button class="anki-btn" id="show-config-btn">配置</button>
-                    </div>
+                <div class="anki-status">
+                    <div class="status-indicator" id="anki-status-indicator"></div>
+                    <span id="anki-status-text">检查Anki连接状态...</span>
                 </div>
                 <div class="file-controls">
+                    <button class="anki-btn" id="check-anki-btn">状态</button>
+                    <button class="anki-btn" id="show-config-btn">配置</button>
                     <button class="file-btn" id="video-file-btn">视频</button>
-                    <button class="file-btn" id="audio-file-btn">音频</button>
                     <button class="file-btn" id="subtitle-file-btn">字幕</button>
                     <input type="file" id="video-file-input" accept="video/*" class="hidden">
-                    <input type="file" id="audio-file-input" accept="audio/*" class="hidden">
                     <input type="file" id="subtitle-file-input" accept=".srt,.vtt,.txt" class="hidden">
                 </div>
                 <div class="auto-config-section hidden" id="auto-config-section">
@@ -1191,32 +1090,21 @@
             <div class="player-container">
                 <div class="audio-info">
                     <div class="album-art">
-                        <i id="media-icon">▶</i>
+                        <i>▶</i>
                     </div>
                     <div class="track-info">
-                        <h2 id="track-title">请选择媒体文件</h2>
-                        <p id="track-description">支持 MP4, AVI, MKV, MP3, WAV 等格式</p>
+                        <h2 id="track-title">请选择视频文件</h2>
+                        <p id="track-description">支持 MP4, AVI, MKV, WebM 等格式</p>
                     </div>
                 </div>
                 
-                <div class="media-type-selector">
-                    <button class="media-type-btn active" id="video-mode-btn">视频模式</button>
-                    <button class="media-type-btn" id="audio-mode-btn">音频模式</button>
-                </div>
-                
-                <div class="video-player" id="video-player">
+                <div class="video-player">
                     <video id="player" controls>
                         <!-- 视频源将通过JavaScript动态设置 -->
                     </video>
                     <div class="video-subtitles" id="video-subtitles">
                         <!-- 视频内字幕将动态生成 -->
                     </div>
-                </div>
-                
-                <div class="audio-player hidden" id="audio-player">
-                    <audio id="audio-player-element" controls>
-                        <!-- 音频源将通过JavaScript动态设置 -->
-                    </audio>
                 </div>
                 
                 <div class="video-controls">
@@ -1228,12 +1116,6 @@
                     <button class="control-btn" id="next-sentence-btn" title="下一句">
                         <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
                             <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
-                        </svg>
-                    </button>
-                    <button class="control-btn" id="toggle-video-subtitles-btn" title="切换视频内字幕">
-                        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                            <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12z"/>
-                            <path d="M6 10h2v2H6zm0 4h8v2H6zm10 0h2v2h-2zm-6-4h8v2h-8z"/>
                         </svg>
                     </button>
                     <button class="control-btn" id="show-subtitle-list-btn" title="全部字幕">
@@ -1329,16 +1211,14 @@
     </div>
     
     <footer>
-        <p>网页媒体播放器 - 专为语言学习设计 | 部署于 GitHub Pages</p>
+        <p>网页视频播放器 - 专为语言学习设计 | 部署于 GitHub Pages</p>
     </footer>
 
     <script>
         // 获取DOM元素
         const videoFileBtn = document.getElementById('video-file-btn');
-        const audioFileBtn = document.getElementById('audio-file-btn');
         const subtitleFileBtn = document.getElementById('subtitle-file-btn');
         const videoFileInput = document.getElementById('video-file-input');
-        const audioFileInput = document.getElementById('audio-file-input');
         const subtitleFileInput = document.getElementById('subtitle-file-input');
         const trackTitle = document.getElementById('track-title');
         const trackDescription = document.getElementById('track-description');
@@ -1347,14 +1227,6 @@
         const subtitleDisplay = document.getElementById('subtitle-display');
         const videoPlayer = document.getElementById('player');
         const videoSubtitles = document.getElementById('video-subtitles');
-        const audioPlayerElement = document.getElementById('audio-player-element');
-        const mediaIcon = document.getElementById('media-icon');
-        
-        // 媒体类型选择
-        const videoModeBtn = document.getElementById('video-mode-btn');
-        const audioModeBtn = document.getElementById('audio-mode-btn');
-        const videoPlayerContainer = document.getElementById('video-player');
-        const audioPlayerContainer = document.getElementById('audio-player');
         
         // Anki相关元素
         const ankiStatusIndicator = document.getElementById('anki-status-indicator');
@@ -1374,7 +1246,6 @@
         const showSubtitleListBtn = document.getElementById('show-subtitle-list-btn');
         const subtitleListPanel = document.getElementById('subtitle-list-panel');
         const closeSubtitleListPanel = document.getElementById('close-subtitle-list-panel');
-        const toggleVideoSubtitlesBtn = document.getElementById('toggle-video-subtitles-btn');
         
         // 自动配置相关元素
         const deckSelect = document.getElementById('deck-select');
@@ -1402,13 +1273,11 @@
         // 状态变量
         let subtitles = [];
         let subtitleVisible = true;
-        let videoSubtitlesVisible = true;
         let currentHighlightedWord = null;
         let currentWord = '';
         let currentSentence = '';
         let currentSubtitleIndex = -1;
-        let currentMediaFile = null;
-        let currentMediaType = 'video'; // 'video' 或 'audio'
+        let videoFile = null;
         let playerWasPlaying = false;
         let ankiConnected = false;
         let ankiDecks = [];
@@ -1416,8 +1285,7 @@
         let currentModelFields = [];
         let activeTab = 'dictionary-tab'; // 当前激活的标签页
         let isProcessingAnki = false; // 防止重复点击
-        let audioContext = null;
-        let audioBuffer = null;
+        let videoContext = null; // 用于截图
 
         // 存储配置到localStorage
         function saveConfig() {
@@ -1457,10 +1325,6 @@
             videoFileInput.click();
         });
         
-        audioFileBtn.addEventListener('click', () => {
-            audioFileInput.click();
-        });
-        
         subtitleFileBtn.addEventListener('click', () => {
             subtitleFileInput.click();
         });
@@ -1469,18 +1333,13 @@
         videoFileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                currentMediaFile = file;
-                currentMediaType = 'video';
+                videoFile = file;
                 trackTitle.textContent = file.name.replace(/\.[^/.]+$/, ""); // 移除扩展名
                 trackDescription.textContent = `文件大小: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
-                mediaIcon.textContent = '▶';
                 
                 // 创建文件URL并设置播放器源
                 const fileURL = URL.createObjectURL(file);
                 videoPlayer.src = fileURL;
-                
-                // 切换到视频模式
-                switchToVideoMode();
                 
                 // 重置字幕
                 subtitles = [];
@@ -1489,89 +1348,6 @@
                 updateSubtitleList();
             }
         });
-        
-        // 音频文件选择处理
-        audioFileInput.addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                currentMediaFile = file;
-                currentMediaType = 'audio';
-                trackTitle.textContent = file.name.replace(/\.[^/.]+$/, ""); // 移除扩展名
-                trackDescription.textContent = `文件大小: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
-                mediaIcon.textContent = '♪';
-                
-                // 创建文件URL并设置播放器源
-                const fileURL = URL.createObjectURL(file);
-                audioPlayerElement.src = fileURL;
-                
-                // 切换到音频模式
-                switchToAudioMode();
-                
-                // 重置字幕
-                subtitles = [];
-                subtitleText.innerHTML = "无字幕";
-                videoSubtitles.innerHTML = "";
-                updateSubtitleList();
-                
-                // 加载音频文件到Web Audio API
-                await loadAudioBuffer(file);
-            }
-        });
-        
-        // 切换到视频模式
-        function switchToVideoMode() {
-            currentMediaType = 'video';
-            videoModeBtn.classList.add('active');
-            audioModeBtn.classList.remove('active');
-            videoPlayerContainer.classList.remove('hidden');
-            audioPlayerContainer.classList.add('hidden');
-        }
-        
-        // 切换到音频模式
-        function switchToAudioMode() {
-            currentMediaType = 'audio';
-            audioModeBtn.classList.add('active');
-            videoModeBtn.classList.remove('active');
-            audioPlayerContainer.classList.remove('hidden');
-            videoPlayerContainer.classList.add('hidden');
-        }
-        
-        // 模式切换事件
-        videoModeBtn.addEventListener('click', () => {
-            if (currentMediaType === 'audio' && currentMediaFile) {
-                // 切换到视频模式
-                const fileURL = URL.createObjectURL(currentMediaFile);
-                videoPlayer.src = fileURL;
-                switchToVideoMode();
-            }
-        });
-        
-        audioModeBtn.addEventListener('click', () => {
-            if (currentMediaType === 'video' && currentMediaFile) {
-                // 切换到音频模式
-                const fileURL = URL.createObjectURL(currentMediaFile);
-                audioPlayerElement.src = fileURL;
-                switchToAudioMode();
-            }
-        });
-        
-        // 加载音频文件到Web Audio API
-        async function loadAudioBuffer(file) {
-            try {
-                // 创建AudioContext
-                if (!audioContext) {
-                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                
-                // 读取文件
-                const arrayBuffer = await file.arrayBuffer();
-                audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-                
-                console.log('音频文件已加载到Web Audio API');
-            } catch (error) {
-                console.error('加载音频文件失败:', error);
-            }
-        }
         
         // 字幕文件选择处理
         subtitleFileInput.addEventListener('change', function(e) {
@@ -1656,11 +1432,7 @@
                 listItem.textContent = `${formatTime(subtitle.start)} - ${formatTime(subtitle.end)}: ${subtitle.text}`;
                 listItem.addEventListener('click', () => {
                     // 跳转到该字幕开始时间
-                    if (currentMediaType === 'video') {
-                        videoPlayer.currentTime = subtitle.start;
-                    } else {
-                        audioPlayerElement.currentTime = subtitle.start;
-                    }
+                    videoPlayer.currentTime = subtitle.start;
                     currentSubtitleIndex = index;
                     updateActiveSubtitleItem();
                     closeSubtitleListPanelFunc();
@@ -1712,11 +1484,7 @@
                 currentSubtitleIndex = foundIndex;
                 
                 // 更新视频内字幕
-                if (videoSubtitlesVisible && currentMediaType === 'video') {
-                    videoSubtitles.innerHTML = `<span>${currentSubtitle.text}</span>`;
-                } else {
-                    videoSubtitles.innerHTML = "";
-                }
+                videoSubtitles.innerHTML = `<span>${currentSubtitle.text}</span>`;
                 
                 // 改进的字幕文本转换，修复句末单词无法点击的问题
                 const text = currentSubtitle.text;
@@ -1762,13 +1530,8 @@
                 const word = e.target.getAttribute('data-word');
                 
                 // 点击单词时暂停播放
-                if (currentMediaType === 'video') {
-                    playerWasPlaying = !videoPlayer.paused;
-                    videoPlayer.pause();
-                } else {
-                    playerWasPlaying = !audioPlayerElement.paused;
-                    audioPlayerElement.pause();
-                }
+                playerWasPlaying = !videoPlayer.paused;
+                videoPlayer.pause();
                 
                 // 查询单词并显示底部面板
                 searchWordInPanel(word);
@@ -1924,16 +1687,6 @@
             subtitleDisplay.style.display = subtitleVisible ? 'block' : 'none';
         });
         
-        // 切换视频内字幕显示
-        toggleVideoSubtitlesBtn.addEventListener('click', () => {
-            videoSubtitlesVisible = !videoSubtitlesVisible;
-            if (!videoSubtitlesVisible) {
-                videoSubtitles.innerHTML = "";
-            } else if (currentSubtitleIndex >= 0) {
-                videoSubtitles.innerHTML = `<span>${subtitles[currentSubtitleIndex].text}</span>`;
-            }
-        });
-        
         // 上一句跳转
         prevSentenceBtn.addEventListener('click', () => {
             if (subtitles.length === 0) return;
@@ -1941,11 +1694,7 @@
             let targetIndex = currentSubtitleIndex - 1;
             if (targetIndex < 0) targetIndex = 0;
             
-            if (currentMediaType === 'video') {
-                videoPlayer.currentTime = subtitles[targetIndex].start;
-            } else {
-                audioPlayerElement.currentTime = subtitles[targetIndex].start;
-            }
+            videoPlayer.currentTime = subtitles[targetIndex].start;
             currentSubtitleIndex = targetIndex;
             updateActiveSubtitleItem();
         });
@@ -1957,11 +1706,7 @@
             let targetIndex = currentSubtitleIndex + 1;
             if (targetIndex >= subtitles.length) targetIndex = subtitles.length - 1;
             
-            if (currentMediaType === 'video') {
-                videoPlayer.currentTime = subtitles[targetIndex].start;
-            } else {
-                audioPlayerElement.currentTime = subtitles[targetIndex].start;
-            }
+            videoPlayer.currentTime = subtitles[targetIndex].start;
             currentSubtitleIndex = targetIndex;
             updateActiveSubtitleItem();
         });
@@ -1970,11 +1715,7 @@
         timeJumpBtn.addEventListener('click', () => {
             const time = parseFloat(timeJumpInput.value);
             if (!isNaN(time) && time >= 0) {
-                if (currentMediaType === 'video') {
-                    videoPlayer.currentTime = time;
-                } else {
-                    audioPlayerElement.currentTime = time;
-                }
+                videoPlayer.currentTime = time;
             }
         });
         
@@ -1982,11 +1723,7 @@
             if (e.key === 'Enter') {
                 const time = parseFloat(timeJumpInput.value);
                 if (!isNaN(time) && time >= 0) {
-                    if (currentMediaType === 'video') {
-                        videoPlayer.currentTime = time;
-                    } else {
-                        audioPlayerElement.currentTime = time;
-                    }
+                    videoPlayer.currentTime = time;
                 }
             }
         });
@@ -2337,7 +2074,7 @@
             }, 100);
         });
         
-        // 修复：在processAnkiCard函数中，确保音频和图片字段引用正确
+        // 修复：在processAnkiCard函数中，确保图片字段引用正确
         async function processAnkiCard(word, definition) {
             // 准备Anki卡片数据
             const note = {
@@ -2351,25 +2088,11 @@
                 options: {
                     allowDuplicate: false
                 },
-                tags: ['media-player']
+                tags: ['video-player']
             };
             
-            // 如果有音频，先处理音频
-            if (audioFieldSelect.value && currentMediaType === 'audio' && audioBuffer && audioContext && currentSubtitleIndex >= 0) {
-                try {
-                    const audioFileName = await processAudioFile(word);
-                    if (audioFileName) {
-                        note.fields[audioFieldSelect.value] = `[sound:${audioFileName}]`;
-                        console.log('音频字段设置:', audioFileName);
-                    }
-                } catch (error) {
-                    console.error('音频处理失败:', error);
-                    // 即使音频处理失败，仍然继续添加卡片
-                }
-            }
-            
             // 如果有图片字段设置，则截图
-            if (imageFieldSelect.value && currentMediaType === 'video' && currentMediaFile) {
+            if (imageFieldSelect.value && videoFile) {
                 try {
                     const imageFileName = await captureVideoFrame(word);
                     if (imageFileName) {
@@ -2387,60 +2110,12 @@
         }
 
         // 生成文件名
-        function generateAudioFileName(word) {
-            const cleanWord = word.replace(/[^a-z]/gi, '').toLowerCase() || 'audio';
-            // 增加时间戳避免重名
-            let fileName = `audio_${cleanWord}_${Date.now()}.wav`;
-            fileName = fileName.replace(/[^\w.\-]/g, '_');
-            return fileName;
-        }
-        
         function generateImageFileName(word) {
             const cleanWord = word.replace(/[^a-z]/gi, '').toLowerCase() || 'screenshot';
             // 增加时间戳避免重名
             let fileName = `screenshot_${cleanWord}_${Date.now()}.jpg`;
             fileName = fileName.replace(/[^\w.\-]/g, '_');
             return fileName;
-        }
-
-        // 处理音频文件并返回实际存储名
-        async function processAudioFile(word) {
-            try {
-                const audioBlob = await generateAudioClip(currentSubtitleIndex);
-                const audioFileName = generateAudioFileName(word);
-                console.log('准备存储音频文件:', audioFileName);
-
-                const base64Audio = await blobToBase64(audioBlob);
-
-                const response = await fetch('http://127.0.0.1:8765', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'storeMediaFile',
-                        version: 6,
-                        params: {
-                            filename: audioFileName,
-                            data: base64Audio.split(',')[1],
-                            deleteExisting: true
-                        }
-                    })
-                });
-
-                const result = await response.json();
-                if (result.error) {
-                    console.error('存储音频文件失败:', result.error);
-                    return null;
-                }
-
-                // 使用返回的 result 字段（实际文件名）
-                const storedName = result.result || audioFileName;
-                console.log('音频文件实际存储名:', storedName);
-                return storedName;
-
-            } catch (error) {
-                console.error('音频处理错误:', error);
-                return null;
-            }
         }
 
         // 截图功能
@@ -2502,118 +2177,6 @@
             });
         }
 
-        // 生成当前句子的音频片段
-        function generateAudioClip(subtitleIndex) {
-            return new Promise((resolve, reject) => {
-                if (!audioBuffer || !audioContext) {
-                    reject(new Error('音频未加载，无法生成音频片段'));
-                    return;
-                }
-                
-                const subtitle = subtitles[subtitleIndex];
-                const startTime = Math.max(0, subtitle.start);
-                const endTime = Math.min(audioBuffer.duration, subtitle.end);
-                
-                // 计算开始和结束的样本位置
-                const startOffset = Math.floor(startTime * audioBuffer.sampleRate);
-                const endOffset = Math.floor(endTime * audioBuffer.sampleRate);
-                const length = endOffset - startOffset;
-                
-                if (length <= 0) {
-                    reject(new Error('无效的音频片段长度'));
-                    return;
-                }
-                
-                // 创建新的音频缓冲区
-                const newBuffer = audioContext.createBuffer(
-                    audioBuffer.numberOfChannels,
-                    length,
-                    audioBuffer.sampleRate
-                );
-                
-                // 复制音频数据
-                for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
-                    const channelData = audioBuffer.getChannelData(channel);
-                    const newChannelData = newBuffer.getChannelData(channel);
-                    
-                    for (let i = 0; i < length; i++) {
-                        newChannelData[i] = channelData[startOffset + i];
-                    }
-                }
-                
-                // 将音频缓冲区转换为WAV格式
-                const wavBlob = bufferToWav(newBuffer);
-                
-                console.log('音频片段已生成');
-                resolve(wavBlob);
-            });
-        }
-        
-        // 将AudioBuffer转换为WAV Blob
-        function bufferToWav(buffer) {
-            const numChannels = buffer.numberOfChannels;
-            const sampleRate = buffer.sampleRate;
-            const length = buffer.length;
-            const bytesPerSample = 2;
-            const blockAlign = numChannels * bytesPerSample;
-            
-            // 计算数据大小
-            const dataSize = length * blockAlign;
-            
-            // 创建WAV文件头
-            const bufferArray = new ArrayBuffer(44 + dataSize);
-            const view = new DataView(bufferArray);
-            
-            // RIFF标识
-            writeString(view, 0, 'RIFF');
-            // 文件长度
-            view.setUint32(4, 36 + dataSize, true);
-            // WAVE标识
-            writeString(view, 8, 'WAVE');
-            // fmt chunk
-            writeString(view, 12, 'fmt ');
-            // fmt chunk长度
-            view.setUint32(16, 16, true);
-            // 音频格式 (1 = PCM)
-            view.setUint16(20, 1, true);
-            // 声道数
-            view.setUint16(22, numChannels, true);
-            // 采样率
-            view.setUint32(24, sampleRate, true);
-            // 字节率
-            view.setUint32(28, sampleRate * blockAlign, true);
-            // 块对齐
-            view.setUint16(32, blockAlign, true);
-            // 位深度
-            view.setUint16(34, bytesPerSample * 8, true);
-            // data chunk
-            writeString(view, 36, 'data');
-            // data chunk长度
-            view.setUint32(40, dataSize, true);
-            
-            // 写入PCM数据
-            const offset = 44;
-            let index = 0;
-            
-            for (let i = 0; i < length; i++) {
-                for (let channel = 0; channel < numChannels; channel++) {
-                    const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
-                    const int16Sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
-                    view.setInt16(offset + index, int16Sample, true);
-                    index += 2;
-                }
-            }
-            
-            return new Blob([bufferArray], { type: 'audio/wav' });
-        }
-                
-        // 写入字符串到DataView
-        function writeString(view, offset, string) {
-            for (let i = 0; i < string.length; i++) {
-                view.setUint8(offset + i, string.charCodeAt(i));
-            }
-        }
-
         // 处理整张卡片
         async function processAnkiCard(word, definition) {
             const note = {
@@ -2625,24 +2188,11 @@
                     [definitionFieldSelect.value]: definition
                 },
                 options: { allowDuplicate: false },
-                tags: ['media-player']
+                tags: ['video-player']
             };
 
-            // 若有音频字段设置，则处理音频
-            if (audioFieldSelect.value && currentMediaType === 'audio' && audioBuffer && audioContext && currentSubtitleIndex >= 0) {
-                try {
-                    const storedAudioName = await processAudioFile(word);
-                    if (storedAudioName) {
-                        note.fields[audioFieldSelect.value] = `[sound:${storedAudioName}]`;
-                        console.log('音频字段设置:', storedAudioName);
-                    }
-                } catch (error) {
-                    console.error('音频处理失败:', error);
-                }
-            }
-
             // 若有图片字段设置，则截图
-            if (imageFieldSelect.value && currentMediaType === 'video' && currentMediaFile) {
+            if (imageFieldSelect.value && videoFile) {
                 try {
                     const storedImageName = await captureVideoFrame(word);
                     if (storedImageName) {
@@ -2758,12 +2308,8 @@
             document.body.style.overflow = '';
             
             // 恢复播放
-            if (playerWasPlaying) {
-                if (currentMediaType === 'video' && videoPlayer.paused) {
-                    videoPlayer.play();
-                } else if (currentMediaType === 'audio' && audioPlayerElement.paused) {
-                    audioPlayerElement.play();
-                }
+            if (playerWasPlaying && videoPlayer.paused) {
+                videoPlayer.play();
             }
         }
         
@@ -2808,17 +2354,13 @@
             updateSubtitle(videoPlayer.currentTime);
         });
         
-        audioPlayerElement.addEventListener('timeupdate', event => {
-            updateSubtitle(audioPlayerElement.currentTime);
-        });
-        
         // 修复iOS兼容性问题
         function fixIOSCompatibility() {
             // iOS音频播放修复
             document.addEventListener('touchstart', function() {
                 // 确保音频上下文在用户交互后创建
-                if (audioContext && audioContext.state === 'suspended') {
-                    audioContext.resume();
+                if (videoContext && videoContext.state === 'suspended') {
+                    videoContext.resume();
                 }
             }, { once: true });
             
@@ -2829,17 +2371,6 @@
                     setTimeout(() => {
                         if (videoPlayer.paused) {
                             videoPlayer.play().catch(e => console.log('iOS自动播放被阻止:', e));
-                        }
-                    }, 500);
-                }
-            });
-            
-            audioFileInput.addEventListener('change', function(e) {
-                // iOS文件选择后立即播放
-                if (e.target.files.length > 0) {
-                    setTimeout(() => {
-                        if (audioPlayerElement.paused) {
-                            audioPlayerElement.play().catch(e => console.log('iOS自动播放被阻止:', e));
                         }
                     }, 500);
                 }

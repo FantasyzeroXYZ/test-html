@@ -150,7 +150,7 @@
             padding: 10px;
         }
         
-        /* 新增：视频播放器样式 */
+        /* 新增：视频播放器样式 - 移除外部控制条 */
         .video-container {
             margin-bottom: 15px;
             border-radius: 8px;
@@ -164,41 +164,13 @@
             max-height: 400px;
         }
         
+        /* 移除截图控制区域 */
         .screenshot-controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .screenshot-btn {
-            background: rgba(46, 204, 113, 0.7);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .screenshot-btn:hover, .screenshot-btn:active {
-            background: rgba(46, 204, 113, 1);
+            display: none;
         }
         
         .screenshot-preview {
-            margin-top: 10px;
-            text-align: center;
-        }
-        
-        .screenshot-preview img {
-            max-width: 100%;
-            max-height: 150px;
-            border-radius: 5px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: none;
         }
         
         .subtitle-section {
@@ -1140,13 +1112,6 @@
                     <video id="video-player" controls>
                         <!-- 视频源将通过JavaScript动态设置 -->
                     </video>
-                    <div class="screenshot-controls">
-                        <button class="screenshot-btn" id="capture-screenshot-btn">截图</button>
-                        <button class="screenshot-btn" id="clear-screenshot-btn">清除</button>
-                    </div>
-                    <div class="screenshot-preview" id="screenshot-preview">
-                        <!-- 截图预览将动态生成 -->
-                    </div>
                 </div>
                 
                 <audio id="player" controls>
@@ -1276,10 +1241,11 @@
             ]
         });
 
-        // 新增：视频播放器
+        // 新增：视频播放器 - 使用Plyr内置控制条
         const videoPlayer = document.getElementById('video-player');
         const videoPlyr = new Plyr(videoPlayer, {
             controls: [
+                'play-large',
                 'play',
                 'progress',
                 'current-time',
@@ -1303,9 +1269,6 @@
         
         // 新增：视频相关元素
         const videoContainer = document.getElementById('video-container');
-        const captureScreenshotBtn = document.getElementById('capture-screenshot-btn');
-        const clearScreenshotBtn = document.getElementById('clear-screenshot-btn');
-        const screenshotPreview = document.getElementById('screenshot-preview');
         
         // Anki相关元素
         const ankiStatusIndicator = document.getElementById('anki-status-indicator');
@@ -1366,7 +1329,6 @@
         let currentModelFields = [];
         let activeTab = 'dictionary-tab'; // 当前激活的标签页
         let isProcessingAnki = false; // 防止重复点击
-        let currentScreenshot = null; // 当前截图
 
         // 存储配置到localStorage
         function saveConfig() {
@@ -1447,10 +1409,6 @@
                             type: file.type
                         }]
                     };
-                    
-                    // 重置截图
-                    currentScreenshot = null;
-                    screenshotPreview.innerHTML = '';
                 } else {
                     // 音频文件
                     videoContainer.classList.add('hidden');
@@ -1907,46 +1865,6 @@
         
         closeSubtitleListPanel.addEventListener('click', closeSubtitleListPanelFunc);
         
-        // 新增：截图功能
-        captureScreenshotBtn.addEventListener('click', captureScreenshot);
-        clearScreenshotBtn.addEventListener('click', clearScreenshot);
-        
-        function captureScreenshot() {
-            if (videoContainer.classList.contains('hidden')) {
-                alert('当前没有播放视频文件');
-                return;
-            }
-            
-            try {
-                // 创建canvas元素
-                const canvas = document.createElement('canvas');
-                const video = videoPlayer;
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                
-                // 绘制当前视频帧到canvas
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                
-                // 转换为base64格式
-                const screenshotData = canvas.toDataURL('image/png');
-                currentScreenshot = screenshotData;
-                
-                // 显示预览
-                screenshotPreview.innerHTML = `<img src="${screenshotData}" alt="截图预览">`;
-                
-                console.log('截图已保存');
-            } catch (error) {
-                console.error('截图失败:', error);
-                alert('截图失败: ' + error.message);
-            }
-        }
-        
-        function clearScreenshot() {
-            currentScreenshot = null;
-            screenshotPreview.innerHTML = '';
-        }
-        
         // Anki连接检查
         async function checkAnkiConnection() {
             ankiStatusText.textContent = '检查Anki连接状态...';
@@ -2291,9 +2209,9 @@
                 tags: ['audio-player']
             };
             
-            // 如果有音频，先处理音频
             const isVideo = !videoContainer.classList.contains('hidden');
             
+            // 如果有音频，先处理音频
             if (!isVideo && audioBuffer && audioContext && currentSubtitleIndex >= 0) {
                 try {
                     const audioFileName = await processAudioFile(word);
@@ -2308,18 +2226,18 @@
                 }
             }
             
-            // 如果有截图，处理图片
-            if (isVideo && currentScreenshot && imageFieldSelect.value) {
+            // 如果有视频且设置了图片字段，自动截图
+            if (isVideo && imageFieldSelect.value) {
                 try {
-                    const imageFileName = await processImageFile(word);
+                    const imageFileName = await captureAndProcessVideoScreenshot(word);
                     if (imageFileName) {
                         // 确保图片字段引用格式正确
                         note.fields[imageFieldSelect.value] = `<img src="${imageFileName}">`;
                         console.log('图片字段设置:', imageFileName);
                     }
                 } catch (error) {
-                    console.error('图片处理失败:', error);
-                    // 即使图片处理失败，仍然继续添加卡片
+                    console.error('视频截图处理失败:', error);
+                    // 即使截图处理失败，仍然继续添加卡片
                 }
             }
             
@@ -2385,14 +2303,27 @@
             }
         }
 
-        // 处理图片文件并返回实际存储名
-        async function processImageFile(word) {
+        // 捕获视频截图并处理
+        async function captureAndProcessVideoScreenshot(word) {
             try {
                 const imageFileName = generateImageFileName(word);
                 console.log('准备存储图片文件:', imageFileName);
 
+                // 创建canvas元素
+                const canvas = document.createElement('canvas');
+                const video = videoPlayer;
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                
+                // 绘制当前视频帧到canvas
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                // 转换为base64格式
+                const screenshotData = canvas.toDataURL('image/png');
+                
                 // 从base64数据中提取纯数据部分
-                const base64Data = currentScreenshot.split(',')[1];
+                const base64Data = screenshotData.split(',')[1];
 
                 const response = await fetch('http://127.0.0.1:8765', {
                     method: 'POST',
@@ -2419,7 +2350,7 @@
                 return storedName;
 
             } catch (error) {
-                console.error('图片处理错误:', error);
+                console.error('视频截图处理错误:', error);
                 return null;
             }
         }
@@ -2453,16 +2384,16 @@
                 }
             }
 
-            // 若有截图，处理图片
-            if (isVideo && currentScreenshot && imageFieldSelect.value) {
+            // 若有视频且设置了图片字段，自动截图
+            if (isVideo && imageFieldSelect.value) {
                 try {
-                    const storedImageName = await processImageFile(word);
+                    const storedImageName = await captureAndProcessVideoScreenshot(word);
                     if (storedImageName) {
                         note.fields[imageFieldSelect.value] = `<img src="${storedImageName}">`;
                         console.log('图片字段设置:', storedImageName);
                     }
                 } catch (error) {
-                    console.error('图片处理失败:', error);
+                    console.error('视频截图处理失败:', error);
                 }
             }
 

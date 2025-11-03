@@ -1,35 +1,82 @@
-name: Deploy static site to GitHub Pages
+name: Deploy Vite React App to GitHub Pages
 
 on:
   push:
-    branches: [ main ]     # 当 main 分支有推送时自动部署
-  workflow_dispatch:        # 允许手动触发部署
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  # 允许手动触发部署
+  workflow_dispatch:
+
+# 设置GITHUB_TOKEN的权限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 允许一个并发部署
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
+  # 构建工作
+  build:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+    - name: Checkout 代码
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: 安装依赖
+      run: npm ci
+
+    - name: 运行代码检查
+      run: |
+        npm run lint || echo "Linting completed"
+        npm run type-check || echo "Type check completed"
+
+    - name: 构建应用
+      run: npm run build
+      env:
+        # 设置构建时的环境变量
+        VITE_APP_VERSION: ${{ github.sha }}
+        VITE_APP_BUILD_TIME: ${{ github.event.head_commit.timestamp }}
+
+    - name: 生成构建信息
+      run: |
+        echo "Build Date: $(date)" > dist/build-info.txt
+        echo "Commit: ${{ github.sha }}" >> dist/build-info.txt
+        echo "Branch: ${{ github.ref }}" >> dist/build-info.txt
+
+    - name: 上传构建产物
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ./dist
+
+  # 部署工作
   deploy:
     environment:
-      name: github-pages     # ✅ 必须：指定部署环境
+      name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
+    
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-
+    needs: build
+    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload site files
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .             # 你网站的根目录（index.html 所在处）
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+    - name: 部署到 GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4

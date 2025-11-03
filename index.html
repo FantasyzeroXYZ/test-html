@@ -2119,96 +2119,83 @@
             await addCardToAnki(note);
         }
 
-        // 最简单的音频文件名生成函数
+        // 生成文件名
         function generateAudioFileName(word) {
-            // 清理单词，只保留字母
-            const cleanWord = word.replace(/[^a-z]/gi, '').toLowerCase();
-            
-            // 直接使用单词生成文件名
-            let fileName = `audio_${cleanWord}.wav`;
-            
-            // 简单的文件名消毒
-            fileName = fileName.replace(/[:\/\?#\[\]@!$&'()*+,;= "<>%{}|\\^`]/g, '_');
-            fileName = fileName.replace(/[^\w\.\-]/g, '_');
-            
+            const cleanWord = word.replace(/[^a-z]/gi, '').toLowerCase() || 'audio';
+            // 增加时间戳避免重名
+            let fileName = `audio_${cleanWord}_${Date.now()}.wav`;
+            fileName = fileName.replace(/[^\w.\-]/g, '_');
             return fileName;
         }
 
-        // 修复：简化音频文件处理 - 确保文件名一致性
+        // 处理音频文件并返回实际存储名
         async function processAudioFile(word) {
             try {
-                // 生成音频片段
                 const audioBlob = await generateAudioClip(currentSubtitleIndex);
-                
-                // 使用统一的文件名生成
                 const audioFileName = generateAudioFileName(word);
-                
                 console.log('准备存储音频文件:', audioFileName);
-                
-                // 将音频Blob转换为base64
+
                 const base64Audio = await blobToBase64(audioBlob);
-                
-                // 存储音频文件到Anki - 直接使用生成的文件名
-                const storeAudioResponse = await fetch('http://127.0.0.1:8765', {
+
+                const response = await fetch('http://127.0.0.1:8765', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         action: 'storeMediaFile',
                         version: 6,
                         params: {
                             filename: audioFileName,
                             data: base64Audio.split(',')[1],
-                            deleteExisting: false
+                            deleteExisting: true // ✅ 允许覆盖，防止自动改名
                         }
                     })
                 });
-                
-                const storeResult = await storeAudioResponse.json();
-                
-                if (storeResult.error) {
-                    console.error('存储音频文件失败:', storeResult.error);
+
+                const result = await response.json();
+                if (result.error) {
+                    console.error('存储音频文件失败:', result.error);
                     return null;
                 }
-                
-                console.log('音频文件存储成功:', audioFileName);
-                return audioFileName;
+
+                // ✅ 使用返回的 result 字段（实际文件名）
+                const storedName = result.result || audioFileName;
+                console.log('音频文件实际存储名:', storedName);
+                return storedName;
+
             } catch (error) {
                 console.error('音频处理错误:', error);
                 return null;
             }
         }
 
-        // 修复：在添加卡片时添加错误处理和日志
-        async function addCardToAnki(note) {
-            console.log('准备添加卡片到Anki:', note);
-            
-            const response = await fetch('http://127.0.0.1:8765', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
+        // 处理整张卡片
+        async function processAnkiCard(word, definition) {
+            const note = {
+                deckName: deckSelect.value,
+                modelName: modelSelect.value,
+                fields: {
+                    [wordFieldSelect.value]: word,
+                    [sentenceFieldSelect.value]: currentSentence,
+                    [definitionFieldSelect.value]: definition
                 },
-                body: JSON.stringify({
-                    action: 'addNote',
-                    version: 6,
-                    params: {
-                        note: note
+                options: { allowDuplicate: false },
+                tags: ['audio-player']
+            };
+
+            // 若有音频，先处理音频
+            if (audioBuffer && audioContext && currentSubtitleIndex >= 0) {
+                try {
+                    const storedAudioName = await processAudioFile(word);
+                    if (storedAudioName) {
+                        note.fields[audioFieldSelect.value] = `[sound:${storedAudioName}]`;
+                        console.log('音频字段设置:', storedAudioName);
                     }
-                })
-            });
-            
-            const result = await response.json();
-            
-            if (result.error) {
-                console.error('添加卡片失败:', result.error);
-                console.error('卡片数据:', note);
-                throw new Error(result.error);
+                } catch (error) {
+                    console.error('音频处理失败:', error);
+                }
             }
-            
-            console.log('卡片添加成功，卡片ID:', result.result);
-            alert('卡片已成功添加到Anki!');
-            return result.result;
+
+            await addCardToAnki(note);
         }
 
         // 生成当前句子的音频片段

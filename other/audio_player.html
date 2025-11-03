@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>移动端音频播放器 - 带字幕与Anki卡片生成</title>
+    <title>英语学习音频播放器</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <style>
+        /* 样式保持不变，与之前相同 */
         * {
             margin: 0;
             padding: 0;
@@ -59,8 +60,9 @@
         
         .file-controls {
             display: flex;
-            flex-direction: column;
-            gap: 12px;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 8px;
             margin-bottom: 15px;
         }
         
@@ -68,42 +70,21 @@
             background: rgba(52, 152, 219, 0.7);
             color: white;
             border: none;
-            padding: 14px 20px;
+            padding: 12px 10px;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
-            font-size: 1rem;
+            font-size: 0.9rem;
             text-align: center;
-            width: 100%;
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .file-btn:hover, .file-btn:active {
             background: rgba(52, 152, 219, 1);
-        }
-        
-        .file-info {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 15px;
-        }
-        
-        .file-card {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            padding: 12px 15px;
-        }
-        
-        .file-card h3 {
-            font-size: 1rem;
-            margin-bottom: 5px;
-            color: #3498db;
-        }
-        
-        .file-card p {
-            font-size: 0.9rem;
-            color: #bbb;
-            word-break: break-all;
         }
         
         .player-section {
@@ -203,43 +184,332 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
         }
         
         .subtitle-btn {
             background: rgba(52, 152, 219, 0.7);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 10px 15px;
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s;
             font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .subtitle-btn:hover, .subtitle-btn:active {
             background: rgba(52, 152, 219, 1);
         }
         
-        .dictionary-section {
+        .hint {
+            text-align: center;
+            color: #bbb;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+        
+        footer {
+            margin-top: 25px;
+            text-align: center;
+            color: #ddd;
+            font-size: 0.8rem;
+            padding: 0 10px;
+            width: 100%;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .word {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .word:hover, .word:active {
+            background-color: rgba(52, 152, 219, 0.2);
+        }
+        
+        .loading {
+            text-align: center;
+            color: #3498db;
+            font-style: italic;
+        }
+
+        .error {
+            color: #e74c3c;
+            text-align: center;
+        }
+        
+        /* Anki部分样式 */
+        .anki-section {
             margin-bottom: 20px;
         }
         
-        .dictionary-container {
+        .anki-container {
             background: rgba(30, 30, 40, 0.9);
             border-radius: 10px;
             padding: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
-        .dictionary-header {
+        .anki-status {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .status-connected {
+            background-color: #2ecc71;
+        }
+        
+        .status-disconnected {
+            background-color: #e74c3c;
+        }
+        
+        .anki-controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .anki-btn {
+            background: rgba(155, 89, 182, 0.7);
+            color: white;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+        }
+        
+        .anki-btn:hover, .anki-btn:active {
+            background: rgba(155, 89, 182, 1);
+        }
+        
+        .add-to-anki-btn {
+            background: rgba(231, 76, 60, 0.7);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            margin-top: 15px;
+            width: 100%;
+        }
+        
+        .add-to-anki-btn:hover, .add-to-anki-btn:active {
+            background: rgba(231, 76, 60, 1);
+        }
+        
+        /* 修复：配置设置始终可见 */
+        .config-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+        }
+        
+        .config-row {
             display: flex;
             flex-direction: column;
+            margin-bottom: 10px;
+        }
+        
+        .config-label {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #ddd;
+        }
+        
+        .config-input {
+            padding: 8px 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        /* 播放器中的跳转控件 */
+        .jump-controls-in-player {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding: 8px 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .jump-time-in-player {
+            font-size: 0.8rem;
+            color: #bbb;
+        }
+        
+        .jump-buttons-in-player {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        
+        /* 时间跳转栏 */
+        .time-input-container {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .time-input {
+            flex: 1;
+            padding: 8px 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.9rem;
+            max-width: 120px;
+        }
+        
+        .time-jump-btn {
+            background: rgba(52, 152, 219, 0.7);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 修复：底部弹出面板 - 移除大框滚动 */
+        .dictionary-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(30, 30, 40, 0.95);
+            border-radius: 15px 15px 0 0;
+            padding: 20px;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+            z-index: 1000;
+            max-height: 80vh;
+            /* 移除overflow-y: auto; */
+        }
+        
+        .dictionary-panel.active {
+            transform: translateY(0);
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .close-panel {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .panel-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s;
+        }
+        
+        .panel-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* 自动检测的牌组和字段选择 */
+        .auto-config-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+        }
+        
+        .auto-config-row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+        
+        .auto-config-label {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #ddd;
+        }
+        
+        .auto-config-select {
+            padding: 8px 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        /* 修复：词典面板中的搜索框 */
+        .panel-search {
+            display: flex;
             gap: 10px;
             margin-bottom: 15px;
         }
         
-        .dictionary-input {
-            flex-grow: 1;
+        .panel-search-input {
+            flex: 1;
             padding: 12px 15px;
             border: none;
             border-radius: 5px;
@@ -248,7 +518,7 @@
             font-size: 1rem;
         }
         
-        .dictionary-btn {
+        .panel-search-btn {
             background: rgba(46, 204, 113, 0.7);
             color: white;
             border: none;
@@ -257,12 +527,73 @@
             cursor: pointer;
             transition: all 0.3s;
             font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        .dictionary-btn:hover, .dictionary-btn:active {
+        .panel-search-btn:hover, .panel-search-btn:active {
             background: rgba(46, 204, 113, 1);
         }
         
+        /* 修复：添加Anki按钮与搜索按钮并排 - 使用图标 */
+        .panel-search-anki-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .panel-search-container {
+            display: flex;
+            flex: 1;
+            gap: 10px;
+        }
+        
+        .panel-anki-btn {
+            background: rgba(231, 76, 60, 0.7);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            width: 50px;
+        }
+        
+        .panel-anki-btn:hover, .panel-anki-btn:active {
+            background: rgba(231, 76, 60, 1);
+        }
+        
+        .panel-anki-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+        
+        /* 原句显示区域 */
+        .original-sentence {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            line-height: 1.5;
+            font-size: 1rem;
+        }
+        
+        .sentence-word {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .sentence-word:hover, .sentence-word:active {
+            background-color: rgba(52, 152, 219, 0.2);
+        }
+        
+        /* 修复：词典结果样式 - 固定高度并只允许释义栏滚动 */
         .dictionary-result {
             margin-top: 15px;
             padding: 15px;
@@ -317,234 +648,64 @@
             margin-bottom: 8px;
         }
         
-        .hint {
-            text-align: center;
+        /* 标签页样式 */
+        .dictionary-tabs {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 15px;
+        }
+        
+        .tab-button {
+            background: transparent;
             color: #bbb;
-            font-size: 0.9rem;
-            margin-top: 10px;
-            line-height: 1.4;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 2px solid transparent;
+            font-size: 0.95rem;
         }
         
-        footer {
-            margin-top: 25px;
-            text-align: center;
-            color: #ddd;
-            font-size: 0.8rem;
-            padding: 0 10px;
+        .tab-button.active {
+            color: #3498db;
+            border-bottom: 2px solid #3498db;
         }
         
-        .hidden {
+        .tab-button:hover {
+            color: #3498db;
+        }
+        
+        .tab-content {
+            position: relative;
+        }
+        
+        .tab-pane {
             display: none;
         }
         
-        .word {
-            cursor: pointer;
-            transition: background-color 0.2s;
+        .tab-pane.active {
+            display: block;
         }
         
-        .word:hover, .word:active {
-            background-color: rgba(52, 152, 219, 0.2);
-        }
-        
-        .loading {
-            text-align: center;
-            color: #3498db;
-            font-style: italic;
-        }
-
-        .error {
-            color: #e74c3c;
-            text-align: center;
-        }
-        
-        /* 新增样式 */
-        .anki-section {
-            margin-bottom: 20px;
-        }
-        
-        .anki-container {
-            background: rgba(30, 30, 40, 0.9);
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        .anki-status {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-        
-        .status-connected {
-            background-color: #2ecc71;
-        }
-        
-        .status-disconnected {
-            background-color: #e74c3c;
-        }
-        
-        .anki-controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .anki-btn {
-            background: rgba(155, 89, 182, 0.7);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9rem;
-            flex: 1;
-        }
-        
-        .anki-btn:hover, .anki-btn:active {
-            background: rgba(155, 89, 182, 1);
-        }
-        
-        .add-to-anki-btn {
-            background: rgba(231, 76, 60, 0.7);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 1rem;
-            margin-top: 15px;
-            width: 100%;
-        }
-        
-        .add-to-anki-btn:hover, .add-to-anki-btn:active {
-            background: rgba(231, 76, 60, 1);
-        }
-        
-        .config-section {
-            margin-top: 15px;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-        }
-        
-        .config-row {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 10px;
-        }
-        
-        .config-label {
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-            color: #bbb;
-        }
-        
-        .config-input {
-            padding: 8px 10px;
-            border: none;
-            border-radius: 5px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 0.9rem;
-        }
-        
-        .audio-clip-section {
-            margin-bottom: 10px;
-        }
-        
-        .audio-clip-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .clip-time-display {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
-        
-        .clip-time {
-            font-size: 0.9rem;
-            color: #bbb;
-        }
-        
-        .clip-btn {
-            background: rgba(241, 196, 15, 0.7);
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.8rem;
-        }
-        
-        .clip-btn:hover, .clip-btn:active {
-            background: rgba(241, 196, 15, 1);
-        }
-        
-        .clip-btn:disabled {
-            background: rgba(149, 165, 166, 0.7);
-            cursor: not-allowed;
-        }
-        
-        .clip-status {
-            text-align: center;
-            font-size: 0.9rem;
-            margin-top: 10px;
-            min-height: 20px;
-        }
-        
+        /* 修复：自定义释义框 */
         .custom-definition {
             margin-top: 15px;
         }
         
         .custom-definition textarea {
             width: 100%;
-            padding: 10px;
+            padding: 12px 15px;
             border: none;
             border-radius: 5px;
             background: rgba(255, 255, 255, 0.1);
             color: white;
-            font-size: 0.9rem;
+            font-size: 1rem;
             resize: vertical;
-            min-height: 80px;
+            min-height: 100px;
         }
         
-        /* 播放器中的截取控件 */
-        .clip-controls-in-player {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-            padding: 8px 10px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 5px;
-        }
-        
-        .clip-time-in-player {
-            font-size: 0.8rem;
-            color: #bbb;
-        }
-        
-        .clip-buttons-in-player {
-            display: flex;
-            gap: 5px;
-        }
-        
-        /* 底部弹出面板 */
-        .dictionary-panel {
+        /* 字幕列表样式 */
+        .subtitle-list-panel {
             position: fixed;
             bottom: 0;
             left: 0;
@@ -560,78 +721,82 @@
             overflow-y: auto;
         }
         
-        .dictionary-panel.active {
+        .subtitle-list-panel.active {
             transform: translateY(0);
         }
         
-        .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        .subtitle-list {
+            list-style: none;
         }
         
-        .panel-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-        
-        .close-panel {
-            background: none;
-            border: none;
-            color: #e74c3c;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 5px;
-        }
-        
-        .panel-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s;
-        }
-        
-        .panel-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        /* 自动检测的牌组和字段选择 */
-        .auto-config-section {
-            margin-top: 15px;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-        }
-        
-        .auto-config-row {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 10px;
-        }
-        
-        .auto-config-label {
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-            color: #bbb;
-        }
-        
-        .auto-config-select {
+        .subtitle-item {
             padding: 8px 10px;
+            margin-bottom: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .subtitle-item:hover, .subtitle-item:active {
+            background: rgba(52, 152, 219, 0.2);
+        }
+        
+        .subtitle-item.active {
+            background: rgba(52, 152, 219, 0.4);
+        }
+        
+        /* GitHub链接样式 */
+        .github-link {
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .github-link a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            transition: color 0.3s, transform 0.3s;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .github-link a:hover {
+            color: #3498db;
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .github-link svg {
+            width: 24px;
+            height: 24px;
+        }
+        
+        /* 图标按钮样式 */
+        .icon-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
             border: none;
             border-radius: 5px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(52, 152, 219, 0.7);
             color: white;
+            cursor: pointer;
+            transition: all 0.3s;
             font-size: 0.9rem;
+        }
+        
+        .icon-btn:hover, .icon-btn:active {
+            background: rgba(52, 152, 219, 1);
+        }
+        
+        .icon-btn svg {
+            width: 16px;
+            height: 16px;
         }
         
         /* 移动设备横屏适配 */
@@ -650,14 +815,6 @@
             
             .file-btn {
                 flex: 1;
-            }
-            
-            .file-info {
-                flex-direction: row;
-            }
-            
-            .dictionary-header {
-                flex-direction: row;
             }
             
             .word-header {
@@ -684,16 +841,22 @@
                 flex: 1;
             }
             
-            .audio-clip-controls {
+            .subtitle-controls {
                 flex-direction: row;
             }
             
-            .clip-controls-in-player {
+            .jump-controls-in-player {
                 flex-direction: row;
             }
             
-            .clip-buttons-in-player {
+            .jump-buttons-in-player {
                 gap: 8px;
+            }
+            
+            .time-input-container {
+                margin-top: 0;
+                margin-left: 10px;
+                width: auto;
             }
             
             .auto-config-row {
@@ -710,10 +873,44 @@
             .auto-config-select {
                 flex: 1;
             }
+            
+            /* PC端底部面板样式 */
+            .dictionary-panel {
+                left: 50%;
+                right: auto;
+                width: 90%;
+                max-width: 600px;
+                transform: translate(-50%, 100%);
+                border-radius: 15px;
+            }
+            
+            .dictionary-panel.active {
+                transform: translate(-50%, 0);
+                bottom: 20px;
+            }
+            
+            .subtitle-list-panel {
+                left: 50%;
+                right: auto;
+                width: 90%;
+                max-width: 600px;
+                transform: translate(-50%, 100%);
+                border-radius: 15px;
+            }
+            
+            .subtitle-list-panel.active {
+                transform: translate(-50%, 0);
+                bottom: 20px;
+            }
+            
+            /* 修复：配置设置PC端始终可见 */
+            .config-section, .auto-config-section {
+                background: rgba(0, 0, 0, 0.5);
+            }
         }
         
         /* 小屏幕手机适配 */
-        @media (max-width: 360px) {
+        @media (max-width: 767px) {
             .container {
                 padding: 15px;
             }
@@ -737,103 +934,95 @@
                 padding: 12px;
             }
             
-            .clip-btn {
-                padding: 6px 10px;
-                font-size: 0.7rem;
+            .subtitle-btn {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+            
+            .file-btn {
+                padding: 10px 8px;
+                font-size: 0.8rem;
+            }
+            
+            .anki-btn {
+                padding: 8px 10px;
+                font-size: 0.8rem;
+            }
+            
+            .jump-controls-in-player {
+                flex-direction: column;
+            }
+            
+            .time-input-container {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .time-input {
+                max-width: 100px;
+            }
+            
+            /* 修复：移动端搜索和Anki按钮布局 - 保持并排 */
+            .panel-search-anki-container {
+                flex-direction: row;
+            }
+            
+            .panel-search-container {
+                margin-bottom: 0;
+            }
+            
+            .panel-anki-btn {
+                width: 50px;
+            }
+        }
+        
+        /* 超小屏幕手机适配 */
+        @media (max-width: 360px) {
+            .file-btn {
+                padding: 8px 6px;
+                font-size: 0.75rem;
+            }
+            
+            .anki-btn {
+                padding: 8px 6px;
+                font-size: 0.75rem;
+            }
+            
+            .subtitle-btn {
+                padding: 6px 8px;
+                font-size: 0.8rem;
+            }
+            
+            .panel-search-anki-container {
+                flex-direction: column;
+            }
+            
+            .panel-anki-btn {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>移动端音频播放器 - Anki卡片生成</h1>
+        <h1>英语学习音频播放器</h1>
         <p class="subtitle">支持音频截取、字幕显示与Anki卡片生成功能</p>
     </header>
     
     <div class="container">
-        <section class="file-section">
-            <div class="file-controls">
-                <button class="file-btn" id="audio-file-btn">选择音频/视频文件</button>
-                <button class="file-btn" id="subtitle-file-btn">选择字幕文件</button>
-                <input type="file" id="audio-file-input" accept="audio/*,video/*" class="hidden">
-                <input type="file" id="subtitle-file-input" accept=".srt,.vtt,.txt" class="hidden">
-            </div>
-            <div class="file-info">
-                <div class="file-card">
-                    <h3>音频/视频文件</h3>
-                    <p id="audio-file-name">未选择文件</p>
-                </div>
-                <div class="file-card">
-                    <h3>字幕文件</h3>
-                    <p id="subtitle-file-name">未选择文件</p>
-                </div>
-            </div>
-        </section>
-        
-        <section class="player-section">
-            <div class="player-container">
-                <div class="audio-info">
-                    <div class="album-art">
-                        <i>♪</i>
-                    </div>
-                    <div class="track-info">
-                        <h2 id="track-title">请选择音频/视频文件</h2>
-                        <p id="track-description">支持 MP3, WAV, OGG, MP4, AVI 等格式</p>
-                    </div>
-                </div>
-                
-                <audio id="player" controls>
-                    <!-- 音频源将通过JavaScript动态设置 -->
-                </audio>
-                
-                <div class="clip-controls-in-player">
-                    <div class="clip-time-in-player">
-                        片段: <span id="start-time-player">0.00</span>s - <span id="end-time-player">0.00</span>s
-                    </div>
-                    <div class="clip-buttons-in-player">
-                        <button class="clip-btn" id="set-start-btn-player">开始</button>
-                        <button class="clip-btn" id="set-end-btn-player">结束</button>
-                        <button class="clip-btn" id="clip-audio-btn-player" disabled>截取</button>
-                    </div>
-                </div>
-                <div class="clip-status" id="clip-status-player"></div>
-            </div>
-        </section>
-        
-        <section class="subtitle-section">
-            <div class="subtitle-display" id="subtitle-display">
-                <div class="subtitle-text" id="subtitle-text">
-                    请先选择音频/视频和字幕文件<br>
-                    <strong>点击字幕中的单词即可查询其含义</strong>
-                </div>
-            </div>
-            <div class="subtitle-controls">
-                <button class="subtitle-btn" id="toggle-subtitle-btn">显示/隐藏字幕</button>
-            </div>
-            <p class="hint">提示：直接点击字幕中的单词，该单词会自动查询并显示释义</p>
-        </section>
-        
-        <section class="dictionary-section">
-            <div class="dictionary-container">
-                <div class="dictionary-header">
-                    <input type="text" class="dictionary-input" id="dictionary-input" placeholder="输入要查询的单词...">
-                    <button class="dictionary-btn" id="dictionary-btn">查询词汇</button>
-                </div>
-                <div class="dictionary-result" id="dictionary-result">
-                    查询结果将显示在这里...
-                </div>
-            </div>
-        </section>
-        
         <section class="anki-section">
             <div class="anki-container">
                 <div class="anki-status">
                     <div class="status-indicator" id="anki-status-indicator"></div>
                     <span id="anki-status-text">检查Anki连接状态...</span>
                 </div>
-                <div class="anki-controls">
-                    <button class="anki-btn" id="check-anki-btn">检查连接</button>
-                    <button class="anki-btn" id="show-config-btn">配置设置</button>
+                <div class="file-controls">
+                    <button class="anki-btn" id="check-anki-btn">状态</button>
+                    <button class="anki-btn" id="show-config-btn">配置</button>
+                    <button class="file-btn" id="audio-file-btn">音频</button>
+                    <button class="file-btn" id="subtitle-file-btn">字幕</button>
+                    <input type="file" id="audio-file-input" accept="audio/*,video/*" class="hidden">
+                    <input type="file" id="subtitle-file-input" accept=".srt,.vtt,.txt" class="hidden">
                 </div>
                 <div class="auto-config-section hidden" id="auto-config-section">
                     <div class="auto-config-row">
@@ -875,6 +1064,68 @@
                 </div>
             </div>
         </section>
+        
+        <section class="player-section">
+            <div class="player-container">
+                <div class="audio-info">
+                    <div class="album-art">
+                        <i>♪</i>
+                    </div>
+                    <div class="track-info">
+                        <h2 id="track-title">请选择音频/视频文件</h2>
+                        <p id="track-description">支持 MP3, WAV, OGG, MP4, AVI 等格式</p>
+                    </div>
+                </div>
+                
+                <audio id="player" controls>
+                    <!-- 音频源将通过JavaScript动态设置 -->
+                </audio>
+                
+                <div class="jump-controls-in-player">
+                    <div class="jump-buttons-in-player">
+                        <button class="icon-btn" id="prev-sentence-btn" title="上一句">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                            </svg>
+                        </button>
+                        <button class="icon-btn" id="next-sentence-btn" title="下一句">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                            </svg>
+                        </button>
+                        <button class="icon-btn" id="show-subtitle-list-btn" title="全部字幕">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M4 6h16v2H4zm0 4h16v2H4zm0 4h16v2H4zm0 4h16v2H4z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="time-input-container">
+                        <input type="number" class="time-input" id="time-jump-input" placeholder="时间(秒)" step="0.1" min="0">
+                        <button class="time-jump-btn" id="time-jump-btn">跳转</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="subtitle-section">
+            <div class="subtitle-display" id="subtitle-display">
+                <div class="subtitle-text" id="subtitle-text">
+                    无字幕
+                </div>
+            </div>
+            <div class="subtitle-controls">
+                <button class="subtitle-btn" id="toggle-subtitle-btn">显示/隐藏字幕</button>
+            </div>
+            <p class="hint">提示：直接点击字幕中的单词，该单词会自动查询并显示释义</p>
+        </section>
+        
+        <div class="github-link">
+            <a href="https://github.com/FantasyzeroXYZ/test-html" target="_blank" title="查看项目源码">
+                <svg width="32" height="32" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87-.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+            </a>
+        </div>
     </div>
     
     <!-- 底部弹出面板 -->
@@ -884,13 +1135,55 @@
             <div class="panel-title" id="panel-word-title">单词查询</div>
             <button class="close-panel" id="close-panel">×</button>
         </div>
-        <div class="dictionary-result" id="panel-dictionary-result">
-            查询结果将显示在这里...
+        
+        <!-- 修复：搜索和Anki按钮并排 - 使用图标 -->
+        <div class="panel-search-anki-container">
+            <div class="panel-search-container">
+                <input type="text" class="panel-search-input" id="panel-search-input" placeholder="输入要查询的单词...">
+                <button class="panel-search-btn" id="panel-search-btn">🔍</button>
+            </div>
+            <button class="panel-anki-btn" id="panel-add-to-anki-btn" title="添加到Anki">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+            </button>
         </div>
-        <div class="custom-definition">
-            <textarea id="panel-custom-definition-input" placeholder="如果查词没有返回内容或者想自定义释义内容，请在此输入..."></textarea>
+        
+        <div class="original-sentence" id="original-sentence">
+            原句将显示在这里...
         </div>
-        <button class="add-to-anki-btn" id="panel-add-to-anki-btn">添加到Anki</button>
+        
+        <!-- 标签页导航 -->
+        <div class="dictionary-tabs">
+            <button class="tab-button active" data-tab="dictionary-tab">词典释义</button>
+            <button class="tab-button" data-tab="custom-tab">自定义释义</button>
+        </div>
+        
+        <!-- 标签页内容 -->
+        <div class="tab-content">
+            <div id="dictionary-tab" class="tab-pane active">
+                <div class="dictionary-result" id="panel-dictionary-result">
+                    查询结果将显示在这里...
+                </div>
+            </div>
+            <div id="custom-tab" class="tab-pane">
+                <div class="custom-definition">
+                    <textarea id="panel-custom-definition-input" placeholder="如果查词没有返回内容或者想自定义释义内容，请在此输入..."></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 字幕列表面板 -->
+    <div class="subtitle-list-panel" id="subtitle-list-panel">
+        <div class="panel-header">
+            <div class="panel-title">全部字幕</div>
+            <button class="close-panel" id="close-subtitle-list-panel">×</button>
+        </div>
+        
+        <ul class="subtitle-list" id="subtitle-list">
+            <!-- 字幕列表将动态生成 -->
+        </ul>
     </div>
     
     <footer>
@@ -916,14 +1209,9 @@
         const subtitleFileBtn = document.getElementById('subtitle-file-btn');
         const audioFileInput = document.getElementById('audio-file-input');
         const subtitleFileInput = document.getElementById('subtitle-file-input');
-        const audioFileName = document.getElementById('audio-file-name');
-        const subtitleFileName = document.getElementById('subtitle-file-name');
         const trackTitle = document.getElementById('track-title');
         const trackDescription = document.getElementById('track-description');
         const subtitleText = document.getElementById('subtitle-text');
-        const dictionaryInput = document.getElementById('dictionary-input');
-        const dictionaryBtn = document.getElementById('dictionary-btn');
-        const dictionaryResult = document.getElementById('dictionary-result');
         const toggleSubtitleBtn = document.getElementById('toggle-subtitle-btn');
         const subtitleDisplay = document.getElementById('subtitle-display');
         
@@ -936,13 +1224,15 @@
         const addToAnkiBtn = document.getElementById('panel-add-to-anki-btn');
         const customDefinitionInput = document.getElementById('panel-custom-definition-input');
         
-        // 音频截取相关元素
-        const setStartBtnPlayer = document.getElementById('set-start-btn-player');
-        const setEndBtnPlayer = document.getElementById('set-end-btn-player');
-        const clipAudioBtnPlayer = document.getElementById('clip-audio-btn-player');
-        const startTimeDisplayPlayer = document.getElementById('start-time-player');
-        const endTimeDisplayPlayer = document.getElementById('end-time-player');
-        const clipStatusPlayer = document.getElementById('clip-status-player');
+        // 字幕跳转相关元素
+        const prevSentenceBtn = document.getElementById('prev-sentence-btn');
+        const nextSentenceBtn = document.getElementById('next-sentence-btn');
+        const timeJumpInput = document.getElementById('time-jump-input');
+        const timeJumpBtn = document.getElementById('time-jump-btn');
+        const subtitleList = document.getElementById('subtitle-list');
+        const showSubtitleListBtn = document.getElementById('show-subtitle-list-btn');
+        const subtitleListPanel = document.getElementById('subtitle-list-panel');
+        const closeSubtitleListPanel = document.getElementById('close-subtitle-list-panel');
         
         // 自动配置相关元素
         const deckSelect = document.getElementById('deck-select');
@@ -958,6 +1248,13 @@
         const closePanelBtn = document.getElementById('close-panel');
         const panelDictionaryResult = document.getElementById('panel-dictionary-result');
         const panelWordTitle = document.getElementById('panel-word-title');
+        const panelSearchInput = document.getElementById('panel-search-input');
+        const panelSearchBtn = document.getElementById('panel-search-btn');
+        const originalSentence = document.getElementById('original-sentence');
+        
+        // 新增元素
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabPanes = document.querySelectorAll('.tab-pane');
         
         // 状态变量
         let subtitles = [];
@@ -965,15 +1262,48 @@
         let currentHighlightedWord = null;
         let currentWord = '';
         let currentSentence = '';
-        let currentSubtitleStart = 0;
-        let currentSubtitleEnd = 0;
-        let currentAudioClip = null;
-        let clipStartTime = 0;
-        let clipEndTime = 0;
+        let currentSubtitleIndex = -1;
+        let audioFile = null;
+        let playerWasPlaying = false;
+        let audioContext = null;
+        let audioBuffer = null;
         let ankiConnected = false;
         let ankiDecks = [];
         let ankiModels = [];
         let currentModelFields = [];
+        let activeTab = 'dictionary-tab'; // 当前激活的标签页
+        let isProcessingAnki = false; // 防止重复点击
+
+        // 存储配置到localStorage
+        function saveConfig() {
+            const config = {
+                deck: deckSelect.value,
+                model: modelSelect.value,
+                wordField: wordFieldSelect.value,
+                sentenceField: sentenceFieldSelect.value,
+                definitionField: definitionFieldSelect.value,
+                audioField: audioFieldSelect.value
+            };
+            localStorage.setItem('ankiConfig', JSON.stringify(config));
+        }
+
+        // 从localStorage加载配置
+        function loadConfig() {
+            const savedConfig = localStorage.getItem('ankiConfig');
+            if (savedConfig) {
+                try {
+                    const config = JSON.parse(savedConfig);
+                    if (config.deck) deckSelect.value = config.deck;
+                    if (config.model) modelSelect.value = config.model;
+                    if (config.wordField) wordFieldSelect.value = config.wordField;
+                    if (config.sentenceField) sentenceFieldSelect.value = config.sentenceField;
+                    if (config.definitionField) definitionFieldSelect.value = config.definitionField;
+                    if (config.audioField) audioFieldSelect.value = config.audioField;
+                } catch (e) {
+                    console.error('加载配置失败:', e);
+                }
+            }
+        }
 
         // 文件选择事件处理
         audioFileBtn.addEventListener('click', () => {
@@ -985,10 +1315,10 @@
         });
         
         // 音频/视频文件选择处理
-        audioFileInput.addEventListener('change', function(e) {
+        audioFileInput.addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (file) {
-                audioFileName.textContent = file.name;
+                audioFile = file;
                 trackTitle.textContent = file.name.replace(/\.[^/.]+$/, ""); // 移除扩展名
                 trackDescription.textContent = `文件大小: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
                 
@@ -1018,25 +1348,36 @@
                 
                 // 重置字幕
                 subtitles = [];
-                subtitleText.innerHTML = "请加载字幕文件<br><strong>点击字幕中的单词即可查询其含义</strong>";
+                subtitleText.innerHTML = "无字幕";
+                updateSubtitleList();
                 
-                // 重置音频截取
-                clipStartTime = 0;
-                clipEndTime = 0;
-                startTimeDisplayPlayer.textContent = '0.00';
-                endTimeDisplayPlayer.textContent = '0.00';
-                clipAudioBtnPlayer.disabled = true;
-                clipStatusPlayer.textContent = '';
-                currentAudioClip = null;
+                // 加载音频文件到Web Audio API
+                await loadAudioBuffer(file);
             }
         });
+        
+        // 加载音频文件到Web Audio API
+        async function loadAudioBuffer(file) {
+            try {
+                // 创建AudioContext
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                // 读取文件
+                const arrayBuffer = await file.arrayBuffer();
+                audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                
+                console.log('音频文件已加载到Web Audio API');
+            } catch (error) {
+                console.error('加载音频文件失败:', error);
+            }
+        }
         
         // 字幕文件选择处理
         subtitleFileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                subtitleFileName.textContent = file.name;
-                
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const content = e.target.result;
@@ -1088,43 +1429,90 @@
                 }
             });
             
-            // 如果没有解析到字幕，使用默认字幕
-            if (subtitles.length === 0) {
-                subtitles = [
-                    { start: 0, end: 5, text: "Welcome to our English learning audio player." },
-                    { start: 5, end: 10, text: "This player supports subtitles and vocabulary lookup." },
-                    { start: 10, end: 15, text: "You can select any word in the subtitle to look up its meaning." },
-                    { start: 15, end: 20, text: "This is especially useful for language learners." },
-                    { start: 20, end: 25, text: "Let's begin our English learning journey!" }
-                ];
-            }
-            
             // 按开始时间排序
             subtitles.sort((a, b) => a.start - b.start);
+            
+            // 更新字幕列表
+            updateSubtitleList();
             
             // 更新初始字幕显示
             updateSubtitle(0);
         }
 
+        // 更新字幕列表
+        function updateSubtitleList() {
+            subtitleList.innerHTML = '';
+            
+            if (subtitles.length === 0) {
+                const emptyItem = document.createElement('li');
+                emptyItem.className = 'subtitle-item';
+                emptyItem.textContent = '无字幕';
+                subtitleList.appendChild(emptyItem);
+                return;
+            }
+            
+            subtitles.forEach((subtitle, index) => {
+                const listItem = document.createElement('li');
+                listItem.className = 'subtitle-item';
+                listItem.textContent = `${formatTime(subtitle.start)} - ${formatTime(subtitle.end)}: ${subtitle.text}`;
+                listItem.addEventListener('click', () => {
+                    // 跳转到该字幕开始时间
+                    player.currentTime = subtitle.start;
+                    currentSubtitleIndex = index;
+                    updateActiveSubtitleItem();
+                    closeSubtitleListPanelFunc();
+                });
+                subtitleList.appendChild(listItem);
+            });
+            
+            updateActiveSubtitleItem();
+        }
+        
+        // 更新当前激活的字幕项
+        function updateActiveSubtitleItem() {
+            const items = subtitleList.querySelectorAll('.subtitle-item');
+            items.forEach((item, index) => {
+                if (index === currentSubtitleIndex) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+        
+        // 格式化时间显示
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
         // 更新字幕显示
         function updateSubtitle(currentTime) {
-            if (subtitles.length === 0) return;
+            if (subtitles.length === 0) {
+                subtitleText.innerHTML = "无字幕";
+                return;
+            }
             
-            const currentSubtitle = subtitles.find(sub => 
-                currentTime >= sub.start && currentTime < sub.end
-            );
+            // 查找当前时间对应的字幕
+            let foundIndex = -1;
+            for (let i = 0; i < subtitles.length; i++) {
+                if (currentTime >= subtitles[i].start && currentTime < subtitles[i].end) {
+                    foundIndex = i;
+                    break;
+                }
+            }
             
-            if (currentSubtitle) {
-                // 记录当前字幕的时间轴
-                currentSubtitleStart = currentSubtitle.start;
-                currentSubtitleEnd = currentSubtitle.end;
+            if (foundIndex !== -1) {
+                const currentSubtitle = subtitles[foundIndex];
+                currentSubtitleIndex = foundIndex;
                 
                 // 改进的字幕文本转换，修复句末单词无法点击的问题
                 // 使用更复杂的正则表达式匹配单词，包括句末单词
                 const text = currentSubtitle.text;
                 
                 // 使用正则表达式匹配单词，包括带有标点符号的单词
-                const wordRegex = /[a-zA-Z]+(?:['’][a-zA-Z]+)*/g;
+                const wordRegex = /[a-zA-Z]+(?:[''’][a-zA-Z]+)*/g;
                 let lastIndex = 0;
                 let clickableWords = '';
                 
@@ -1143,85 +1531,110 @@
                 clickableWords += text.substring(lastIndex);
                 
                 subtitleText.innerHTML = clickableWords;
-                
-                // 为每个单词添加点击事件
-                document.querySelectorAll('.word').forEach(wordElem => {
-                    wordElem.addEventListener('click', function() {
-                        const word = this.getAttribute('data-word');
-                        dictionaryInput.value = word;
-                        
-                        // 点击单词时暂停播放
-                        player.pause();
-                        
-                        // 查询单词并显示底部面板
-                        searchWord(word, true);
-                        
-                        // 高亮显示选中的单词
-                        if (currentHighlightedWord) {
-                            currentHighlightedWord.classList.remove('highlight');
-                        }
-                        this.classList.add('highlight');
-                        currentHighlightedWord = this;
-                        
-                        // 记录当前单词和句子
-                        currentWord = word;
-                        currentSentence = currentSubtitle.text;
-                        
-                        // 自动截取当前字幕时间轴的音频
-                        autoClipCurrentSubtitle();
-                    });
-                });
-                
                 subtitleText.style.opacity = '1';
+                
+                // 修复：使用事件委托解决单词点击问题
+                subtitleText.removeEventListener('click', handleWordClick);
+                subtitleText.addEventListener('click', handleWordClick);
+                
             } else {
+                // 不在任何字幕时间范围内，显示灰色状态
                 subtitleText.style.opacity = '0.5';
             }
+            
+            updateActiveSubtitleItem();
         }
 
-        // 自动截取当前字幕时间轴的音频
-        function autoClipCurrentSubtitle() {
-            if (currentSubtitleStart >= currentSubtitleEnd) {
-                console.log('字幕时间轴无效');
-                return;
-            }
-            
-            // 使用当前字幕的时间轴
-            clipStartTime = currentSubtitleStart;
-            clipEndTime = currentSubtitleEnd;
-            
-            // 更新显示
-            startTimeDisplayPlayer.textContent = clipStartTime.toFixed(2);
-            endTimeDisplayPlayer.textContent = clipEndTime.toFixed(2);
-            
-            // 模拟截取音频
-            currentAudioClip = {
-                start: clipStartTime,
-                end: clipEndTime,
-                data: `audio_clip_${Date.now()}.mp3`
-            };
-            
-            clipStatusPlayer.textContent = `已自动截取当前字幕音频 (${clipStartTime.toFixed(2)}s - ${clipEndTime.toFixed(2)}s)`;
-        }
-
-        // 使用Free Dictionary API查询单词
-        async function searchWord(word, showPanel = false) {
-            if (!word.trim()) {
-                if (showPanel) {
-                    panelDictionaryResult.innerHTML = '<div class="error">请输入要查询的单词</div>';
-                } else {
-                    dictionaryResult.innerHTML = '<div class="error">请输入要查询的单词</div>';
+        // 修复：使用事件委托处理单词点击
+        function handleWordClick(e) {
+            if (e.target.classList.contains('word')) {
+                const word = e.target.getAttribute('data-word');
+                
+                // 点击单词时暂停播放
+                playerWasPlaying = !player.paused;
+                player.pause();
+                
+                // 查询单词并显示底部面板
+                searchWordInPanel(word);
+                
+                // 高亮显示选中的单词
+                if (currentHighlightedWord) {
+                    currentHighlightedWord.classList.remove('highlight');
                 }
+                e.target.classList.add('highlight');
+                currentHighlightedWord = e.target;
+                
+                // 记录当前单词和句子
+                currentWord = word;
+                if (currentSubtitleIndex >= 0) {
+                    currentSentence = subtitles[currentSubtitleIndex].text;
+                    
+                    // 更新原句显示
+                    updateOriginalSentence(currentSentence, word);
+                }
+            }
+        }
+
+        // 更新原句显示，使单词可点击
+        function updateOriginalSentence(sentence, currentWord) {
+            // 使用正则表达式匹配单词，包括带有标点符号的单词
+            const wordRegex = /[a-zA-Z]+(?:[''’][a-zA-Z]+)*/g;
+            let lastIndex = 0;
+            let clickableSentence = '';
+            
+            let match;
+            while ((match = wordRegex.exec(sentence)) !== null) {
+                // 添加匹配前的非单词部分
+                clickableSentence += sentence.substring(lastIndex, match.index);
+                
+                // 添加可点击的单词，当前单词高亮显示
+                const wordClass = match[0].toLowerCase() === currentWord.toLowerCase() ? 'sentence-word highlight' : 'sentence-word';
+                clickableSentence += `<span class="${wordClass}" data-word="${match[0]}">${match[0]}</span>`;
+                
+                lastIndex = match.index + match[0].length;
+            }
+            
+            // 添加剩余的非单词部分
+            clickableSentence += sentence.substring(lastIndex);
+            
+            originalSentence.innerHTML = clickableSentence;
+            
+            // 为原句中的单词添加点击事件
+            originalSentence.removeEventListener('click', handleSentenceWordClick);
+            originalSentence.addEventListener('click', handleSentenceWordClick);
+        }
+
+        // 处理原句中单词点击
+        function handleSentenceWordClick(e) {
+            if (e.target.classList.contains('sentence-word')) {
+                const word = e.target.getAttribute('data-word');
+                panelSearchInput.value = word;
+                searchWordInPanel(word);
+                
+                // 高亮显示选中的单词
+                document.querySelectorAll('.sentence-word').forEach(w => {
+                    w.classList.remove('highlight');
+                });
+                e.target.classList.add('highlight');
+                
+                // 更新当前单词
+                currentWord = word;
+            }
+        }
+
+        // 在面板中查询单词
+        async function searchWordInPanel(word) {
+            if (!word.trim()) {
+                panelDictionaryResult.innerHTML = '<div class="error">请输入要查询的单词</div>';
                 return;
             }
             
-            if (showPanel) {
-                panelDictionaryResult.innerHTML = '<div class="loading">查询中...</div>';
-                panelWordTitle.textContent = `查询: ${word}`;
-                // 显示底部面板
-                openDictionaryPanel();
-            } else {
-                dictionaryResult.innerHTML = '<div class="loading">查询中...</div>';
-            }
+            // 确保面板已打开
+            openDictionaryPanel();
+            
+            panelDictionaryResult.innerHTML = '<div class="loading">查询中...</div>';
+            panelWordTitle.textContent = `查询: ${word}`;
+            panelSearchInput.value = word;
             
             try {
                 const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
@@ -1235,66 +1648,11 @@
                 }
                 
                 const data = await response.json();
-                if (showPanel) {
-                    displayWordDataInPanel(data[0]);
-                } else {
-                    displayWordData(data[0]);
-                }
+                displayWordDataInPanel(data[0]);
             } catch (error) {
-                if (showPanel) {
-                    panelDictionaryResult.innerHTML = `<div class="error">${error.message}</div>`;
-                } else {
-                    dictionaryResult.innerHTML = `<div class="error">${error.message}</div>`;
-                }
+                panelDictionaryResult.innerHTML = `<div class="error">${error.message}</div>`;
                 console.error('查询错误:', error);
             }
-        }
-        
-        // 显示单词数据在主界面
-        function displayWordData(wordData) {
-            let html = '';
-            
-            // 单词标题和音标
-            html += `<div class="word-header">`;
-            html += `<div class="word-title">${wordData.word}</div>`;
-            
-            if (wordData.phonetic) {
-                html += `<div class="phonetic">${wordData.phonetic}</div>`;
-            } else if (wordData.phonetics && wordData.phonetics.length > 0) {
-                const phonetic = wordData.phonetics.find(p => p.text) || wordData.phonetics[0];
-                if (phonetic && phonetic.text) {
-                    html += `<div class="phonetic">${phonetic.text}</div>`;
-                }
-            }
-            
-            html += `</div>`;
-            
-            // 词义解释
-            if (wordData.meanings && wordData.meanings.length > 0) {
-                wordData.meanings.forEach(meaning => {
-                    html += `<div class="meaning-section">`;
-                    html += `<div class="part-of-speech">${meaning.partOfSpeech}</div>`;
-                    
-                    if (meaning.definitions && meaning.definitions.length > 0) {
-                        meaning.definitions.forEach((def, index) => {
-                            if (index < 3) { // 只显示前三个定义
-                                html += `<div class="definition">${index + 1}. ${def.definition}</div>`;
-                                if (def.example) {
-                                    html += `<div class="example">例句: "${def.example}"</div>`;
-                                }
-                            }
-                        });
-                    }
-                    
-                    html += `</div>`;
-                });
-            } else {
-                html += `<div class="meaning-section">`;
-                html += `<div class="definition">未找到该单词的详细释义。</div>`;
-                html += `</div>`;
-            }
-            
-            dictionaryResult.innerHTML = html;
         }
         
         // 显示单词数据在底部面板
@@ -1344,72 +1702,73 @@
             panelDictionaryResult.innerHTML = html;
         }
         
-        // 查询按钮事件
-        dictionaryBtn.addEventListener('click', () => {
-            const word = dictionaryInput.value.trim();
-            searchWord(word);
-        });
-        
-        // 输入框回车事件
-        dictionaryInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const word = dictionaryInput.value.trim();
-                searchWord(word);
-            }
-        });
-        
         // 显示/隐藏字幕
         toggleSubtitleBtn.addEventListener('click', () => {
             subtitleVisible = !subtitleVisible;
             subtitleDisplay.style.display = subtitleVisible ? 'block' : 'none';
         });
         
-        // 音频截取功能
-        setStartBtnPlayer.addEventListener('click', () => {
-            clipStartTime = player.currentTime;
-            startTimeDisplayPlayer.textContent = clipStartTime.toFixed(2);
-            updateClipButtonState();
+        // 上一句跳转
+        prevSentenceBtn.addEventListener('click', () => {
+            if (subtitles.length === 0) return;
+            
+            let targetIndex = currentSubtitleIndex - 1;
+            if (targetIndex < 0) targetIndex = 0;
+            
+            player.currentTime = subtitles[targetIndex].start;
+            currentSubtitleIndex = targetIndex;
+            updateActiveSubtitleItem();
         });
         
-        setEndBtnPlayer.addEventListener('click', () => {
-            clipEndTime = player.currentTime;
-            endTimeDisplayPlayer.textContent = clipEndTime.toFixed(2);
-            updateClipButtonState();
+        // 下一句跳转
+        nextSentenceBtn.addEventListener('click', () => {
+            if (subtitles.length === 0) return;
+            
+            let targetIndex = currentSubtitleIndex + 1;
+            if (targetIndex >= subtitles.length) targetIndex = subtitles.length - 1;
+            
+            player.currentTime = subtitles[targetIndex].start;
+            currentSubtitleIndex = targetIndex;
+            updateActiveSubtitleItem();
         });
         
-        function updateClipButtonState() {
-            clipAudioBtnPlayer.disabled = clipStartTime >= clipEndTime || clipEndTime === 0;
+        // 时间跳转
+        timeJumpBtn.addEventListener('click', () => {
+            const time = parseFloat(timeJumpInput.value);
+            if (!isNaN(time) && time >= 0) {
+                player.currentTime = time;
+            }
+        });
+        
+        timeJumpInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const time = parseFloat(timeJumpInput.value);
+                if (!isNaN(time) && time >= 0) {
+                    player.currentTime = time;
+                }
+            }
+        });
+        
+        // 显示字幕列表
+        showSubtitleListBtn.addEventListener('click', () => {
+            openSubtitleListPanel();
+        });
+        
+        // 打开字幕列表面板
+        function openSubtitleListPanel() {
+            subtitleListPanel.classList.add('active');
+            panelOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
         }
         
-        clipAudioBtnPlayer.addEventListener('click', async () => {
-            if (clipStartTime >= clipEndTime) {
-                clipStatusPlayer.textContent = '错误：开始时间必须小于结束时间';
-                return;
-            }
-            
-            clipStatusPlayer.textContent = '正在截取音频...';
-            clipAudioBtnPlayer.disabled = true;
-            
-            try {
-                // 这里简化实现，实际应用中需要更复杂的音频处理
-                // 由于浏览器限制，这里我们只是模拟音频截取
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                // 模拟截取的音频数据
-                currentAudioClip = {
-                    start: clipStartTime,
-                    end: clipEndTime,
-                    data: `audio_clip_${Date.now()}.mp3` // 实际应用中应该是音频数据
-                };
-                
-                clipStatusPlayer.textContent = `音频截取成功 (${clipStartTime.toFixed(2)}s - ${clipEndTime.toFixed(2)}s)`;
-            } catch (error) {
-                clipStatusPlayer.textContent = '音频截取失败: ' + error.message;
-                console.error('音频截取错误:', error);
-            } finally {
-                clipAudioBtnPlayer.disabled = false;
-            }
-        });
+        // 关闭字幕列表面板
+        function closeSubtitleListPanelFunc() {
+            subtitleListPanel.classList.remove('active');
+            panelOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        closeSubtitleListPanel.addEventListener('click', closeSubtitleListPanelFunc);
         
         // Anki连接检查
         async function checkAnkiConnection() {
@@ -1446,7 +1805,7 @@
             } catch (error) {
                 ankiConnected = false;
                 ankiStatusIndicator.className = 'status-indicator status-disconnected';
-                ankiStatusText.textContent = 'Anki未连接 - 请确保Anki正在运行并安装了AnkiConnect插件';
+                ankiStatusText.textContent = 'Anki未连接';
                 console.error('Anki连接错误:', error);
             }
         }
@@ -1478,10 +1837,8 @@
                         deckSelect.appendChild(option);
                     });
                     
-                    // 默认选择第一个牌组
-                    if (ankiDecks.length > 0) {
-                        deckSelect.value = ankiDecks[0];
-                    }
+                    // 加载保存的配置
+                    loadConfig();
                 }
             } catch (error) {
                 console.error('获取牌组列表错误:', error);
@@ -1515,10 +1872,16 @@
                         modelSelect.appendChild(option);
                     });
                     
+                    // 加载保存的配置
+                    loadConfig();
+                    
                     // 默认选择第一个模型并加载字段
-                    if (ankiModels.length > 0) {
+                    if (ankiModels.length > 0 && !modelSelect.value) {
                         modelSelect.value = ankiModels[0];
                         await loadModelFields(ankiModels[0]);
+                    } else if (modelSelect.value) {
+                        // 如果已有保存的模型，加载其字段
+                        await loadModelFields(modelSelect.value);
                     }
                 }
             } catch (error) {
@@ -1564,8 +1927,13 @@
                         audioFieldSelect.appendChild(option.cloneNode(true));
                     });
                     
-                    // 尝试智能设置默认字段
-                    setDefaultFields();
+                    // 加载保存的配置
+                    loadConfig();
+                    
+                    // 如果字段为空，尝试智能设置默认字段
+                    if (!wordFieldSelect.value) {
+                        setDefaultFields();
+                    }
                 }
             } catch (error) {
                 console.error('获取模型字段错误:', error);
@@ -1615,6 +1983,9 @@
             } else if (fields.length > 3) {
                 audioFieldSelect.selectedIndex = 3;
             }
+            
+            // 保存配置
+            saveConfig();
         }
         
         // 检查Anki连接
@@ -1625,26 +1996,36 @@
             const isHidden = autoConfigSection.classList.contains('hidden');
             if (isHidden) {
                 autoConfigSection.classList.remove('hidden');
-                showConfigBtn.textContent = '隐藏配置';
+                showConfigBtn.textContent = '收起';
             } else {
                 autoConfigSection.classList.add('hidden');
-                showConfigBtn.textContent = '配置设置';
+                showConfigBtn.textContent = '配置';
             }
         });
         
         // 模型选择变化时加载字段
         modelSelect.addEventListener('change', () => {
             loadModelFields(modelSelect.value);
+            saveConfig();
         });
         
-        // 添加到Anki
-        addToAnkiBtn.addEventListener('click', async () => {
+        // 配置变化时保存
+        deckSelect.addEventListener('change', saveConfig);
+        wordFieldSelect.addEventListener('change', saveConfig);
+        sentenceFieldSelect.addEventListener('change', saveConfig);
+        definitionFieldSelect.addEventListener('change', saveConfig);
+        audioFieldSelect.addEventListener('change', saveConfig);
+        
+        // 修复：简化Anki添加流程，移除异步等待
+        addToAnkiBtn.addEventListener('click', () => {
+            if (isProcessingAnki) return;
+            
             if (!ankiConnected) {
                 alert('请先连接Anki!');
                 return;
             }
             
-            const word = dictionaryInput.value.trim();
+            const word = panelSearchInput.value.trim();
             if (!word) {
                 alert('请输入要添加的单词!');
                 return;
@@ -1652,17 +2033,19 @@
             
             // 获取词典内容
             let definition = '';
-            const definitionElements = panelDictionaryResult.querySelectorAll('.definition');
-            if (definitionElements.length > 0) {
-                definitionElements.forEach(el => {
-                    definition += el.textContent + '\n';
-                });
-            }
             
-            // 如果用户输入了自定义释义，使用自定义释义
-            const customDefinition = customDefinitionInput.value.trim();
-            if (customDefinition) {
-                definition = customDefinition;
+            // 根据当前激活的标签页获取释义
+            if (activeTab === 'dictionary-tab') {
+                // 从词典释义标签页获取内容
+                const definitionElements = panelDictionaryResult.querySelectorAll('.definition');
+                if (definitionElements.length > 0) {
+                    definitionElements.forEach(el => {
+                        definition += el.textContent + '\n';
+                    });
+                }
+            } else if (activeTab === 'custom-tab') {
+                // 从自定义释义标签页获取内容
+                definition = customDefinitionInput.value.trim();
             }
             
             if (!definition) {
@@ -1670,6 +2053,38 @@
                 return;
             }
             
+            // 防止重复点击
+            isProcessingAnki = true;
+            addToAnkiBtn.disabled = true;
+            
+            // 立即关闭面板并恢复播放
+            closeDictionaryPanel();
+            
+            // 使用setTimeout避免阻塞UI
+            setTimeout(() => {
+                processAnkiCard(word, definition)
+                    .then(() => {
+                        console.log('卡片添加成功');
+                    })
+                    .catch(error => {
+                        console.error('添加卡片失败:', error);
+                        alert('添加卡片失败: ' + error.message);
+                    })
+                    .finally(() => {
+                        // 重置处理状态
+                        isProcessingAnki = false;
+                        addToAnkiBtn.disabled = false;
+                        
+                        // 重置表单
+                        customDefinitionInput.value = '';
+                        panelSearchInput.value = '';
+                        panelDictionaryResult.innerHTML = '查询结果将显示在这里...';
+                    });
+            }, 100);
+        });
+        
+        // 修复：在processAnkiCard函数中，确保音频字段引用正确
+        async function processAnkiCard(word, definition) {
             // 准备Anki卡片数据
             const note = {
                 deckName: deckSelect.value,
@@ -1677,8 +2092,7 @@
                 fields: {
                     [wordFieldSelect.value]: word,
                     [sentenceFieldSelect.value]: currentSentence,
-                    [definitionFieldSelect.value]: definition,
-                    [audioFieldSelect.value]: currentAudioClip ? `[sound:${currentAudioClip.data}]` : ''
+                    [definitionFieldSelect.value]: definition
                 },
                 options: {
                     allowDuplicate: false
@@ -1686,43 +2100,304 @@
                 tags: ['audio-player']
             };
             
+            // 如果有音频，先处理音频
+            if (audioBuffer && audioContext && currentSubtitleIndex >= 0) {
+                try {
+                    const audioFileName = await processAudioFile(word);
+                    if (audioFileName) {
+                        // 确保音频字段引用格式正确
+                        note.fields[audioFieldSelect.value] = `[sound:${audioFileName}]`;
+                        console.log('音频字段设置:', audioFileName);
+                    }
+                } catch (error) {
+                    console.error('音频处理失败:', error);
+                    // 即使音频处理失败，仍然继续添加卡片
+                }
+            }
+            
+            // 添加卡片到Anki
+            await addCardToAnki(note);
+        }
+
+        // 生成文件名
+        function generateAudioFileName(word) {
+            const cleanWord = word.replace(/[^a-z]/gi, '').toLowerCase() || 'audio';
+            // 增加时间戳避免重名
+            let fileName = `audio_${cleanWord}_${Date.now()}.wav`;
+            fileName = fileName.replace(/[^\w.\-]/g, '_');
+            return fileName;
+        }
+
+        // 处理音频文件并返回实际存储名
+        async function processAudioFile(word) {
             try {
+                const audioBlob = await generateAudioClip(currentSubtitleIndex);
+                const audioFileName = generateAudioFileName(word);
+                console.log('准备存储音频文件:', audioFileName);
+
+                const base64Audio = await blobToBase64(audioBlob);
+
                 const response = await fetch('http://127.0.0.1:8765', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        action: 'addNote',
+                        action: 'storeMediaFile',
                         version: 6,
                         params: {
-                            note: note
+                            filename: audioFileName,
+                            data: base64Audio.split(',')[1],
+                            deleteExisting: true // ✅ 允许覆盖，防止自动改名
                         }
                     })
                 });
-                
+
                 const result = await response.json();
-                
                 if (result.error) {
-                    throw new Error(result.error);
+                    console.error('存储音频文件失败:', result.error);
+                    return null;
+                }
+
+                // ✅ 使用返回的 result 字段（实际文件名）
+                const storedName = result.result || audioFileName;
+                console.log('音频文件实际存储名:', storedName);
+                return storedName;
+
+            } catch (error) {
+                console.error('音频处理错误:', error);
+                return null;
+            }
+        }
+
+        // 处理整张卡片
+        async function processAnkiCard(word, definition) {
+            const note = {
+                deckName: deckSelect.value,
+                modelName: modelSelect.value,
+                fields: {
+                    [wordFieldSelect.value]: word,
+                    [sentenceFieldSelect.value]: currentSentence,
+                    [definitionFieldSelect.value]: definition
+                },
+                options: { allowDuplicate: false },
+                tags: ['audio-player']
+            };
+
+            // 若有音频，先处理音频
+            if (audioBuffer && audioContext && currentSubtitleIndex >= 0) {
+                try {
+                    const storedAudioName = await processAudioFile(word);
+                    if (storedAudioName) {
+                        note.fields[audioFieldSelect.value] = `[sound:${storedAudioName}]`;
+                        console.log('音频字段设置:', storedAudioName);
+                    }
+                } catch (error) {
+                    console.error('音频处理失败:', error);
+                }
+            }
+
+            await addCardToAnki(note);
+        }
+
+        async function addCardToAnki(note) {
+            console.log('准备添加卡片到 Anki:', note);
+
+            try {
+                const response = await fetch('http://127.0.0.1:8765', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'addNote',
+                        version: 6,
+                        params: { note }
+                    }),
+                });
+
+                // 检查 HTTP 层面
+                if (!response.ok) {
+                    throw new Error(`AnkiConnect HTTP错误: ${response.status} ${response.statusText}`);
+                }
+
+                // 尝试解析返回结果
+                let result;
+                try {
+                    result = await response.json();
+                } catch (err) {
+                    throw new Error('无法解析 AnkiConnect 返回的 JSON。可能未启动 AnkiConnect。');
+                }
+
+                // 检查 API 层面错误
+                if (result.error) {
+                    // 常见情况：卡片已存在
+                    if (result.error.includes('cannot create note because it is a duplicate')) {
+                        console.warn('检测到重复卡片，未添加:', note.fields);
+                        showStatusMessage('⚠️ 已存在相同卡片，跳过添加。');
+                        return null;
+                    } else {
+                        console.error('添加卡片失败:', result.error);
+                        console.error('卡片数据:', note);
+                        showStatusMessage('❌ 添加卡片失败，请查看控制台日志。');
+                        throw new Error(result.error);
+                    }
+                }
+
+                // 确保 result.result 存在
+                if (!result.result) {
+                    console.warn('AnkiConnect 返回空结果，可能未创建卡片。');
+                    showStatusMessage('⚠️ 未创建卡片，可能是重复或模型不匹配。');
+                    return null;
+                }
+
+                console.log('✅ 卡片添加成功，ID:', result.result);
+                showStatusMessage('✅ 卡片已成功添加到 Anki!');
+                return result.result;
+
+            } catch (error) {
+                console.error('❌ 与 AnkiConnect 通信失败:', error);
+                showStatusMessage('❌ 无法连接到 AnkiConnect，请确认它已运行。');
+                return null;
+            }
+        }
+
+        // 一个简单的状态提示函数（可替换 alert）
+        function showStatusMessage(message) {
+            // ✅ 在网页上浮动提示（不会阻塞）
+            const div = document.createElement('div');
+            div.textContent = message;
+            div.style.position = 'fixed';
+            div.style.bottom = '20px';
+            div.style.right = '20px';
+            div.style.background = 'rgba(0,0,0,0.8)';
+            div.style.color = '#fff';
+            div.style.padding = '8px 12px';
+            div.style.borderRadius = '6px';
+            div.style.fontSize = '14px';
+            div.style.zIndex = '9999';
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 2500);
+        }
+
+        // 生成当前句子的音频片段
+        function generateAudioClip(subtitleIndex) {
+            return new Promise((resolve, reject) => {
+                if (!audioBuffer || !audioContext) {
+                    reject(new Error('音频未加载，无法生成音频片段'));
+                    return;
                 }
                 
-                alert('卡片已成功添加到Anki!');
+                const subtitle = subtitles[subtitleIndex];
+                const startTime = Math.max(0, subtitle.start);
+                const endTime = Math.min(audioBuffer.duration, subtitle.end);
                 
-                // 关闭面板
-                closeDictionaryPanel();
+                // 计算开始和结束的样本位置
+                const startOffset = Math.floor(startTime * audioBuffer.sampleRate);
+                const endOffset = Math.floor(endTime * audioBuffer.sampleRate);
+                const length = endOffset - startOffset;
                 
-                // 重置表单
-                customDefinitionInput.value = '';
-                dictionaryInput.value = '';
-                dictionaryResult.innerHTML = '查询结果将显示在这里...';
+                if (length <= 0) {
+                    reject(new Error('无效的音频片段长度'));
+                    return;
+                }
                 
-            } catch (error) {
-                alert('添加卡片失败: ' + error.message);
-                console.error('Anki添加卡片错误:', error);
-            }
-        });
+                // 创建新的音频缓冲区
+                const newBuffer = audioContext.createBuffer(
+                    audioBuffer.numberOfChannels,
+                    length,
+                    audioBuffer.sampleRate
+                );
+                
+                // 复制音频数据
+                for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
+                    const channelData = audioBuffer.getChannelData(channel);
+                    const newChannelData = newBuffer.getChannelData(channel);
+                    
+                    for (let i = 0; i < length; i++) {
+                        newChannelData[i] = channelData[startOffset + i];
+                    }
+                }
+                
+                // 将音频缓冲区转换为WAV格式
+                const wavBlob = bufferToWav(newBuffer);
+                
+                console.log('音频片段已生成');
+                resolve(wavBlob);
+            });
+        }
         
+        // 将AudioBuffer转换为WAV Blob
+        function bufferToWav(buffer) {
+            const numChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const length = buffer.length;
+            const bytesPerSample = 2;
+            const blockAlign = numChannels * bytesPerSample;
+            
+            // 计算数据大小
+            const dataSize = length * blockAlign;
+            
+            // 创建WAV文件头
+            const bufferArray = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(bufferArray);
+            
+            // RIFF标识
+            writeString(view, 0, 'RIFF');
+            // 文件长度
+            view.setUint32(4, 36 + dataSize, true);
+            // WAVE标识
+            writeString(view, 8, 'WAVE');
+            // fmt chunk
+            writeString(view, 12, 'fmt ');
+            // fmt chunk长度
+            view.setUint32(16, 16, true);
+            // 音频格式 (1 = PCM)
+            view.setUint16(20, 1, true);
+            // 声道数
+            view.setUint16(22, numChannels, true);
+            // 采样率
+            view.setUint32(24, sampleRate, true);
+            // 字节率
+            view.setUint32(28, sampleRate * blockAlign, true);
+            // 块对齐
+            view.setUint16(32, blockAlign, true);
+            // 位深度
+            view.setUint16(34, bytesPerSample * 8, true);
+            // data chunk
+            writeString(view, 36, 'data');
+            // data chunk长度
+            view.setUint32(40, dataSize, true);
+            
+            // 写入PCM数据
+            const offset = 44;
+            let index = 0;
+            
+            for (let i = 0; i < length; i++) {
+                for (let channel = 0; channel < numChannels; channel++) {
+                    const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
+                    const int16Sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+                    view.setInt16(offset + index, int16Sample, true);
+                    index += 2;
+                }
+            }
+            
+            return new Blob([bufferArray], { type: 'audio/wav' });
+        }
+                
+        // 写入字符串到DataView
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+        
+        // 将Blob转换为Base64
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+                
         // 底部面板功能
         function openDictionaryPanel() {
             dictionaryPanel.classList.add('active');
@@ -1734,41 +2409,84 @@
             dictionaryPanel.classList.remove('active');
             panelOverlay.classList.remove('active');
             document.body.style.overflow = '';
+            
+            // 恢复播放
+            if (playerWasPlaying && player.paused) {
+                player.play();
+            }
         }
         
         closePanelBtn.addEventListener('click', closeDictionaryPanel);
-        panelOverlay.addEventListener('click', closeDictionaryPanel);
+        panelOverlay.addEventListener('click', () => {
+            closeDictionaryPanel();
+            closeSubtitleListPanelFunc();
+        });
+        
+        // 面板搜索功能
+        panelSearchBtn.addEventListener('click', () => {
+            const word = panelSearchInput.value.trim();
+            searchWordInPanel(word);
+        });
+        
+        panelSearchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const word = panelSearchInput.value.trim();
+                searchWordInPanel(word);
+            }
+        });
+        
+        // 新增：标签页切换功能
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.getAttribute('data-tab');
+                
+                // 更新激活的标签页
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabPanes.forEach(pane => pane.classList.remove('active'));
+                
+                button.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+                
+                // 更新当前激活的标签页
+                activeTab = tabId;
+            });
+        });
         
         // 监听播放器时间更新
         player.on('timeupdate', event => {
             updateSubtitle(player.currentTime);
         });
         
+        // 修复iOS兼容性问题
+        function fixIOSCompatibility() {
+            // iOS音频播放修复
+            document.addEventListener('touchstart', function() {
+                // 确保音频上下文在用户交互后创建
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+            }, { once: true });
+            
+            // iOS文件选择修复
+            audioFileInput.addEventListener('change', function(e) {
+                // iOS文件选择后立即播放
+                if (e.target.files.length > 0) {
+                    setTimeout(() => {
+                        if (player.paused) {
+                            player.play().catch(e => console.log('iOS自动播放被阻止:', e));
+                        }
+                    }, 500);
+                }
+            });
+        }
+        
         // 初始化
         function init() {
             // 检查Anki连接
             checkAnkiConnection();
             
-            // 初始化默认字幕
-            parseSubtitle(`1
-00:00:00,000 --> 00:00:05,000
-Welcome to our English learning audio player.
-
-2
-00:00:05,000 --> 00:00:10,000
-This player supports subtitles and vocabulary lookup.
-
-3
-00:00:10,000 --> 00:00:15,000
-You can select any word in the subtitle to look up its meaning.
-
-4
-00:00:15,000 --> 00:00:20,000
-This is especially useful for language learners.
-
-5
-00:00:20,000 --> 00:00:25,000
-Let's begin our English learning journey!`);
+            // 修复iOS兼容性
+            fixIOSCompatibility();
         }
         
         // 启动初始化

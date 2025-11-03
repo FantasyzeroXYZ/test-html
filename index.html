@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>英语学习音频播放器</title>
+    <title>英语学习音视频播放器</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <style>
         /* 样式保持不变，与之前相同 */
@@ -148,6 +148,57 @@
         
         .plyr--audio .plyr__control {
             padding: 10px;
+        }
+        
+        /* 新增：视频播放器样式 */
+        .video-container {
+            margin-bottom: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+        }
+        
+        #video-player {
+            width: 100%;
+            height: auto;
+            max-height: 400px;
+        }
+        
+        .screenshot-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .screenshot-btn {
+            background: rgba(46, 204, 113, 0.7);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .screenshot-btn:hover, .screenshot-btn:active {
+            background: rgba(46, 204, 113, 1);
+        }
+        
+        .screenshot-preview {
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .screenshot-preview img {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 5px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
         
         .subtitle-section {
@@ -1005,8 +1056,8 @@
 </head>
 <body>
     <header>
-        <h1>英语学习音频播放器</h1>
-        <p class="subtitle">支持音频截取、字幕显示与Anki卡片生成功能</p>
+        <h1>英语学习音视频播放器</h1>
+        <p class="subtitle">支持音视频截取、字幕显示与Anki卡片生成功能</p>
     </header>
     
     <div class="container">
@@ -1019,7 +1070,7 @@
                 <div class="file-controls">
                     <button class="anki-btn" id="check-anki-btn">状态</button>
                     <button class="anki-btn" id="show-config-btn">配置</button>
-                    <button class="file-btn" id="audio-file-btn">音频</button>
+                    <button class="file-btn" id="audio-file-btn">音视频</button>
                     <button class="file-btn" id="subtitle-file-btn">字幕</button>
                     <input type="file" id="audio-file-input" accept="audio/*,video/*" class="hidden">
                     <input type="file" id="subtitle-file-input" accept=".srt,.vtt,.txt" class="hidden">
@@ -1061,6 +1112,13 @@
                             <option value="">加载中...</option>
                         </select>
                     </div>
+                    <!-- 新增：图片字段选择 -->
+                    <div class="auto-config-row">
+                        <label class="auto-config-label" for="image-field-select">图片字段:</label>
+                        <select class="auto-config-select" id="image-field-select">
+                            <option value="">加载中...</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1074,6 +1132,20 @@
                     <div class="track-info">
                         <h2 id="track-title">请选择音频/视频文件</h2>
                         <p id="track-description">支持 MP3, WAV, OGG, MP4, AVI 等格式</p>
+                    </div>
+                </div>
+                
+                <!-- 新增：视频播放器区域 -->
+                <div class="video-container hidden" id="video-container">
+                    <video id="video-player" controls>
+                        <!-- 视频源将通过JavaScript动态设置 -->
+                    </video>
+                    <div class="screenshot-controls">
+                        <button class="screenshot-btn" id="capture-screenshot-btn">截图</button>
+                        <button class="screenshot-btn" id="clear-screenshot-btn">清除</button>
+                    </div>
+                    <div class="screenshot-preview" id="screenshot-preview">
+                        <!-- 截图预览将动态生成 -->
                     </div>
                 </div>
                 
@@ -1187,7 +1259,7 @@
     </div>
     
     <footer>
-        <p>网页音频播放器 - 专为语言学习设计 | 使用 Plyr 播放器 | 部署于 GitHub Pages</p>
+        <p>网页音视频播放器 - 专为语言学习设计 | 使用 Plyr 播放器 | 部署于 GitHub Pages</p>
     </footer>
 
     <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
@@ -1204,6 +1276,20 @@
             ]
         });
 
+        // 新增：视频播放器
+        const videoPlayer = document.getElementById('video-player');
+        const videoPlyr = new Plyr(videoPlayer, {
+            controls: [
+                'play',
+                'progress',
+                'current-time',
+                'duration',
+                'mute',
+                'volume',
+                'fullscreen'
+            ]
+        });
+
         // 获取DOM元素
         const audioFileBtn = document.getElementById('audio-file-btn');
         const subtitleFileBtn = document.getElementById('subtitle-file-btn');
@@ -1214,6 +1300,12 @@
         const subtitleText = document.getElementById('subtitle-text');
         const toggleSubtitleBtn = document.getElementById('toggle-subtitle-btn');
         const subtitleDisplay = document.getElementById('subtitle-display');
+        
+        // 新增：视频相关元素
+        const videoContainer = document.getElementById('video-container');
+        const captureScreenshotBtn = document.getElementById('capture-screenshot-btn');
+        const clearScreenshotBtn = document.getElementById('clear-screenshot-btn');
+        const screenshotPreview = document.getElementById('screenshot-preview');
         
         // Anki相关元素
         const ankiStatusIndicator = document.getElementById('anki-status-indicator');
@@ -1241,6 +1333,7 @@
         const sentenceFieldSelect = document.getElementById('sentence-field-select');
         const definitionFieldSelect = document.getElementById('definition-field-select');
         const audioFieldSelect = document.getElementById('audio-field-select');
+        const imageFieldSelect = document.getElementById('image-field-select'); // 新增：图片字段选择
         
         // 底部面板相关元素
         const dictionaryPanel = document.getElementById('dictionary-panel');
@@ -1273,6 +1366,7 @@
         let currentModelFields = [];
         let activeTab = 'dictionary-tab'; // 当前激活的标签页
         let isProcessingAnki = false; // 防止重复点击
+        let currentScreenshot = null; // 当前截图
 
         // 存储配置到localStorage
         function saveConfig() {
@@ -1282,7 +1376,8 @@
                 wordField: wordFieldSelect.value,
                 sentenceField: sentenceFieldSelect.value,
                 definitionField: definitionFieldSelect.value,
-                audioField: audioFieldSelect.value
+                audioField: audioFieldSelect.value,
+                imageField: imageFieldSelect.value // 新增：保存图片字段
             };
             localStorage.setItem('ankiConfig', JSON.stringify(config));
         }
@@ -1299,6 +1394,7 @@
                     if (config.sentenceField) sentenceFieldSelect.value = config.sentenceField;
                     if (config.definitionField) definitionFieldSelect.value = config.definitionField;
                     if (config.audioField) audioFieldSelect.value = config.audioField;
+                    if (config.imageField) imageFieldSelect.value = config.imageField; // 新增：加载图片字段
                 } catch (e) {
                     console.error('加载配置失败:', e);
                 }
@@ -1322,37 +1418,72 @@
                 trackTitle.textContent = file.name.replace(/\.[^/.]+$/, ""); // 移除扩展名
                 trackDescription.textContent = `文件大小: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
                 
-                // 创建文件URL并设置播放器源
+                // 创建文件URL
                 const fileURL = URL.createObjectURL(file);
-                const audioElement = document.querySelector('#player');
                 
-                // 清除之前的源
-                while (audioElement.firstChild) {
-                    audioElement.removeChild(audioElement.firstChild);
+                // 判断文件类型
+                const isVideo = file.type.startsWith('video/');
+                
+                if (isVideo) {
+                    // 视频文件
+                    videoContainer.classList.remove('hidden');
+                    document.getElementById('player').classList.add('hidden');
+                    
+                    // 设置视频源
+                    while (videoPlayer.firstChild) {
+                        videoPlayer.removeChild(videoPlayer.firstChild);
+                    }
+                    
+                    const source = document.createElement('source');
+                    source.src = fileURL;
+                    source.type = file.type;
+                    videoPlayer.appendChild(source);
+                    
+                    // 重新加载视频播放器
+                    videoPlyr.source = {
+                        type: 'video',
+                        sources: [{
+                            src: fileURL,
+                            type: file.type
+                        }]
+                    };
+                    
+                    // 重置截图
+                    currentScreenshot = null;
+                    screenshotPreview.innerHTML = '';
+                } else {
+                    // 音频文件
+                    videoContainer.classList.add('hidden');
+                    document.getElementById('player').classList.remove('hidden');
+                    
+                    // 设置音频源
+                    const audioElement = document.querySelector('#player');
+                    while (audioElement.firstChild) {
+                        audioElement.removeChild(audioElement.firstChild);
+                    }
+                    
+                    const source = document.createElement('source');
+                    source.src = fileURL;
+                    source.type = file.type;
+                    audioElement.appendChild(source);
+                    
+                    // 重新加载音频播放器
+                    player.source = {
+                        type: 'audio',
+                        sources: [{
+                            src: fileURL,
+                            type: file.type
+                        }]
+                    };
+                    
+                    // 加载音频文件到Web Audio API
+                    await loadAudioBuffer(file);
                 }
-                
-                // 添加新的源
-                const source = document.createElement('source');
-                source.src = fileURL;
-                source.type = file.type;
-                audioElement.appendChild(source);
-                
-                // 重新加载播放器
-                player.source = {
-                    type: 'audio',
-                    sources: [{
-                        src: fileURL,
-                        type: file.type
-                    }]
-                };
                 
                 // 重置字幕
                 subtitles = [];
                 subtitleText.innerHTML = "无字幕";
                 updateSubtitleList();
-                
-                // 加载音频文件到Web Audio API
-                await loadAudioBuffer(file);
             }
         });
         
@@ -1457,7 +1588,8 @@
                 listItem.textContent = `${formatTime(subtitle.start)} - ${formatTime(subtitle.end)}: ${subtitle.text}`;
                 listItem.addEventListener('click', () => {
                     // 跳转到该字幕开始时间
-                    player.currentTime = subtitle.start;
+                    const currentPlayer = videoContainer.classList.contains('hidden') ? player : videoPlyr;
+                    currentPlayer.currentTime = subtitle.start;
                     currentSubtitleIndex = index;
                     updateActiveSubtitleItem();
                     closeSubtitleListPanelFunc();
@@ -1551,8 +1683,9 @@
                 const word = e.target.getAttribute('data-word');
                 
                 // 点击单词时暂停播放
-                playerWasPlaying = !player.paused;
-                player.pause();
+                const currentPlayer = videoContainer.classList.contains('hidden') ? player : videoPlyr;
+                playerWasPlaying = !currentPlayer.paused;
+                currentPlayer.pause();
                 
                 // 查询单词并显示底部面板
                 searchWordInPanel(word);
@@ -1715,7 +1848,8 @@
             let targetIndex = currentSubtitleIndex - 1;
             if (targetIndex < 0) targetIndex = 0;
             
-            player.currentTime = subtitles[targetIndex].start;
+            const currentPlayer = videoContainer.classList.contains('hidden') ? player : videoPlyr;
+            currentPlayer.currentTime = subtitles[targetIndex].start;
             currentSubtitleIndex = targetIndex;
             updateActiveSubtitleItem();
         });
@@ -1727,7 +1861,8 @@
             let targetIndex = currentSubtitleIndex + 1;
             if (targetIndex >= subtitles.length) targetIndex = subtitles.length - 1;
             
-            player.currentTime = subtitles[targetIndex].start;
+            const currentPlayer = videoContainer.classList.contains('hidden') ? player : videoPlyr;
+            currentPlayer.currentTime = subtitles[targetIndex].start;
             currentSubtitleIndex = targetIndex;
             updateActiveSubtitleItem();
         });
@@ -1736,7 +1871,8 @@
         timeJumpBtn.addEventListener('click', () => {
             const time = parseFloat(timeJumpInput.value);
             if (!isNaN(time) && time >= 0) {
-                player.currentTime = time;
+                const currentPlayer = videoContainer.classList.contains('hidden') ? player : videoPlyr;
+                currentPlayer.currentTime = time;
             }
         });
         
@@ -1744,7 +1880,8 @@
             if (e.key === 'Enter') {
                 const time = parseFloat(timeJumpInput.value);
                 if (!isNaN(time) && time >= 0) {
-                    player.currentTime = time;
+                    const currentPlayer = videoContainer.classList.contains('hidden') ? player : videoPlyr;
+                    currentPlayer.currentTime = time;
                 }
             }
         });
@@ -1769,6 +1906,46 @@
         }
         
         closeSubtitleListPanel.addEventListener('click', closeSubtitleListPanelFunc);
+        
+        // 新增：截图功能
+        captureScreenshotBtn.addEventListener('click', captureScreenshot);
+        clearScreenshotBtn.addEventListener('click', clearScreenshot);
+        
+        function captureScreenshot() {
+            if (videoContainer.classList.contains('hidden')) {
+                alert('当前没有播放视频文件');
+                return;
+            }
+            
+            try {
+                // 创建canvas元素
+                const canvas = document.createElement('canvas');
+                const video = videoPlayer;
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                
+                // 绘制当前视频帧到canvas
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                // 转换为base64格式
+                const screenshotData = canvas.toDataURL('image/png');
+                currentScreenshot = screenshotData;
+                
+                // 显示预览
+                screenshotPreview.innerHTML = `<img src="${screenshotData}" alt="截图预览">`;
+                
+                console.log('截图已保存');
+            } catch (error) {
+                console.error('截图失败:', error);
+                alert('截图失败: ' + error.message);
+            }
+        }
+        
+        function clearScreenshot() {
+            currentScreenshot = null;
+            screenshotPreview.innerHTML = '';
+        }
         
         // Anki连接检查
         async function checkAnkiConnection() {
@@ -1915,6 +2092,7 @@
                     sentenceFieldSelect.innerHTML = '';
                     definitionFieldSelect.innerHTML = '';
                     audioFieldSelect.innerHTML = '';
+                    imageFieldSelect.innerHTML = ''; // 新增：图片字段选择框
                     
                     currentModelFields.forEach(field => {
                         const option = document.createElement('option');
@@ -1925,6 +2103,7 @@
                         sentenceFieldSelect.appendChild(option.cloneNode(true));
                         definitionFieldSelect.appendChild(option.cloneNode(true));
                         audioFieldSelect.appendChild(option.cloneNode(true));
+                        imageFieldSelect.appendChild(option.cloneNode(true)); // 新增：图片字段
                     });
                     
                     // 加载保存的配置
@@ -1984,6 +2163,17 @@
                 audioFieldSelect.selectedIndex = 3;
             }
             
+            // 设置图片字段
+            if (fields.includes('image')) {
+                imageFieldSelect.value = 'image';
+            } else if (fields.includes('picture')) {
+                imageFieldSelect.value = 'picture';
+            } else if (fields.includes('img')) {
+                imageFieldSelect.value = 'img';
+            } else if (fields.length > 4) {
+                imageFieldSelect.selectedIndex = 4;
+            }
+            
             // 保存配置
             saveConfig();
         }
@@ -2015,6 +2205,7 @@
         sentenceFieldSelect.addEventListener('change', saveConfig);
         definitionFieldSelect.addEventListener('change', saveConfig);
         audioFieldSelect.addEventListener('change', saveConfig);
+        imageFieldSelect.addEventListener('change', saveConfig); // 新增：图片字段变化保存
         
         // 修复：简化Anki添加流程，移除异步等待
         addToAnkiBtn.addEventListener('click', () => {
@@ -2083,7 +2274,7 @@
             }, 100);
         });
         
-        // 修复：在processAnkiCard函数中，确保音频字段引用正确
+        // 修复：在processAnkiCard函数中，确保音频和图片字段引用正确
         async function processAnkiCard(word, definition) {
             // 准备Anki卡片数据
             const note = {
@@ -2101,7 +2292,9 @@
             };
             
             // 如果有音频，先处理音频
-            if (audioBuffer && audioContext && currentSubtitleIndex >= 0) {
+            const isVideo = !videoContainer.classList.contains('hidden');
+            
+            if (!isVideo && audioBuffer && audioContext && currentSubtitleIndex >= 0) {
                 try {
                     const audioFileName = await processAudioFile(word);
                     if (audioFileName) {
@@ -2115,15 +2308,39 @@
                 }
             }
             
+            // 如果有截图，处理图片
+            if (isVideo && currentScreenshot && imageFieldSelect.value) {
+                try {
+                    const imageFileName = await processImageFile(word);
+                    if (imageFileName) {
+                        // 确保图片字段引用格式正确
+                        note.fields[imageFieldSelect.value] = `<img src="${imageFileName}">`;
+                        console.log('图片字段设置:', imageFileName);
+                    }
+                } catch (error) {
+                    console.error('图片处理失败:', error);
+                    // 即使图片处理失败，仍然继续添加卡片
+                }
+            }
+            
             // 添加卡片到Anki
             await addCardToAnki(note);
         }
 
-        // 生成文件名
+        // 生成音频文件名
         function generateAudioFileName(word) {
             const cleanWord = word.replace(/[^a-z]/gi, '').toLowerCase() || 'audio';
             // 增加时间戳避免重名
             let fileName = `audio_${cleanWord}_${Date.now()}.wav`;
+            fileName = fileName.replace(/[^\w.\-]/g, '_');
+            return fileName;
+        }
+
+        // 生成图片文件名
+        function generateImageFileName(word) {
+            const cleanWord = word.replace(/[^a-z]/gi, '').toLowerCase() || 'screenshot';
+            // 增加时间戳避免重名
+            let fileName = `image_${cleanWord}_${Date.now()}.png`;
             fileName = fileName.replace(/[^\w.\-]/g, '_');
             return fileName;
         }
@@ -2168,6 +2385,45 @@
             }
         }
 
+        // 处理图片文件并返回实际存储名
+        async function processImageFile(word) {
+            try {
+                const imageFileName = generateImageFileName(word);
+                console.log('准备存储图片文件:', imageFileName);
+
+                // 从base64数据中提取纯数据部分
+                const base64Data = currentScreenshot.split(',')[1];
+
+                const response = await fetch('http://127.0.0.1:8765', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'storeMediaFile',
+                        version: 6,
+                        params: {
+                            filename: imageFileName,
+                            data: base64Data,
+                            deleteExisting: true
+                        }
+                    })
+                });
+
+                const result = await response.json();
+                if (result.error) {
+                    console.error('存储图片文件失败:', result.error);
+                    return null;
+                }
+
+                const storedName = result.result || imageFileName;
+                console.log('图片文件实际存储名:', storedName);
+                return storedName;
+
+            } catch (error) {
+                console.error('图片处理错误:', error);
+                return null;
+            }
+        }
+
         // 处理整张卡片
         async function processAnkiCard(word, definition) {
             const note = {
@@ -2182,8 +2438,10 @@
                 tags: ['audio-player']
             };
 
+            const isVideo = !videoContainer.classList.contains('hidden');
+
             // 若有音频，先处理音频
-            if (audioBuffer && audioContext && currentSubtitleIndex >= 0) {
+            if (!isVideo && audioBuffer && audioContext && currentSubtitleIndex >= 0) {
                 try {
                     const storedAudioName = await processAudioFile(word);
                     if (storedAudioName) {
@@ -2192,6 +2450,19 @@
                     }
                 } catch (error) {
                     console.error('音频处理失败:', error);
+                }
+            }
+
+            // 若有截图，处理图片
+            if (isVideo && currentScreenshot && imageFieldSelect.value) {
+                try {
+                    const storedImageName = await processImageFile(word);
+                    if (storedImageName) {
+                        note.fields[imageFieldSelect.value] = `<img src="${storedImageName}">`;
+                        console.log('图片字段设置:', storedImageName);
+                    }
+                } catch (error) {
+                    console.error('图片处理失败:', error);
                 }
             }
 
@@ -2411,8 +2682,9 @@
             document.body.style.overflow = '';
             
             // 恢复播放
-            if (playerWasPlaying && player.paused) {
-                player.play();
+            const currentPlayer = videoContainer.classList.contains('hidden') ? player : videoPlyr;
+            if (playerWasPlaying && currentPlayer.paused) {
+                currentPlayer.play();
             }
         }
         
@@ -2457,6 +2729,11 @@
             updateSubtitle(player.currentTime);
         });
         
+        // 新增：监听视频播放器时间更新
+        videoPlyr.on('timeupdate', event => {
+            updateSubtitle(videoPlyr.currentTime);
+        });
+        
         // 修复iOS兼容性问题
         function fixIOSCompatibility() {
             // iOS音频播放修复
@@ -2472,8 +2749,9 @@
                 // iOS文件选择后立即播放
                 if (e.target.files.length > 0) {
                     setTimeout(() => {
-                        if (player.paused) {
-                            player.play().catch(e => console.log('iOS自动播放被阻止:', e));
+                        const currentPlayer = videoContainer.classList.contains('hidden') ? player : videoPlyr;
+                        if (currentPlayer.paused) {
+                            currentPlayer.play().catch(e => console.log('iOS自动播放被阻止:', e));
                         }
                     }, 500);
                 }

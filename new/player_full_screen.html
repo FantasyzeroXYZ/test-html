@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全屏视频播放器 - 修复画面显示</title>
+    <title>全屏视频播放器 - 优化全屏体验11</title>
     <style>
         * {
             margin: 0;
@@ -338,7 +338,7 @@
             border-left: 3px solid #4361ee;
         }
         
-        /* 全屏样式 - 重新设计 */
+        /* 全屏样式 - 重点优化 */
         .fullscreen-mode {
             position: fixed;
             top: 0;
@@ -359,24 +359,28 @@
             display: none;
         }
         
-        .fullscreen-video-container {
+        .fullscreen-mode .player-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            max-width: 100%;
+            margin: 0;
+            border-radius: 0;
+            background: #000;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: #000;
         }
         
-        .fullscreen-video-container video {
+        .fullscreen-mode #videoPlayer {
+            flex: 1;
             width: 100%;
-            height: 100%;
-            object-fit: contain;
+            height: 100%;          /* 修复：必须指定100%高度 */
+            object-fit: contain;   /* 或用 cover 实现全屏铺满 */
+            background: #000;
         }
+
         
         /* 全屏字幕样式 */
         .fullscreen-subtitle {
@@ -493,7 +497,7 @@
     <div class="container">
         <header>
             <h1>全屏视频播放器</h1>
-            <p class="subtitle">支持本地MP4视频与SRT字幕 - 修复画面显示问题</p>
+            <p class="subtitle">支持本地MP4视频与SRT字幕 - 优化全屏体验</p>
         </header>
         
         <!-- 文件上传区域 -->
@@ -541,13 +545,6 @@
         </div>
     </div>
     
-    <!-- 全屏视频容器 -->
-    <div class="fullscreen-video-container" id="fullscreenVideoContainer" style="display: none;">
-        <video id="fullscreenVideoPlayer" controls>
-            您的浏览器不支持HTML5视频播放。
-        </video>
-    </div>
-    
     <!-- 全屏字幕显示 -->
     <div class="fullscreen-subtitle" id="fullscreenSubtitle" style="display: none;">
         <div class="status-message">全屏模式下，当前播放的字幕将显示在这里</div>
@@ -578,7 +575,6 @@
     <script>
         // 获取DOM元素
         const videoPlayer = document.getElementById('videoPlayer');
-        const fullscreenVideoPlayer = document.getElementById('fullscreenVideoPlayer');
         const videoFileInput = document.getElementById('videoFile');
         const subtitleFileInput = document.getElementById('subtitleFile');
         const fullscreenBtn = document.getElementById('fullscreenBtn');
@@ -592,7 +588,6 @@
         const subtitlesList = document.getElementById('subtitlesList');
         const currentSubtitle = document.getElementById('currentSubtitle');
         const fullscreenSubtitle = document.getElementById('fullscreenSubtitle');
-        const fullscreenVideoContainer = document.getElementById('fullscreenVideoContainer');
         const subtitleCount = document.getElementById('subtitleCount');
         
         // 存储解析后的字幕数据
@@ -605,7 +600,6 @@
             if (file) {
                 const url = URL.createObjectURL(file);
                 videoPlayer.src = url;
-                fullscreenVideoPlayer.src = url;
                 currentSubtitle.innerHTML = '<div class="status-message">视频已加载，请上传字幕文件</div>';
                 fullscreenSubtitle.innerHTML = '<div class="status-message">视频已加载，请上传字幕文件</div>';
             }
@@ -699,8 +693,6 @@
                     const subtitle = subtitles[index];
                     videoPlayer.currentTime = subtitle.start;
                     videoPlayer.play();
-                    fullscreenVideoPlayer.currentTime = subtitle.start;
-                    fullscreenVideoPlayer.play();
                 });
             });
         }
@@ -715,7 +707,7 @@
         
         // 更新当前显示的字幕
         function updateCurrentSubtitle() {
-            const currentTime = isFullscreen ? fullscreenVideoPlayer.currentTime : videoPlayer.currentTime;
+            const currentTime = videoPlayer.currentTime;
             let currentSub = null;
             
             // 查找当前时间对应的字幕
@@ -774,49 +766,14 @@
         
         // 视频时间更新事件
         videoPlayer.addEventListener('timeupdate', updateCurrentSubtitle);
-        fullscreenVideoPlayer.addEventListener('timeupdate', updateCurrentSubtitle);
-        
-        // 同步两个视频播放器的状态
-        videoPlayer.addEventListener('play', function() {
-            if (!isFullscreen) {
-                fullscreenVideoPlayer.currentTime = videoPlayer.currentTime;
-                fullscreenVideoPlayer.play();
-            }
-        });
-        
-        videoPlayer.addEventListener('pause', function() {
-            if (!isFullscreen) {
-                fullscreenVideoPlayer.pause();
-            }
-        });
-        
-        fullscreenVideoPlayer.addEventListener('play', function() {
-            if (isFullscreen) {
-                videoPlayer.currentTime = fullscreenVideoPlayer.currentTime;
-                videoPlayer.play();
-            }
-        });
-        
-        fullscreenVideoPlayer.addEventListener('pause', function() {
-            if (isFullscreen) {
-                videoPlayer.pause();
-            }
-        });
         
         // 切换全屏模式
         function enterFullscreen() {
             if (!document.fullscreenElement) {
-                // 同步当前播放状态
-                fullscreenVideoPlayer.currentTime = videoPlayer.currentTime;
-                if (!videoPlayer.paused) {
-                    fullscreenVideoPlayer.play();
-                }
-                
                 document.documentElement.requestFullscreen().catch(err => {
                     console.error(`全屏请求错误: ${err.message}`);
                 });
                 document.body.classList.add('fullscreen-mode');
-                fullscreenVideoContainer.style.display = 'flex';
                 fullscreenSubtitle.style.display = 'flex';
                 isFullscreen = true;
                 updateCurrentSubtitle(); // 更新全屏字幕
@@ -827,16 +784,8 @@
             if (document.exitFullscreen) {
                 document.exitFullscreen();
                 document.body.classList.remove('fullscreen-mode');
-                fullscreenVideoContainer.style.display = 'none';
                 fullscreenSubtitle.style.display = 'none';
                 isFullscreen = false;
-                
-                // 同步回普通播放器
-                videoPlayer.currentTime = fullscreenVideoPlayer.currentTime;
-                if (!fullscreenVideoPlayer.paused) {
-                    videoPlayer.play();
-                }
-                
                 updateCurrentSubtitle(); // 更新普通模式字幕
             }
         }
@@ -848,16 +797,8 @@
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement) {
                 document.body.classList.remove('fullscreen-mode');
-                fullscreenVideoContainer.style.display = 'none';
                 fullscreenSubtitle.style.display = 'none';
                 isFullscreen = false;
-                
-                // 同步回普通播放器
-                videoPlayer.currentTime = fullscreenVideoPlayer.currentTime;
-                if (!fullscreenVideoPlayer.paused) {
-                    videoPlayer.play();
-                }
-                
                 updateCurrentSubtitle(); // 更新普通模式字幕
             }
         });

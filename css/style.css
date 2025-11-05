@@ -90,10 +90,12 @@ h1 {
 
 .player-controls {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     padding: 15px;
     background: rgba(0, 0, 0, 0.7);
     align-items: center;
+    gap: 10px;
 }
 
 .control-btn {
@@ -108,6 +110,9 @@ h1 {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex: 1;
+    min-width: 150px;
+    justify-content: center;
 }
 
 .control-btn:hover {
@@ -120,7 +125,12 @@ h1 {
     transform: translateY(0);
 }
 
-/* 字幕区域样式 */
+.control-btn.active {
+    background: #3a0ca3;
+    box-shadow: 0 0 0 2px #4361ee;
+}
+
+/* 字幕区域样式 - 非全屏模式保持原有样式 */
 .subtitles-container {
     background: rgba(22, 33, 62, 0.9);
     padding: 20px;
@@ -312,12 +322,10 @@ h1 {
     
     .player-controls {
         flex-direction: column;
-        gap: 10px;
     }
     
     .control-btn {
         width: 100%;
-        justify-content: center;
     }
     
     .upload-section {
@@ -363,6 +371,7 @@ h1 {
     justify-content: center;
     align-items: center;
     background: #000;
+    cursor: pointer;
 }
 
 .fullscreen-video-container video {
@@ -371,24 +380,29 @@ h1 {
     object-fit: contain;
 }
 
-/* 全屏字幕样式 */
+/* 全屏字幕样式 - 透明背景 */
 .fullscreen-subtitle {
     position: fixed;
-    bottom: 0;
+    bottom: 80px;
     left: 0;
     width: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    background: transparent; /* 透明背景 */
     color: white;
     padding: 15px 20px;
     text-align: center;
     font-size: 1.5rem;
     z-index: 100;
-    backdrop-filter: blur(5px);
     min-height: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
+    /* 添加文字阴影提高可读性 */
+    text-shadow: 
+        1px 1px 3px rgba(0, 0, 0, 0.8),
+        -1px -1px 3px rgba(0, 0, 0, 0.8),
+        1px -1px 3px rgba(0, 0, 0, 0.8),
+        -1px 1px 3px rgba(0, 0, 0, 0.8);
 }
 
 .fullscreen-subtitle .word-span {
@@ -397,6 +411,8 @@ h1 {
     padding: 2px 6px;
     border-radius: 4px;
     margin: 0 2px;
+    /* 为可点击单词添加背景，但保持透明 */
+    background: rgba(67, 97, 238, 0.2);
 }
 
 .fullscreen-subtitle .word-span:hover {
@@ -409,6 +425,15 @@ h1 {
         font-size: 1.2rem;
         padding: 10px 15px;
         min-height: 60px;
+        bottom: 60px;
+    }
+    
+    .fullscreen-controls {
+        height: 60px;
+    }
+    
+    .fullscreen-subtitles-panel {
+        padding: 15px;
     }
 }
 
@@ -421,7 +446,7 @@ h1 {
     }
 }
 
-/* 当前字幕样式 */
+/* 当前字幕样式 - 非全屏模式保持原有样式 */
 .current-subtitle {
     font-size: 1.2rem;
     text-align: center;
@@ -433,6 +458,7 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 .word-span {
@@ -440,6 +466,7 @@ h1 {
     transition: all 0.2s;
     padding: 2px 4px;
     border-radius: 3px;
+    background: rgba(67, 97, 238, 0.1);
 }
 
 .word-span:hover {
@@ -479,4 +506,174 @@ h1 {
 
 .exit-fullscreen-btn:hover {
     background: rgba(0, 0, 0, 0.7);
+}
+
+.notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    z-index: 1002;
+    display: none;
+}
+
+/* 全屏控制条 */
+.fullscreen-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px 20px;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 100;
+    backdrop-filter: blur(5px);
+}
+
+.fullscreen-mode .fullscreen-controls {
+    display: flex;
+}
+
+.fullscreen-progress {
+    flex: 1;
+    margin: 0 15px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    position: relative;
+    cursor: pointer;
+}
+
+.fullscreen-progress-bar {
+    position: absolute;
+    height: 100%;
+    background: #4361ee;
+    border-radius: 3px;
+    width: 0%;
+}
+
+.fullscreen-progress:hover .fullscreen-progress-bar {
+    background: #3a56d4;
+}
+
+.fullscreen-time {
+    color: white;
+    font-size: 14px;
+    min-width: 100px;
+    text-align: center;
+}
+
+.fullscreen-control-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.fullscreen-control-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.fullscreen-control-btn:active {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* 词典面板遮罩 */
+.dictionary-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}
+
+.dictionary-overlay.active {
+    display: block;
+}
+
+/* 全屏字幕面板 */
+.fullscreen-subtitles-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 800px;
+    height: 70%;
+    background: rgba(22, 33, 62, 0.95);
+    border-radius: 12px;
+    z-index: 1001;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.fullscreen-subtitles-panel.active {
+    display: flex;
+}
+
+.fullscreen-subtitles-header {
+    padding: 20px;
+    background: #0f3460;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.fullscreen-subtitles-title {
+    font-size: 1.5rem;
+    color: #4cc9f0;
+}
+
+.fullscreen-subtitles-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.fullscreen-subtitle-item {
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.fullscreen-subtitle-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.fullscreen-subtitle-item.current {
+    background: rgba(67, 97, 238, 0.3);
+    border-left: 3px solid #4361ee;
+}
+
+.fullscreen-subtitles-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    display: none;
+}
+
+.fullscreen-subtitles-overlay.active {
+    display: block;
 }

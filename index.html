@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>增强版全屏视频播放器</title>
+    <title>增强版全屏视频播放器 - 音量保护功能</title>
     <style>
         * {
             margin: 0;
@@ -137,7 +137,7 @@
             box-shadow: 0 0 0 2px #4361ee;
         }
         
-        /* 字幕区域样式 - 非全屏模式保持原有样式 */
+        /* 字幕区域样式 */
         .subtitles-container {
             background: rgba(22, 33, 62, 0.9);
             padding: 20px;
@@ -226,8 +226,6 @@
             flex: 1;
             padding: 20px;
             overflow-y: auto;
-            /* 防止触摸滚动影响视频音量 */
-            touch-action: pan-y;
         }
         
         .search-box {
@@ -348,7 +346,7 @@
             border-left: 3px solid #4361ee;
         }
         
-        /* 全屏样式 - 重新设计 */
+        /* 全屏样式 */
         .fullscreen-mode {
             position: fixed;
             top: 0;
@@ -389,13 +387,13 @@
             object-fit: contain;
         }
         
-        /* 全屏字幕样式 - 透明背景 */
+        /* 全屏字幕样式 */
         .fullscreen-subtitle {
             position: fixed;
             bottom: 80px;
             left: 0;
             width: 100%;
-            background: transparent; /* 透明背景 */
+            background: transparent;
             color: white;
             padding: 15px 20px;
             text-align: center;
@@ -406,7 +404,6 @@
             align-items: center;
             justify-content: center;
             flex-wrap: wrap;
-            /* 添加文字阴影提高可读性 */
             text-shadow: 
                 1px 1px 3px rgba(0, 0, 0, 0.8),
                 -1px -1px 3px rgba(0, 0, 0, 0.8),
@@ -420,7 +417,6 @@
             padding: 2px 6px;
             border-radius: 4px;
             margin: 0 2px;
-            /* 为可点击单词添加背景，但保持透明 */
             background: rgba(67, 97, 238, 0.2);
         }
         
@@ -455,7 +451,7 @@
             }
         }
         
-        /* 当前字幕样式 - 非全屏模式保持原有样式 */
+        /* 当前字幕样式 */
         .current-subtitle {
             font-size: 1.2rem;
             text-align: center;
@@ -652,8 +648,6 @@
             flex: 1;
             padding: 20px;
             overflow-y: auto;
-            /* 防止触摸滚动影响视频音量 */
-            touch-action: pan-y;
         }
         
         .fullscreen-subtitle-item {
@@ -694,7 +688,7 @@
     <div class="container">
         <header>
             <h1>增强版全屏视频播放器</h1>
-            <p class="subtitle">支持本地MP4视频与SRT字幕 - 全屏控制与透明字幕</p>
+            <p class="subtitle">支持本地MP4视频与SRT字幕 - 全屏控制与音量保护</p>
         </header>
         
         <!-- 文件上传区域 -->
@@ -728,7 +722,7 @@
             </div>
         </div>
         
-        <!-- 当前字幕显示 - 非全屏模式保持原有样式 -->
+        <!-- 当前字幕显示 -->
         <div class="current-subtitle" id="currentSubtitle">
             <div class="status-message">加载视频和字幕后，当前播放的字幕将显示在这里</div>
         </div>
@@ -752,7 +746,7 @@
         </video>
     </div>
     
-    <!-- 全屏字幕显示 - 透明背景 -->
+    <!-- 全屏字幕显示 -->
     <div class="fullscreen-subtitle" id="fullscreenSubtitle" style="display: none;">
         <div class="status-message">全屏模式下，当前播放的字幕将显示在这里</div>
     </div>
@@ -857,7 +851,10 @@
         let wasPlayingBeforeSubtitles = false;
         let currentSubtitleIndex = -1;
         let controlsTimeout;
-        let volumeBeforeDict = 1; // 用于记录词典弹出前的音量
+        
+        // 音量状态变量 - 核心音量保护功能
+        let savedVolumeVideoPlayer = 1.0;
+        let savedVolumeFullscreenVideoPlayer = 1.0;
 
         // 初始：确保隐藏的播放器默认静音，避免加载或意外播放时造成回音
         fullscreenVideoPlayer.muted = true;
@@ -1206,73 +1203,27 @@
             }
         });
         
-        // 修复全屏模式下点击画面暂停/播放 - 添加视频元素本身的点击事件
+        // 全屏模式下点击画面暂停/播放
         fullscreenVideoContainer.addEventListener('click', function(e) {
-            if (isFullscreen) {
-                // 点击视频容器或视频本身都触发播放/暂停
-                if (e.target === fullscreenVideoContainer || e.target === fullscreenVideoPlayer) {
-                    if (fullscreenVideoPlayer.paused) {
-                        fullscreenVideoPlayer.play().catch(()=>{});
-                    } else {
-                        fullscreenVideoPlayer.pause();
-                    }
+            if (isFullscreen && e.target === fullscreenVideoContainer) {
+                if (fullscreenVideoPlayer.paused) {
+                    fullscreenVideoPlayer.play().catch(()=>{});
+                } else {
+                    fullscreenVideoPlayer.pause();
                 }
             }
         });
         
-        // 修复安卓Via浏览器中词典滚动时调节音量问题
-        // 在词典面板内容区域阻止触摸事件的默认行为
-        const dictionaryContent = document.querySelector('.dictionary-content');
-        
-        // 为词典和字幕面板添加更彻底的事件阻止
-        [dictionaryPanel, dictionaryOverlay, fullscreenSubtitlesPanel, fullscreenSubtitlesOverlay].forEach(panel => {
-            if (panel) {
-                // 阻止所有触摸事件的默认行为和传播
-                panel.addEventListener('touchstart', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }, { passive: false });
-                
-                panel.addEventListener('touchmove', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }, { passive: false });
-                
-                panel.addEventListener('touchend', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }, { passive: false });
-            }
-        });
-
-        // 为内容区域也添加阻止
-        [dictionaryContent, fullscreenSubtitlesContent].forEach(element => {
-            if (element) {
-                element.addEventListener('touchstart', function(e) {
-                    e.stopPropagation(); // 只阻止传播，不阻止默认（允许滚动）
-                });
-                
-                element.addEventListener('touchmove', function(e) {
-                    e.stopPropagation(); // 只阻止传播，不阻止默认（允许滚动）
-                }, { passive: true }); // 这里可以用passive: true提高性能
-                
-                element.addEventListener('touchend', function(e) {
-                    e.stopPropagation(); // 只阻止传播，不阻止默认
-                });
-            }
-        });
-        
-        // 打开词典面板
+        // 打开词典面板 - 核心音量保护功能
         function openDictionary() {
-            // 记录当前播放状态和音量
+            // 记录当前播放状态
             wasPlayingBeforeDict = isFullscreen ? 
                 !fullscreenVideoPlayer.paused : 
                 !videoPlayer.paused;
             
-            // 记录当前音量
-            volumeBeforeDict = isFullscreen ? 
-                fullscreenVideoPlayer.volume : 
-                videoPlayer.volume;
+            // 记录当前音量 - 核心保护功能
+            savedVolumeVideoPlayer = videoPlayer.volume;
+            savedVolumeFullscreenVideoPlayer = fullscreenVideoPlayer.volume;
             
             // 暂停播放
             if (isFullscreen) {
@@ -1285,17 +1236,14 @@
             dictionaryOverlay.classList.add('active');
         }
         
-        // 关闭词典面板
+        // 关闭词典面板 - 核心音量保护功能
         function closeDictionary() {
             dictionaryPanel.classList.remove('active');
             dictionaryOverlay.classList.remove('active');
             
-            // 恢复之前的音量
-            if (isFullscreen) {
-                fullscreenVideoPlayer.volume = volumeBeforeDict;
-            } else {
-                videoPlayer.volume = volumeBeforeDict;
-            }
+            // 恢复之前的音量 - 核心保护功能
+            videoPlayer.volume = savedVolumeVideoPlayer;
+            fullscreenVideoPlayer.volume = savedVolumeFullscreenVideoPlayer;
             
             // 恢复之前的播放状态
             if (wasPlayingBeforeDict) {
@@ -1314,10 +1262,13 @@
         closeDictBtn.addEventListener('click', closeDictionary);
         dictionaryOverlay.addEventListener('click', closeDictionary);
         
-        // 打开全屏字幕面板
+        // 打开全屏字幕面板 - 音量保护功能
         function openFullscreenSubtitles() {
             // 记录当前播放状态
             wasPlayingBeforeSubtitles = !fullscreenVideoPlayer.paused;
+            
+            // 记录当前音量 - 保护功能
+            savedVolumeFullscreenVideoPlayer = fullscreenVideoPlayer.volume;
             
             // 暂停播放
             fullscreenVideoPlayer.pause();
@@ -1330,10 +1281,13 @@
             displayFullscreenSubtitlesList();
         }
         
-        // 关闭全屏字幕面板
+        // 关闭全屏字幕面板 - 音量保护功能
         function closeFullscreenSubtitles() {
             fullscreenSubtitlesPanel.classList.remove('active');
             fullscreenSubtitlesOverlay.classList.remove('active');
+            
+            // 恢复之前的音量 - 保护功能
+            fullscreenVideoPlayer.volume = savedVolumeFullscreenVideoPlayer;
             
             // 恢复之前的播放状态
             if (wasPlayingBeforeSubtitles) {
@@ -1586,6 +1540,48 @@
         
         fullscreenVideoContainer.addEventListener('mousemove', showControls);
         fullscreenControls.addEventListener('mousemove', showControls);
+        
+        // 防止词典面板触摸事件冒泡 - 核心音量保护功能
+        dictionaryPanel.addEventListener('touchstart', function(e) {
+            e.stopPropagation();
+        });
+
+        dictionaryPanel.addEventListener('touchmove', function(e) {
+            e.stopPropagation();
+        });
+
+        dictionaryPanel.addEventListener('touchend', function(e) {
+            e.stopPropagation();
+        });
+
+        // 防止全屏字幕面板触摸事件冒泡 - 核心音量保护功能
+        fullscreenSubtitlesPanel.addEventListener('touchstart', function(e) {
+            e.stopPropagation();
+        });
+
+        fullscreenSubtitlesPanel.addEventListener('touchmove', function(e) {
+            e.stopPropagation();
+        });
+
+        fullscreenSubtitlesPanel.addEventListener('touchend', function(e) {
+            e.stopPropagation();
+        });
+
+        // 额外的音量保护措施：在视频播放器上监听音量变化
+        videoPlayer.addEventListener('volumechange', function() {
+            // 如果词典面板处于激活状态且音量被改变，立即恢复到保存的音量
+            if (dictionaryPanel.classList.contains('active')) {
+                videoPlayer.volume = savedVolumeVideoPlayer;
+            }
+        });
+
+        fullscreenVideoPlayer.addEventListener('volumechange', function() {
+            // 如果词典面板或全屏字幕面板处于激活状态且音量被改变，立即恢复到保存的音量
+            if (dictionaryPanel.classList.contains('active') || 
+                fullscreenSubtitlesPanel.classList.contains('active')) {
+                fullscreenVideoPlayer.volume = savedVolumeFullscreenVideoPlayer;
+            }
+        });
         
         // 初始化播放器事件
         videoPlayer.addEventListener('loadedmetadata', function() {

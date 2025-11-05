@@ -2,344 +2,917 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
     color: #fff;
-    line-height: 1.6;
     min-height: 100vh;
-    padding: 20px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
 }
 
 .container {
-    max-width: 1200px;
-    margin: 0 auto;
+    max-width: 800px;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    margin-top: 15px;
 }
 
 header {
     text-align: center;
-    margin-bottom: 30px;
-    padding: 20px;
+    margin-bottom: 20px;
 }
 
 h1 {
-    color: #4cc9f0;
-    margin-bottom: 10px;
-    font-size: 2.5rem;
-    text-shadow: 0 2px 10px rgba(76, 201, 240, 0.3);
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+    background: linear-gradient(to right, #ff7e5f, #feb47b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .subtitle {
-    color: #a5b1c2;
-    font-size: 1.2rem;
+    color: #ddd;
+    font-size: 1rem;
 }
 
-/* 文件上传区域 */
-.upload-section {
-    background: rgba(22, 33, 62, 0.7);
+/* Anki部分样式 */
+.anki-section {
+    margin-bottom: 20px;
+}
+
+.anki-container {
+    background: rgba(30, 30, 40, 0.9);
     border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 30px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.upload-box {
-    flex: 1;
-    min-width: 250px;
-}
-
-.upload-label {
-    display: block;
-    margin-bottom: 10px;
-    color: #4cc9f0;
-    font-weight: 600;
-}
-
-.file-input {
-    width: 100%;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid #30475e;
-    border-radius: 5px;
-    color: #fff;
-}
-
-/* 播放器样式 */
-.player-container {
-    position: relative;
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto 30px;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    background: #16213e;
-}
-
-#videoPlayer {
-    width: 100%;
-    height: auto;
-    display: block;
-    background: #000;
-}
-
-.player-controls {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
     padding: 15px;
-    background: rgba(0, 0, 0, 0.7);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.anki-status-row {
+    display: flex;
     align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
     gap: 10px;
 }
 
-.control-btn {
-    background: #4361ee;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 50px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: all 0.3s ease;
+.anki-status {
     display: flex;
     align-items: center;
-    gap: 8px;
     flex: 1;
-    min-width: 150px;
-    justify-content: center;
+    min-width: 200px;
 }
 
-.control-btn:hover {
-    background: #3a56d4;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.control-btn:active {
-    transform: translateY(0);
-}
-
-.control-btn.active {
-    background: #3a0ca3;
-    box-shadow: 0 0 0 2px #4361ee;
-}
-
-/* 字幕区域样式 - 非全屏模式保持原有样式 */
-.subtitles-container {
-    background: rgba(22, 33, 62, 0.9);
-    padding: 20px;
-    border-radius: 10px;
-    margin-top: 20px;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.subtitles-title {
-    color: #4cc9f0;
-    margin-bottom: 15px;
-    font-size: 1.3rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.subtitle-line {
-    padding: 10px;
-    margin-bottom: 8px;
-    border-radius: 6px;
-    background: rgba(255, 255, 255, 0.05);
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.subtitle-line:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.subtitle-time {
-    color: #a5b1c2;
-    font-size: 0.9rem;
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
     margin-right: 10px;
 }
 
-/* 词典面板样式 */
-.dictionary-panel {
-    position: fixed;
-    top: 0;
-    right: -400px;
-    width: 400px;
-    height: 100vh;
-    background: #16213e;
-    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
-    transition: right 0.4s ease;
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+.status-connected {
+    background-color: #2ecc71;
 }
 
-.dictionary-panel.active {
-    right: 0;
+.status-disconnected {
+    background-color: #e74c3c;
 }
 
-.dictionary-header {
-    padding: 20px;
-    background: #0f3460;
+.anki-controls {
     display: flex;
-    justify-content: space-between;
+    gap: 8px;
+}
+
+.anki-btn {
+    background: rgba(155, 89, 182, 0.7);
+    color: white;
+    border: none;
+    padding: 10px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+}
+
+.anki-btn:hover, .anki-btn:active {
+    background: rgba(155, 89, 182, 1);
+}
+
+/* 顶部按钮布局 */
+.top-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
     align-items: center;
 }
 
-.dictionary-title {
-    font-size: 1.5rem;
-    color: #4cc9f0;
-}
-
-.close-btn {
-    background: none;
+.media-mode-btn {
+    background: rgba(52, 152, 219, 0.7);
+    color: white;
     border: none;
-    color: #fff;
-    font-size: 1.5rem;
+    padding: 10px 15px;
+    border-radius: 8px;
     cursor: pointer;
-    padding: 5px;
-    transition: color 0.2s;
-}
-
-.close-btn:hover {
-    color: #4cc9f0;
-}
-
-.dictionary-content {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-}
-
-.search-box {
+    transition: all 0.3s;
+    font-size: 0.9rem;
     display: flex;
-    margin-bottom: 20px;
+    align-items: center;
+    justify-content: center;
+    min-width: 80px;
 }
 
-#wordInput {
-    flex: 1;
-    padding: 12px 15px;
-    border: none;
-    border-radius: 6px 0 0 6px;
-    background: #1a1a2e;
-    color: white;
-    font-size: 16px;
+.media-mode-btn:hover, .media-mode-btn:active {
+    background: rgba(52, 152, 219, 1);
 }
 
-#searchBtn {
-    background: #4361ee;
+.language-mode-btn {
+    background: rgba(155, 89, 182, 0.7);
     color: white;
     border: none;
-    padding: 0 20px;
-    border-radius: 0 6px 6px 0;
+    padding: 10px 15px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 16px;
-    transition: background 0.3s;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 80px;
 }
 
-#searchBtn:hover {
-    background: #3a56d4;
+.language-mode-btn:hover, .language-mode-btn:active {
+    background: rgba(155, 89, 182, 1);
 }
 
-.word-header {
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #30475e;
+.import-controls {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+    justify-content: flex-end;
 }
 
-.word-title {
-    font-size: 28px;
-    color: #4cc9f0;
-    margin-bottom: 5px;
+.import-btn {
+    background: rgba(52, 152, 219, 0.7);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 80px;
 }
 
-.phonetic {
-    color: #a5b1c2;
-    font-style: italic;
-    margin-bottom: 5px;
+.import-btn:hover, .import-btn:active {
+    background: rgba(52, 152, 219, 1);
 }
 
-.part-of-speech {
-    display: inline-block;
-    background: #30475e;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 14px;
+/* 自动配置区域 */
+.auto-config-section {
+    margin-top: 15px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+}
+
+.auto-config-row {
+    display: flex;
+    flex-direction: column;
     margin-bottom: 10px;
 }
 
-.meaning-section {
+.auto-config-label {
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: #ddd;
+}
+
+.auto-config-select {
+    padding: 8px 10px;
+    border: none;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-size: 0.9rem;
+}
+
+/* 播放器区域 */
+.player-section {
     margin-bottom: 25px;
 }
 
-.definition {
-    margin-bottom: 10px;
-    line-height: 1.5;
+.player-container {
+    background: rgba(30, 30, 40, 0.9);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
 }
 
-.example {
-    background: rgba(255, 255, 255, 0.05);
-    padding: 10px;
-    border-left: 3px solid #4361ee;
+.video-player {
+    width: 100%;
+    height: 300px;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    display: none;
+}
+
+.video-player.active {
+    display: block;
+}
+
+.video-player video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.audio-player {
+    width: 100%;
+    margin-top: 15px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    padding: 15px;
+    display: none;
+}
+
+.audio-player.active {
+    display: block;
+}
+
+.audio-player-container {
+    width: 100%;
+}
+
+.audio-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.audio-progress-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    position: relative;
+}
+
+.audio-time {
+    font-size: 0.8rem;
+    color: #ddd;
+    min-width: 40px;
+}
+
+.audio-progress {
+    flex: 1;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+}
+
+.audio-progress-filled {
+    height: 100%;
+    background: #3498db;
+    width: 0%;
+    transition: width 0.1s;
+}
+
+.progress-thumb {
+    position: absolute;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+
+.audio-volume-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+}
+
+.audio-volume {
+    flex: 1;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+}
+
+.audio-volume-filled {
+    height: 100%;
+    background: #2ecc71;
+    width: 50%;
+}
+
+.volume-thumb {
+    position: absolute;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+
+.audio-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.audio-btn {
+    background: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.audio-btn.active {
+    color: #3498db;
+    transform: scale(1.1);
+}
+
+/* 音频信息 */
+.audio-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.album-art {
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
+    background: linear-gradient(45deg, #3498db, #8e44ad);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+}
+
+.album-art i {
+    font-size: 30px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.track-info h2 {
+    font-size: 1.3rem;
+    margin-bottom: 5px;
+}
+
+.track-info p {
+    color: #bbb;
+    font-size: 0.9rem;
+}
+
+/* 字幕区域 */
+.subtitle-section {
+    margin-bottom: 25px;
+}
+
+.subtitle-display {
+    background: rgba(30, 30, 40, 0.9);
+    border-radius: 10px;
+    padding: 15px;
+    min-height: 100px;
+    margin-bottom: 15px;
+    line-height: 1.6;
+    font-size: 1.1rem;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    user-select: text;
+}
+
+.subtitle-text {
+    transition: all 0.3s;
+}
+
+.subtitle-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
     margin-bottom: 10px;
+}
+
+.subtitle-btn {
+    background: rgba(52, 152, 219, 0.7);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.subtitle-btn:hover, .subtitle-btn:active {
+    background: rgba(52, 152, 219, 1);
+}
+
+.hint {
+    text-align: center;
+    color: #bbb;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    line-height: 1.4;
+}
+
+/* 视频控制按钮 */
+.video-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.control-btn {
+    background: rgba(52, 152, 219, 0.7);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-btn:hover, .control-btn:active {
+    background: rgba(52, 152, 219, 1);
+}
+
+/* 时间跳转栏 */
+.time-input-container {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    width: 100%;
+    justify-content: center;
+}
+
+.time-input {
+    flex: 1;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 0.9rem;
+    max-width: 120px;
+}
+
+.time-jump-btn {
+    background: rgba(52, 152, 219, 0.7);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 视频字幕 */
+.video-subtitles {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: white;
+    font-size: 1.2rem;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    padding: 0 15px;
+    z-index: 10;
+    cursor: text;
+    user-select: text;
+    pointer-events: none;
+}
+
+.video-subtitles span {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: inline-block;
+    max-width: 90%;
+    cursor: text;
+    user-select: text;
+    pointer-events: auto;
+}
+
+/* 音频字幕 */
+.audio-subtitles {
+    margin-top: 15px;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    display: none;
+}
+
+.audio-subtitles.active {
+    display: block;
+}
+
+.audio-subtitle-item {
+    padding: 8px 10px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    cursor: pointer;
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+}
+
+.audio-subtitle-item:hover, .audio-subtitle-item:active {
+    background: rgba(52, 152, 219, 0.2);
+}
+
+.audio-subtitle-item.active {
+    background: rgba(52, 152, 219, 0.4);
+}
+
+/* 底部面板样式 */
+.dictionary-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(30, 30, 40, 0.95);
+    border-radius: 15px 15px 0 0;
+    padding: 20px;
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
+    transform: translateY(100%);
+    transition: transform 0.3s ease-out;
+    z-index: 1000;
+    max-height: 80vh;
+}
+
+.dictionary-panel.active {
+    transform: translateY(0);
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.panel-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.close-panel {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.panel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s;
+}
+
+.panel-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 搜索和Anki按钮 */
+.panel-search-anki-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.panel-search-container {
+    display: flex;
+    flex: 1;
+    gap: 10px;
+}
+
+.panel-search-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 1rem;
+}
+
+.panel-search-btn {
+    background: rgba(46, 204, 113, 0.7);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.panel-search-btn:hover, .panel-search-btn:active {
+    background: rgba(46, 204, 113, 1);
+}
+
+.append-word-btn {
+    background: rgba(241, 196, 15, 0.7);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    width: 50px;
+}
+
+.append-word-btn:hover, .append-word-btn:active {
+    background: rgba(241, 196, 15, 1);
+}
+
+.panel-anki-btn {
+    background: rgba(231, 76, 60, 0.7);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    width: 50px;
+}
+
+.panel-anki-btn:hover, .panel-anki-btn:active {
+    background: rgba(231, 76, 60, 1);
+}
+
+/* 原句显示 */
+.original-sentence {
+    margin-bottom: 15px;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    line-height: 1.5;
+    font-size: 1rem;
+}
+
+.sentence-word {
+    cursor: pointer;
+    transition: background-color 0.2s;
+    padding: 2px 4px;
+    border-radius: 3px;
+    margin: 0 1px;
+}
+
+.sentence-word:hover, .sentence-word:active {
+    background-color: rgba(52, 152, 219, 0.2);
+}
+
+.sentence-word.highlight {
+    background-color: rgba(255, 215, 0, 0.3);
+}
+
+/* 标签页样式 */
+.dictionary-tabs {
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 15px;
+}
+
+.tab-button {
+    background: transparent;
+    color: #bbb;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-bottom: 2px solid transparent;
+    font-size: 0.95rem;
+}
+
+.tab-button.active {
+    color: #3498db;
+    border-bottom: 2px solid #3498db;
+}
+
+.tab-button:hover {
+    color: #3498db;
+}
+
+.tab-content {
+    position: relative;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* 词典结果样式 */
+.dictionary-result {
+    margin-top: 15px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    min-height: 100px;
+    line-height: 1.6;
+    max-height: 300px;
+    overflow-y: auto;
+    font-size: 0.95rem;
+}
+
+.word-header {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.word-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-right: 15px;
+}
+
+.phonetic {
+    color: #3498db;
     font-style: italic;
 }
 
-.loading {
-    text-align: center;
-    padding: 40px;
-    color: #a5b1c2;
+.meaning-section {
+    margin-bottom: 15px;
 }
 
-.error {
-    text-align: center;
-    padding: 40px;
-    color: #e84545;
+.part-of-speech {
+    font-weight: bold;
+    color: #2ecc71;
+    margin-bottom: 5px;
 }
 
-.empty {
-    text-align: center;
-    padding: 40px;
-    color: #a5b1c2;
+.definition {
+    margin-left: 15px;
+    margin-bottom: 5px;
 }
 
-/* 响应式设计 */
-@media (max-width: 768px) {
-    .dictionary-panel {
-        width: 100%;
-        right: -100%;
-    }
-    
-    .player-controls {
-        flex-direction: column;
-    }
-    
-    .control-btn {
-        width: 100%;
-    }
-    
-    .upload-section {
-        flex-direction: column;
-    }
+.example {
+    margin-left: 15px;
+    font-style: italic;
+    color: #ddd;
+    margin-bottom: 8px;
 }
 
-/* 高亮选中的字幕 */
-.highlighted {
-    background: rgba(67, 97, 238, 0.3);
-    border-left: 3px solid #4361ee;
+/* 自定义释义 */
+.custom-definition {
+    margin-top: 15px;
 }
 
-/* 全屏样式 - 重新设计 */
+.custom-definition textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 1rem;
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* 字幕列表样式 */
+.subtitle-list-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(30, 30, 40, 0.95);
+    border-radius: 15px 15px 0 0;
+    padding: 20px;
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
+    transform: translateY(100%);
+    transition: transform 0.3s ease-out;
+    z-index: 1000;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.subtitle-list-panel.active {
+    transform: translateY(0);
+}
+
+.subtitle-list {
+    list-style: none;
+}
+
+.subtitle-item {
+    padding: 8px 10px;
+    margin-bottom: 5px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.subtitle-item:hover, .subtitle-item:active {
+    background: rgba(52, 152, 219, 0.2);
+}
+
+.subtitle-item.active {
+    background: rgba(52, 152, 219, 0.4);
+}
+
+/* ==================== 全屏相关样式 ==================== */
+
+/* 全屏模式 */
 .fullscreen-mode {
     position: fixed;
     top: 0;
@@ -354,8 +927,8 @@ h1 {
 
 .fullscreen-mode .container,
 .fullscreen-mode header,
-.fullscreen-mode .upload-section,
-.fullscreen-mode .subtitles-container,
+.fullscreen-mode .anki-section,
+.fullscreen-mode .subtitle-section,
 .fullscreen-mode .player-controls {
     display: none;
 }
@@ -386,7 +959,7 @@ h1 {
     bottom: 80px;
     left: 0;
     width: 100%;
-    background: transparent; /* 透明背景 */
+    background: transparent;
     color: white;
     padding: 15px 20px;
     text-align: center;
@@ -397,7 +970,6 @@ h1 {
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
-    /* 添加文字阴影提高可读性 */
     text-shadow: 
         1px 1px 3px rgba(0, 0, 0, 0.8),
         -1px -1px 3px rgba(0, 0, 0, 0.8),
@@ -411,73 +983,11 @@ h1 {
     padding: 2px 6px;
     border-radius: 4px;
     margin: 0 2px;
-    /* 为可点击单词添加背景，但保持透明 */
     background: rgba(67, 97, 238, 0.2);
 }
 
 .fullscreen-subtitle .word-span:hover {
     background: rgba(67, 97, 238, 0.5);
-}
-
-/* 移动端横屏适配 */
-@media (max-height: 500px) and (orientation: landscape) {
-    .fullscreen-subtitle {
-        font-size: 1.2rem;
-        padding: 10px 15px;
-        min-height: 60px;
-        bottom: 60px;
-    }
-    
-    .fullscreen-controls {
-        height: 60px;
-    }
-    
-    .fullscreen-subtitles-panel {
-        padding: 15px;
-    }
-}
-
-/* 移动端竖屏适配 */
-@media (max-width: 768px) and (orientation: portrait) {
-    .fullscreen-subtitle {
-        font-size: 1.3rem;
-        padding: 12px 15px;
-        min-height: 70px;
-    }
-}
-
-/* 当前字幕样式 - 非全屏模式保持原有样式 */
-.current-subtitle {
-    font-size: 1.2rem;
-    text-align: center;
-    padding: 15px;
-    background: rgba(67, 97, 238, 0.1);
-    border-radius: 8px;
-    margin-bottom: 10px;
-    min-height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.word-span {
-    cursor: pointer;
-    transition: all 0.2s;
-    padding: 2px 4px;
-    border-radius: 3px;
-    background: rgba(67, 97, 238, 0.1);
-}
-
-.word-span:hover {
-    background: rgba(67, 97, 238, 0.3);
-}
-
-.status-message {
-    text-align: center;
-    padding: 15px;
-    color: #a5b1c2;
-    font-style: italic;
 }
 
 /* 全屏退出按钮 */
@@ -506,19 +1016,6 @@ h1 {
 
 .exit-fullscreen-btn:hover {
     background: rgba(0, 0, 0, 0.7);
-}
-
-.notification {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    z-index: 1002;
-    display: none;
 }
 
 /* 全屏控制条 */
@@ -586,22 +1083,6 @@ h1 {
 
 .fullscreen-control-btn:active {
     background: rgba(255, 255, 255, 0.2);
-}
-
-/* 词典面板遮罩 */
-.dictionary-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 999;
-    display: none;
-}
-
-.dictionary-overlay.active {
-    display: block;
 }
 
 /* 全屏字幕面板 */
@@ -676,4 +1157,314 @@ h1 {
 
 .fullscreen-subtitles-overlay.active {
     display: block;
+}
+
+/* 词典面板样式 */
+.dictionary-panel-fullscreen {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 400px;
+    height: 100vh;
+    background: #16213e;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+    transition: right 0.4s ease;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.dictionary-panel-fullscreen.active {
+    right: 0;
+}
+
+.dictionary-header {
+    padding: 20px;
+    background: #0f3460;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dictionary-title {
+    font-size: 1.5rem;
+    color: #4cc9f0;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.2s;
+}
+
+.close-btn:hover {
+    color: #4cc9f0;
+}
+
+.dictionary-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.search-box {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+#wordInput {
+    flex: 1;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 6px 0 0 6px;
+    background: #1a1a2e;
+    color: white;
+    font-size: 16px;
+}
+
+#searchBtn {
+    background: #4361ee;
+    color: white;
+    border: none;
+    padding: 0 20px;
+    border-radius: 0 6px 6px 0;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+}
+
+#searchBtn:hover {
+    background: #3a56d4;
+}
+
+/* 词典面板遮罩 */
+.dictionary-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}
+
+.dictionary-overlay.active {
+    display: block;
+}
+
+/* 通知 */
+.notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    z-index: 1002;
+    display: none;
+}
+
+/* 通用样式 */
+.hidden {
+    display: none;
+}
+
+.word {
+    cursor: pointer;
+    transition: background-color 0.2s;
+    padding: 2px 4px;
+    border-radius: 3px;
+    margin: 0 1px;
+}
+
+.word:hover, .word:active {
+    background-color: rgba(52, 152, 219, 0.2);
+}
+
+.word.highlight {
+    background-color: rgba(255, 215, 0, 0.3);
+}
+
+.loading {
+    text-align: center;
+    color: #3498db;
+    font-style: italic;
+}
+
+.error {
+    color: #e74c3c;
+    text-align: center;
+}
+
+.status-message {
+    text-align: center;
+    padding: 15px;
+    color: #a5b1c2;
+    font-style: italic;
+}
+
+/* GitHub链接样式 */
+.github-link {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.github-link a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transition: color 0.3s, transform 0.3s;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.github-link a:hover {
+    color: #3498db;
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+footer {
+    margin-top: 25px;
+    text-align: center;
+    color: #ddd;
+    font-size: 0.8rem;
+    padding: 0 10px;
+    width: 100%;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    h1 {
+        font-size: 1.6rem;
+    }
+    
+    .video-player {
+        height: 250px;
+    }
+    
+    .fullscreen-subtitle {
+        font-size: 1.3rem;
+        padding: 12px 15px;
+        min-height: 70px;
+        bottom: 60px;
+    }
+    
+    .fullscreen-controls {
+        padding: 8px 15px;
+    }
+    
+    .fullscreen-control-btn {
+        font-size: 1.3rem;
+        padding: 4px 8px;
+    }
+    
+    .fullscreen-time {
+        font-size: 12px;
+        min-width: 80px;
+    }
+    
+    .dictionary-panel-fullscreen {
+        width: 100%;
+        right: -100%;
+    }
+    
+    .fullscreen-subtitles-panel {
+        width: 95%;
+        height: 80%;
+    }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .fullscreen-subtitle {
+        font-size: 1.2rem;
+        padding: 10px 15px;
+        min-height: 60px;
+        bottom: 50px;
+    }
+    
+    .fullscreen-controls {
+        height: 50px;
+    }
+}
+
+/* 移动端触摸优化 */
+@media (hover: none) and (pointer: coarse) {
+    .word, .sentence-word, .audio-subtitle-item {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+    }
+}
+
+/* 确保所有字幕容器都使用水平文本 */
+.subtitle-text,
+.video-subtitles,
+.audio-subtitles,
+.fullscreen-subtitle {
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
+    white-space: normal;
+    word-break: break-word;
+}
+
+/* 日语文本方向 */
+.japanese-sentence {
+    word-spacing: 0;
+    letter-spacing: 0;
+}
+
+.selectable-word, .selectable-text, .sentence-word {
+    cursor: pointer;
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    padding: 2px 1px;
+    margin: 0 1px;
+    border-radius: 2px;
+    transition: background-color 0.2s;
+}
+
+.selectable-word:hover, .sentence-word:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.selectable-word.highlight, .sentence-word.highlight {
+    background-color: rgba(255, 215, 0, 0.3);
+}
+
+.video-subtitle-text {
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    cursor: text;
+    font-size: 1.2em;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.subtitle-content {
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    cursor: text;
+    line-height: 1.4;
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>增强版全屏视频播放器 - 音量保护功能</title>
+    <title>增强版全屏视频播放器</title>
     <style>
         * {
             margin: 0;
@@ -137,223 +137,42 @@
             box-shadow: 0 0 0 2px #4361ee;
         }
         
-        /* 当前字幕样式 */
-        .current-subtitle {
-            font-size: 1.2rem;
-            text-align: center;
-            padding: 15px;
-            background: rgba(67, 97, 238, 0.1);
-            border-radius: 8px;
-            margin-bottom: 10px;
-            min-height: 60px;
+        /* 字幕区域样式 - 非全屏模式保持原有样式 */
+        .subtitles-container {
+            background: rgba(22, 33, 62, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .subtitles-title {
+            color: #4cc9f0;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .word-span {
-            cursor: pointer;
-            transition: all 0.2s;
-            padding: 2px 4px;
-            border-radius: 3px;
-            background: rgba(67, 97, 238, 0.1);
-        }
-        
-        .word-span:hover {
-            background: rgba(67, 97, 238, 0.3);
-        }
-        
-        .status-message {
-            text-align: center;
-            padding: 15px;
-            color: #a5b1c2;
-            font-style: italic;
-        }
-        
-        /* 全屏样式 */
-        .fullscreen-mode {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 999;
-            background: #000;
-            padding: 0;
-            overflow: hidden;
-        }
-        
-        .fullscreen-mode .container,
-        .fullscreen-mode header,
-        .fullscreen-mode .upload-section,
-        .fullscreen-mode .player-controls {
-            display: none;
-        }
-        
-        .fullscreen-video-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: #000;
-            cursor: pointer;
-        }
-        
-        .fullscreen-video-container video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        
-        /* 全屏字幕样式 */
-        .fullscreen-subtitle {
-            position: fixed;
-            bottom: 80px;
-            left: 0;
-            width: 100%;
-            background: transparent;
-            color: white;
-            padding: 15px 20px;
-            text-align: center;
-            font-size: 1.5rem;
-            z-index: 100;
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
-            text-shadow: 
-                1px 1px 3px rgba(0, 0, 0, 0.8),
-                -1px -1px 3px rgba(0, 0, 0, 0.8),
-                1px -1px 3px rgba(0, 0, 0, 0.8),
-                -1px 1px 3px rgba(0, 0, 0, 0.8);
-        }
-        
-        .fullscreen-subtitle .word-span {
-            cursor: pointer;
-            transition: all 0.2s;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin: 0 2px;
-            background: rgba(67, 97, 238, 0.2);
-        }
-        
-        .fullscreen-subtitle .word-span:hover {
-            background: rgba(67, 97, 238, 0.5);
-        }
-        
-        /* 全屏退出按钮 */
-        .exit-fullscreen-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            z-index: 101;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.3s;
-        }
-        
-        .fullscreen-mode .exit-fullscreen-btn {
-            display: flex;
-        }
-        
-        .exit-fullscreen-btn:hover {
-            background: rgba(0, 0, 0, 0.7);
-        }
-        
-        .notification {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            z-index: 1002;
-            display: none;
-        }
-        
-        /* 全屏控制条 */
-        .fullscreen-controls {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px 20px;
-            display: none;
-            align-items: center;
             justify-content: space-between;
-            z-index: 100;
-            backdrop-filter: blur(5px);
+            align-items: center;
         }
         
-        .fullscreen-mode .fullscreen-controls {
-            display: flex;
-        }
-        
-        .fullscreen-progress {
-            flex: 1;
-            margin: 0 15px;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-            position: relative;
+        .subtitle-line {
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
             cursor: pointer;
+            transition: all 0.2s ease;
         }
         
-        .fullscreen-progress-bar {
-            position: absolute;
-            height: 100%;
-            background: #4361ee;
-            border-radius: 3px;
-            width: 0%;
-        }
-        
-        .fullscreen-progress:hover .fullscreen-progress-bar {
-            background: #3a56d4;
-        }
-        
-        .fullscreen-time {
-            color: white;
-            font-size: 14px;
-            min-width: 100px;
-            text-align: center;
-        }
-        
-        .fullscreen-control-btn {
-            background: transparent;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 5px 10px;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-        
-        .fullscreen-control-btn:hover {
+        .subtitle-line:hover {
             background: rgba(255, 255, 255, 0.1);
         }
         
-        .fullscreen-control-btn:active {
-            background: rgba(255, 255, 255, 0.2);
+        .subtitle-time {
+            color: #a5b1c2;
+            font-size: 0.9rem;
+            margin-right: 10px;
         }
         
         /* 词典面板样式 */
@@ -501,22 +320,6 @@
             color: #a5b1c2;
         }
         
-        /* 词典面板遮罩 */
-        .dictionary-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            display: none;
-        }
-        
-        .dictionary-overlay.active {
-            display: block;
-        }
-        
         /* 响应式设计 */
         @media (max-width: 768px) {
             .dictionary-panel {
@@ -535,12 +338,351 @@
             .upload-section {
                 flex-direction: column;
             }
+        }
+        
+        /* 高亮选中的字幕 */
+        .highlighted {
+            background: rgba(67, 97, 238, 0.3);
+            border-left: 3px solid #4361ee;
+        }
+        
+        /* 全屏样式 - 重新设计 */
+        .fullscreen-mode {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 999;
+            background: #000;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .fullscreen-mode .container,
+        .fullscreen-mode header,
+        .fullscreen-mode .upload-section,
+        .fullscreen-mode .subtitles-container,
+        .fullscreen-mode .player-controls {
+            display: none;
+        }
+        
+        .fullscreen-video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            cursor: pointer;
+        }
+        
+        .fullscreen-video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        /* 全屏字幕样式 - 透明背景 */
+        .fullscreen-subtitle {
+            position: fixed;
+            bottom: 80px;
+            left: 0;
+            width: 100%;
+            background: transparent; /* 透明背景 */
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 1.5rem;
+            z-index: 100;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            /* 添加文字阴影提高可读性 */
+            text-shadow: 
+                1px 1px 3px rgba(0, 0, 0, 0.8),
+                -1px -1px 3px rgba(0, 0, 0, 0.8),
+                1px -1px 3px rgba(0, 0, 0, 0.8),
+                -1px 1px 3px rgba(0, 0, 0, 0.8);
+        }
+        
+        .fullscreen-subtitle .word-span {
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin: 0 2px;
+            /* 为可点击单词添加背景，但保持透明 */
+            background: rgba(67, 97, 238, 0.2);
+        }
+        
+        .fullscreen-subtitle .word-span:hover {
+            background: rgba(67, 97, 238, 0.5);
+        }
+        
+        /* 移动端横屏适配 */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .fullscreen-subtitle {
+                font-size: 1.2rem;
+                padding: 10px 15px;
+                min-height: 60px;
+                bottom: 60px;
+            }
             
+            .fullscreen-controls {
+                height: 60px;
+            }
+            
+            .fullscreen-subtitles-panel {
+                padding: 15px;
+            }
+        }
+        
+        /* 移动端竖屏适配 */
+        @media (max-width: 768px) and (orientation: portrait) {
             .fullscreen-subtitle {
                 font-size: 1.3rem;
                 padding: 12px 15px;
                 min-height: 70px;
             }
+        }
+        
+        /* 当前字幕样式 - 非全屏模式保持原有样式 */
+        .current-subtitle {
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 15px;
+            background: rgba(67, 97, 238, 0.1);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .word-span {
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 2px 4px;
+            border-radius: 3px;
+            background: rgba(67, 97, 238, 0.1);
+        }
+        
+        .word-span:hover {
+            background: rgba(67, 97, 238, 0.3);
+        }
+        
+        .status-message {
+            text-align: center;
+            padding: 15px;
+            color: #a5b1c2;
+            font-style: italic;
+        }
+        
+        /* 全屏退出按钮 */
+        .exit-fullscreen-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 101;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+        
+        .fullscreen-mode .exit-fullscreen-btn {
+            display: flex;
+        }
+        
+        .exit-fullscreen-btn:hover {
+            background: rgba(0, 0, 0, 0.7);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1002;
+            display: none;
+        }
+        
+        /* 全屏控制条 */
+        .fullscreen-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+        
+        .fullscreen-mode .fullscreen-controls {
+            display: flex;
+        }
+        
+        .fullscreen-progress {
+            flex: 1;
+            margin: 0 15px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .fullscreen-progress-bar {
+            position: absolute;
+            height: 100%;
+            background: #4361ee;
+            border-radius: 3px;
+            width: 0%;
+        }
+        
+        .fullscreen-progress:hover .fullscreen-progress-bar {
+            background: #3a56d4;
+        }
+        
+        .fullscreen-time {
+            color: white;
+            font-size: 14px;
+            min-width: 100px;
+            text-align: center;
+        }
+        
+        .fullscreen-control-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .fullscreen-control-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .fullscreen-control-btn:active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* 词典面板遮罩 */
+        .dictionary-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        .dictionary-overlay.active {
+            display: block;
+        }
+        
+        /* 全屏字幕面板 */
+        .fullscreen-subtitles-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 800px;
+            height: 70%;
+            background: rgba(22, 33, 62, 0.95);
+            border-radius: 12px;
+            z-index: 1001;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .fullscreen-subtitles-panel.active {
+            display: flex;
+        }
+        
+        .fullscreen-subtitles-header {
+            padding: 20px;
+            background: #0f3460;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .fullscreen-subtitles-title {
+            font-size: 1.5rem;
+            color: #4cc9f0;
+        }
+        
+        .fullscreen-subtitles-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .fullscreen-subtitle-item {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .fullscreen-subtitle-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .fullscreen-subtitle-item.current {
+            background: rgba(67, 97, 238, 0.3);
+            border-left: 3px solid #4361ee;
+        }
+        
+        .fullscreen-subtitles-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: none;
+        }
+        
+        .fullscreen-subtitles-overlay.active {
+            display: block;
         }
     </style>
 </head>
@@ -548,7 +690,7 @@
     <div class="container">
         <header>
             <h1>增强版全屏视频播放器</h1>
-            <p class="subtitle">支持本地MP4视频 - 全屏控制与音量保护功能</p>
+            <p class="subtitle">支持本地MP4视频与SRT字幕 - 全屏控制与透明字幕</p>
         </header>
         
         <!-- 文件上传区域 -->
@@ -556,6 +698,10 @@
             <div class="upload-box">
                 <label class="upload-label">选择MP4视频文件</label>
                 <input type="file" id="videoFile" class="file-input" accept="video/mp4">
+            </div>
+            <div class="upload-box">
+                <label class="upload-label">选择SRT字幕文件</label>
+                <input type="file" id="subtitleFile" class="file-input" accept=".srt">
             </div>
         </div>
         
@@ -578,9 +724,20 @@
             </div>
         </div>
         
-        <!-- 当前字幕显示 -->
+        <!-- 当前字幕显示 - 非全屏模式保持原有样式 -->
         <div class="current-subtitle" id="currentSubtitle">
-            <div class="status-message">播放视频时，字幕将显示在这里</div>
+            <div class="status-message">加载视频和字幕后，当前播放的字幕将显示在这里</div>
+        </div>
+        
+        <!-- 字幕列表 -->
+        <div class="subtitles-container">
+            <h3 class="subtitles-title">
+                <span>字幕列表</span>
+                <span id="subtitleCount">0 条字幕</span>
+            </h3>
+            <div id="subtitlesList">
+                <div class="status-message">请上传SRT字幕文件</div>
+            </div>
         </div>
     </div>
     
@@ -591,23 +748,41 @@
         </video>
     </div>
     
-    <!-- 全屏字幕显示 -->
+    <!-- 全屏字幕显示 - 透明背景 -->
     <div class="fullscreen-subtitle" id="fullscreenSubtitle" style="display: none;">
-        <div class="status-message">全屏模式下，字幕将显示在这里</div>
+        <div class="status-message">全屏模式下，当前播放的字幕将显示在这里</div>
     </div>
     
     <!-- 全屏控制条 -->
     <div class="fullscreen-controls" id="fullscreenControls">
+        <button class="fullscreen-control-btn" id="prevSubtitleBtn" title="上一句">⏮</button>
         <button class="fullscreen-control-btn" id="playPauseBtn" title="播放/暂停">⏸</button>
+        <button class="fullscreen-control-btn" id="nextSubtitleBtn" title="下一句">⏭</button>
         <div class="fullscreen-progress" id="fullscreenProgress">
             <div class="fullscreen-progress-bar" id="fullscreenProgressBar"></div>
         </div>
         <div class="fullscreen-time" id="fullscreenTime">00:00 / 00:00</div>
         <button class="fullscreen-control-btn" id="fullscreenDictBtn" title="词典">📖</button>
+        <button class="fullscreen-control-btn" id="fullscreenSubtitlesBtn" title="显示全部字幕">📜</button>
     </div>
     
     <!-- 全屏退出按钮 -->
     <button class="exit-fullscreen-btn" id="exitFullscreenBtn" title="退出全屏">✕</button>
+    
+    <!-- 全屏字幕面板 -->
+    <div class="fullscreen-subtitles-panel" id="fullscreenSubtitlesPanel">
+        <div class="fullscreen-subtitles-header">
+            <h2 class="fullscreen-subtitles-title">全部字幕</h2>
+            <button class="close-btn" id="closeSubtitlesBtn">×</button>
+        </div>
+        
+        <div class="fullscreen-subtitles-content" id="fullscreenSubtitlesContent">
+            <div class="status-message">请上传SRT字幕文件</div>
+        </div>
+    </div>
+    
+    <!-- 全屏字幕面板遮罩 -->
+    <div class="fullscreen-subtitles-overlay" id="fullscreenSubtitlesOverlay"></div>
     
     <!-- 词典面板 -->
     <div class="dictionary-panel" id="dictionaryPanel">
@@ -623,7 +798,7 @@
             </div>
             
             <div id="dictResult">
-                <div class="empty">请输入要查询的单词</div>
+                <div class="empty">请输入要查询的单词或点击字幕中的单词</div>
             </div>
         </div>
     </div>
@@ -639,17 +814,24 @@
         const videoPlayer = document.getElementById('videoPlayer');
         const fullscreenVideoPlayer = document.getElementById('fullscreenVideoPlayer');
         const videoFileInput = document.getElementById('videoFile');
+        const subtitleFileInput = document.getElementById('subtitleFile');
         const fullscreenBtn = document.getElementById('fullscreenBtn');
         const exitFullscreenBtn = document.getElementById('exitFullscreenBtn');
         const dictBtn = document.getElementById('dictBtn');
         const fullscreenDictBtn = document.getElementById('fullscreenDictBtn');
+        const fullscreenSubtitlesBtn = document.getElementById('fullscreenSubtitlesBtn');
         const clipboardBtn = document.getElementById('clipboardBtn');
         const dictionaryPanel = document.getElementById('dictionaryPanel');
         const dictionaryOverlay = document.getElementById('dictionaryOverlay');
         const closeDictBtn = document.getElementById('closeDictBtn');
+        const fullscreenSubtitlesPanel = document.getElementById('fullscreenSubtitlesPanel');
+        const fullscreenSubtitlesOverlay = document.getElementById('fullscreenSubtitlesOverlay');
+        const fullscreenSubtitlesContent = document.getElementById('fullscreenSubtitlesContent');
+        const closeSubtitlesBtn = document.getElementById('closeSubtitlesBtn');
         const wordInput = document.getElementById('wordInput');
         const searchBtn = document.getElementById('searchBtn');
         const dictResult = document.getElementById('dictResult');
+        const subtitlesList = document.getElementById('subtitlesList');
         const currentSubtitle = document.getElementById('currentSubtitle');
         const fullscreenSubtitle = document.getElementById('fullscreenSubtitle');
         const fullscreenVideoContainer = document.getElementById('fullscreenVideoContainer');
@@ -658,6 +840,9 @@
         const fullscreenProgressBar = document.getElementById('fullscreenProgressBar');
         const fullscreenTime = document.getElementById('fullscreenTime');
         const playPauseBtn = document.getElementById('playPauseBtn');
+        const prevSubtitleBtn = document.getElementById('prevSubtitleBtn');
+        const nextSubtitleBtn = document.getElementById('nextSubtitleBtn');
+        const subtitleCount = document.getElementById('subtitleCount');
         const notification = document.getElementById('notification');
         
         // 存储解析后的字幕数据
@@ -665,14 +850,11 @@
         let isFullscreen = false;
         let clipboardEnabled = false;
         let wasPlayingBeforeDict = false;
+        let wasPlayingBeforeSubtitles = false;
         let currentSubtitleIndex = -1;
         let controlsTimeout;
-        
-        // 音量状态变量 - 核心音量保护功能
-        let savedVolumeVideoPlayer = 1.0;
-        let savedVolumeFullscreenVideoPlayer = 1.0;
 
-        // 初始：确保隐藏的播放器默认静音
+        // 初始：确保隐藏的播放器默认静音，避免加载或意外播放时造成回音
         fullscreenVideoPlayer.muted = true;
 
         // 视频文件上传处理
@@ -686,10 +868,242 @@
                 videoPlayer.muted = false;
                 fullscreenVideoPlayer.muted = true;
                 fullscreenVideoPlayer.pause();
-                currentSubtitle.innerHTML = '<div class="status-message">视频已加载，开始播放</div>';
-                fullscreenSubtitle.innerHTML = '<div class="status-message">视频已加载，开始播放</div>';
+                currentSubtitle.innerHTML = '<div class="status-message">视频已加载，请上传字幕文件</div>';
+                fullscreenSubtitle.innerHTML = '<div class="status-message">视频已加载，请上传字幕文件</div>';
             }
         });
+        
+        // 字幕文件上传处理
+        subtitleFileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const srtContent = e.target.result;
+                    subtitles = parseSRT(srtContent);
+                    displaySubtitlesList(subtitles);
+                    subtitleCount.textContent = `${subtitles.length} 条字幕`;
+                    
+                    if (subtitles.length > 0) {
+                        currentSubtitle.innerHTML = '<div class="status-message">开始播放视频以显示当前字幕</div>';
+                        fullscreenSubtitle.innerHTML = '<div class="status-message">开始播放视频以显示当前字幕</div>';
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+        
+        // 解析SRT字幕文件
+        function parseSRT(srtContent) {
+            const subtitles = [];
+            const blocks = srtContent.trim().split(/\r?\n\r?\n/);
+            
+            for (const block of blocks) {
+                const lines = block.split(/\r?\n/);
+                if (lines.length < 3) continue;
+                
+                // 解析时间轴
+                const timeLine = lines[1];
+                const timeMatch = timeLine.match(/(\d{2}):(\d{2}):(\d{2}),(\d{3}) --> (\d{2}):(\d{2}):(\d{2}),(\d{3})/);
+                
+                if (timeMatch) {
+                    const startTime = parseTime(timeMatch[1], timeMatch[2], timeMatch[3], timeMatch[4]);
+                    const endTime = parseTime(timeMatch[5], timeMatch[6], timeMatch[7], timeMatch[8]);
+                    
+                    // 合并文本行
+                    const text = lines.slice(2).join(' ');
+                    
+                    subtitles.push({
+                        start: startTime,
+                        end: endTime,
+                        text: text
+                    });
+                }
+            }
+            
+            return subtitles;
+        }
+        
+        // 将时间字符串转换为秒
+        function parseTime(hours, minutes, seconds, milliseconds) {
+            return parseInt(hours) * 3600 + 
+                   parseInt(minutes) * 60 + 
+                   parseInt(seconds) + 
+                   parseInt(milliseconds) / 1000;
+        }
+        
+        // 显示字幕列表
+        function displaySubtitlesList(subtitles) {
+            if (subtitles.length === 0) {
+                subtitlesList.innerHTML = '<div class="status-message">没有找到有效的字幕</div>';
+                return;
+            }
+            
+            let html = '';
+            subtitles.forEach((sub, index) => {
+                const startTime = formatTime(sub.start);
+                const endTime = formatTime(sub.end);
+                
+                html += `
+                    <div class="subtitle-line" data-index="${index}">
+                        <span class="subtitle-time">[${startTime} - ${endTime}]</span>
+                        <span>${escapeHtml(sub.text)}</span>
+                    </div>
+                `;
+            });
+            
+            subtitlesList.innerHTML = html;
+            
+            // 为字幕行添加点击事件（点击跳到该字幕时间），只让当前活动播放器播放，另一个暂停
+            document.querySelectorAll('.subtitle-line').forEach(line => {
+                line.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    const subtitle = subtitles[index];
+                    if (isFullscreen) {
+                        fullscreenVideoPlayer.currentTime = subtitle.start;
+                        fullscreenVideoPlayer.play().catch(()=>{});
+                        // 保持普通播放器静音/暂停，避免重音
+                        videoPlayer.pause();
+                        videoPlayer.currentTime = subtitle.start;
+                    } else {
+                        videoPlayer.currentTime = subtitle.start;
+                        videoPlayer.play().catch(()=>{});
+                        fullscreenVideoPlayer.pause();
+                        fullscreenVideoPlayer.currentTime = subtitle.start;
+                    }
+                });
+            });
+        }
+        
+        // 格式化时间显示
+        function formatTime(seconds) {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // 更新当前显示的字幕
+        function updateCurrentSubtitle() {
+            const currentTime = isFullscreen ? fullscreenVideoPlayer.currentTime : videoPlayer.currentTime;
+            let currentSub = null;
+            currentSubtitleIndex = -1;
+            
+            // 查找当前时间对应的字幕
+            for (let i = 0; i < subtitles.length; i++) {
+                const sub = subtitles[i];
+                if (currentTime >= sub.start && currentTime <= sub.end) {
+                    currentSub = sub;
+                    currentSubtitleIndex = i;
+                    break;
+                }
+            }
+            
+            if (currentSub) {
+                // 将字幕文本中的单词转换为可点击的元素
+                const processedText = processTextForClickableWords(currentSub.text);
+                
+                if (isFullscreen) {
+                    fullscreenSubtitle.innerHTML = processedText;
+                } else {
+                    currentSubtitle.innerHTML = processedText;
+                }
+            } else {
+                // 当没有字幕时不一直显示"无字幕"，清空内容（避免闪烁）
+                if (isFullscreen) {
+                    fullscreenSubtitle.innerHTML = '';
+                } else {
+                    currentSubtitle.innerHTML = '';
+                }
+            }
+        }
+        
+        // 处理文本，使所有单词都可点击
+        function processTextForClickableWords(text) {
+            // 使用正则表达式匹配单词（包括连字符和撇号）
+            const wordRegex = /[\w'-]+/g;
+            let lastIndex = 0;
+            const parts = [];
+            
+            text.replace(wordRegex, (match, offset) => {
+                // 添加匹配前的非单词部分
+                if (offset > lastIndex) {
+                    parts.push(escapeHtml(text.substring(lastIndex, offset)));
+                }
+                
+                // 添加可点击的单词
+                parts.push(`<span class="word-span" data-word="${escapeHtml(match)}">${escapeHtml(match)}</span>`);
+                
+                lastIndex = offset + match.length;
+                return match;
+            });
+            
+            // 添加剩余部分
+            if (lastIndex < text.length) {
+                parts.push(escapeHtml(text.substring(lastIndex)));
+            }
+            
+            return parts.join('');
+        }
+        
+        // 视频时间更新事件
+        videoPlayer.addEventListener('timeupdate', updateCurrentSubtitle);
+        fullscreenVideoPlayer.addEventListener('timeupdate', updateCurrentSubtitle);
+        
+        // 更新全屏控制条
+        function updateFullscreenControls() {
+            if (!isFullscreen) return;
+            
+            const currentTime = fullscreenVideoPlayer.currentTime;
+            const duration = fullscreenVideoPlayer.duration || 0;
+            
+            // 更新进度条
+            const progressPercent = (currentTime / duration) * 100;
+            fullscreenProgressBar.style.width = `${progressPercent}%`;
+            
+            // 更新时间显示
+            fullscreenTime.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+            
+            // 更新播放/暂停按钮
+            playPauseBtn.innerHTML = fullscreenVideoPlayer.paused ? '▶' : '⏸';
+        }
+        
+        // 同步两个视频播放器的状态（只同步时间，避免同时发声）
+        videoPlayer.addEventListener('play', function() {
+            if (!isFullscreen) {
+                // 当非全屏时，确保全屏播放器静音并暂停，防止声音叠加
+                fullscreenVideoPlayer.pause();
+                fullscreenVideoPlayer.muted = true;
+                fullscreenVideoPlayer.currentTime = videoPlayer.currentTime;
+                videoPlayer.muted = false;
+            }
+        });
+        
+        videoPlayer.addEventListener('pause', function() {
+            if (!isFullscreen) {
+                fullscreenVideoPlayer.pause();
+            }
+        });
+        
+        fullscreenVideoPlayer.addEventListener('play', function() {
+            if (isFullscreen) {
+                // 全屏播放时暂停普通播放器并静音普通播放器
+                videoPlayer.pause();
+                videoPlayer.muted = true;
+                videoPlayer.currentTime = fullscreenVideoPlayer.currentTime;
+                fullscreenVideoPlayer.muted = false;
+                updateFullscreenControls();
+            }
+        });
+        
+        fullscreenVideoPlayer.addEventListener('pause', function() {
+            if (isFullscreen) {
+                videoPlayer.pause();
+                updateFullscreenControls();
+            }
+        });
+        
+        fullscreenVideoPlayer.addEventListener('timeupdate', updateFullscreenControls);
         
         // 切换全屏模式
         function enterFullscreen() {
@@ -798,16 +1212,12 @@
             }
         });
         
-        // 打开词典面板 - 核心音量保护功能
+        // 打开词典面板
         function openDictionary() {
             // 记录当前播放状态
             wasPlayingBeforeDict = isFullscreen ? 
                 !fullscreenVideoPlayer.paused : 
                 !videoPlayer.paused;
-            
-            // 记录当前音量 - 核心保护功能
-            savedVolumeVideoPlayer = videoPlayer.volume;
-            savedVolumeFullscreenVideoPlayer = fullscreenVideoPlayer.volume;
             
             // 暂停播放
             if (isFullscreen) {
@@ -820,14 +1230,10 @@
             dictionaryOverlay.classList.add('active');
         }
         
-        // 关闭词典面板 - 核心音量保护功能
+        // 关闭词典面板
         function closeDictionary() {
             dictionaryPanel.classList.remove('active');
             dictionaryOverlay.classList.remove('active');
-            
-            // 恢复之前的音量 - 核心保护功能
-            videoPlayer.volume = savedVolumeVideoPlayer;
-            fullscreenVideoPlayer.volume = savedVolumeFullscreenVideoPlayer;
             
             // 恢复之前的播放状态
             if (wasPlayingBeforeDict) {
@@ -845,6 +1251,77 @@
         // 关闭词典面板
         closeDictBtn.addEventListener('click', closeDictionary);
         dictionaryOverlay.addEventListener('click', closeDictionary);
+        
+        // 打开全屏字幕面板
+        function openFullscreenSubtitles() {
+            // 记录当前播放状态
+            wasPlayingBeforeSubtitles = !fullscreenVideoPlayer.paused;
+            
+            // 暂停播放
+            fullscreenVideoPlayer.pause();
+            
+            // 显示字幕面板
+            fullscreenSubtitlesPanel.classList.add('active');
+            fullscreenSubtitlesOverlay.classList.add('active');
+            
+            // 显示字幕列表并滚动到当前字幕
+            displayFullscreenSubtitlesList();
+        }
+        
+        // 关闭全屏字幕面板
+        function closeFullscreenSubtitles() {
+            fullscreenSubtitlesPanel.classList.remove('active');
+            fullscreenSubtitlesOverlay.classList.remove('active');
+            
+            // 恢复之前的播放状态
+            if (wasPlayingBeforeSubtitles) {
+                fullscreenVideoPlayer.play().catch(()=>{});
+            }
+        }
+        
+        fullscreenSubtitlesBtn.addEventListener('click', openFullscreenSubtitles);
+        closeSubtitlesBtn.addEventListener('click', closeFullscreenSubtitles);
+        fullscreenSubtitlesOverlay.addEventListener('click', closeFullscreenSubtitles);
+        
+        // 显示全屏字幕列表
+        function displayFullscreenSubtitlesList() {
+            if (subtitles.length === 0) {
+                fullscreenSubtitlesContent.innerHTML = '<div class="status-message">没有找到有效的字幕</div>';
+                return;
+            }
+            
+            let html = '';
+            subtitles.forEach((sub, index) => {
+                const startTime = formatTime(sub.start);
+                const endTime = formatTime(sub.end);
+                const isCurrent = index === currentSubtitleIndex;
+                
+                html += `
+                    <div class="fullscreen-subtitle-item ${isCurrent ? 'current' : ''}" data-index="${index}">
+                        <span class="subtitle-time">[${startTime} - ${endTime}]</span>
+                        <span>${escapeHtml(sub.text)}</span>
+                    </div>
+                `;
+            });
+            
+            fullscreenSubtitlesContent.innerHTML = html;
+            
+            // 滚动到当前字幕位置
+            const currentItem = fullscreenSubtitlesContent.querySelector('.fullscreen-subtitle-item.current');
+            if (currentItem) {
+                currentItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            // 为字幕项添加点击事件
+            document.querySelectorAll('.fullscreen-subtitle-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    const subtitle = subtitles[index];
+                    fullscreenVideoPlayer.currentTime = subtitle.start;
+                    closeFullscreenSubtitles();
+                });
+            });
+        }
         
         // 切换剪贴板功能
         clipboardBtn.addEventListener('click', () => {
@@ -865,7 +1342,7 @@
             if (e.key === 'Enter') searchWord();
         });
 
-        // 事件委托：统一处理字幕中单词点击
+        // 事件委托：统一处理字幕中单词点击，避免重复绑定和绑定遗漏
         document.addEventListener('click', (e) => {
             const target = e.target;
             if (target && target.classList && target.classList.contains('word-span')) {
@@ -883,7 +1360,7 @@
             }
         });
 
-        // 支持划词查询
+        // 支持划词查询（鼠标抬起时读取选择的文本）
         [currentSubtitle, fullscreenSubtitle].forEach(container => {
             container.addEventListener('mouseup', () => {
                 const sel = (window.getSelection && window.getSelection().toString().trim()) || '';
@@ -996,134 +1473,34 @@
                 .replace(/'/g, "&#039;");
         }
         
-        // 更新当前显示的字幕
-        function updateCurrentSubtitle() {
-            const currentTime = isFullscreen ? fullscreenVideoPlayer.currentTime : videoPlayer.currentTime;
-            
-            // 创建示例字幕文本
-            const sampleTexts = [
-                "Hello, welcome to our video player with dictionary support.",
-                "This is a sample subtitle to demonstrate the functionality.",
-                "You can click on any word to look it up in the dictionary.",
-                "The volume protection feature prevents accidental volume changes.",
-                "Try clicking on a word to see the dictionary in action."
-            ];
-            
-            // 根据时间选择不同的示例文本
-            const textIndex = Math.floor(currentTime / 5) % sampleTexts.length;
-            const currentText = sampleTexts[textIndex];
-            
-            // 将字幕文本中的单词转换为可点击的元素
-            const processedText = processTextForClickableWords(currentText);
-            
-            if (isFullscreen) {
-                fullscreenSubtitle.innerHTML = processedText;
-            } else {
-                currentSubtitle.innerHTML = processedText;
-            }
-        }
-        
-        // 处理文本，使所有单词都可点击
-        function processTextForClickableWords(text) {
-            // 使用正则表达式匹配单词（包括连字符和撇号）
-            const wordRegex = /[\w'-]+/g;
-            let lastIndex = 0;
-            const parts = [];
-            
-            text.replace(wordRegex, (match, offset) => {
-                // 添加匹配前的非单词部分
-                if (offset > lastIndex) {
-                    parts.push(escapeHtml(text.substring(lastIndex, offset)));
-                }
-                
-                // 添加可点击的单词
-                parts.push(`<span class="word-span" data-word="${escapeHtml(match)}">${escapeHtml(match)}</span>`);
-                
-                lastIndex = offset + match.length;
-                return match;
-            });
-            
-            // 添加剩余部分
-            if (lastIndex < text.length) {
-                parts.push(escapeHtml(text.substring(lastIndex)));
-            }
-            
-            return parts.join('');
-        }
-        
-        // 视频时间更新事件
-        videoPlayer.addEventListener('timeupdate', updateCurrentSubtitle);
-        fullscreenVideoPlayer.addEventListener('timeupdate', updateCurrentSubtitle);
-        
-        // 更新全屏控制条
-        function updateFullscreenControls() {
-            if (!isFullscreen) return;
-            
-            const currentTime = fullscreenVideoPlayer.currentTime;
-            const duration = fullscreenVideoPlayer.duration || 0;
-            
-            // 更新进度条
-            const progressPercent = (currentTime / duration) * 100;
-            fullscreenProgressBar.style.width = `${progressPercent}%`;
-            
-            // 更新时间显示
-            fullscreenTime.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
-            
-            // 更新播放/暂停按钮
-            playPauseBtn.innerHTML = fullscreenVideoPlayer.paused ? '▶' : '⏸';
-        }
-        
-        // 格式化时间显示
-        function formatTime(seconds) {
-            const hrs = Math.floor(seconds / 3600);
-            const mins = Math.floor((seconds % 3600) / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        }
-        
-        // 同步两个视频播放器的状态
-        videoPlayer.addEventListener('play', function() {
-            if (!isFullscreen) {
-                // 当非全屏时，确保全屏播放器静音并暂停，防止声音叠加
-                fullscreenVideoPlayer.pause();
-                fullscreenVideoPlayer.muted = true;
-                fullscreenVideoPlayer.currentTime = videoPlayer.currentTime;
-                videoPlayer.muted = false;
-            }
-        });
-        
-        videoPlayer.addEventListener('pause', function() {
-            if (!isFullscreen) {
-                fullscreenVideoPlayer.pause();
-            }
-        });
-        
-        fullscreenVideoPlayer.addEventListener('play', function() {
-            if (isFullscreen) {
-                // 全屏播放时暂停普通播放器并静音普通播放器
-                videoPlayer.pause();
-                videoPlayer.muted = true;
-                videoPlayer.currentTime = fullscreenVideoPlayer.currentTime;
-                fullscreenVideoPlayer.muted = false;
-                updateFullscreenControls();
-            }
-        });
-        
-        fullscreenVideoPlayer.addEventListener('pause', function() {
-            if (isFullscreen) {
-                videoPlayer.pause();
-                updateFullscreenControls();
-            }
-        });
-        
-        fullscreenVideoPlayer.addEventListener('timeupdate', updateFullscreenControls);
-        
         // 全屏控制功能
         playPauseBtn.addEventListener('click', () => {
             if (fullscreenVideoPlayer.paused) {
                 fullscreenVideoPlayer.play().catch(()=>{});
             } else {
                 fullscreenVideoPlayer.pause();
+            }
+        });
+        
+        // 上一句字幕
+        prevSubtitleBtn.addEventListener('click', () => {
+            if (currentSubtitleIndex > 0) {
+                const prevSubtitle = subtitles[currentSubtitleIndex - 1];
+                fullscreenVideoPlayer.currentTime = prevSubtitle.start;
+                if (fullscreenVideoPlayer.paused) {
+                    fullscreenVideoPlayer.play().catch(()=>{});
+                }
+            }
+        });
+        
+        // 下一句字幕
+        nextSubtitleBtn.addEventListener('click', () => {
+            if (currentSubtitleIndex < subtitles.length - 1) {
+                const nextSubtitle = subtitles[currentSubtitleIndex + 1];
+                fullscreenVideoPlayer.currentTime = nextSubtitle.start;
+                if (fullscreenVideoPlayer.paused) {
+                    fullscreenVideoPlayer.play().catch(()=>{});
+                }
             }
         });
         
@@ -1148,36 +1525,18 @@
         fullscreenVideoContainer.addEventListener('mousemove', showControls);
         fullscreenControls.addEventListener('mousemove', showControls);
         
-        // 防止词典面板触摸事件冒泡 - 核心音量保护功能
-        dictionaryPanel.addEventListener('touchstart', function(e) {
-            e.stopPropagation();
-        });
-
-        dictionaryPanel.addEventListener('touchmove', function(e) {
-            e.stopPropagation();
-        });
-
-        dictionaryPanel.addEventListener('touchend', function(e) {
-            e.stopPropagation();
-        });
-
-        // 额外的音量保护措施：在视频播放器上监听音量变化
-        videoPlayer.addEventListener('volumechange', function() {
-            // 如果词典面板处于激活状态且音量被改变，立即恢复到保存的音量
-            if (dictionaryPanel.classList.contains('active')) {
-                videoPlayer.volume = savedVolumeVideoPlayer;
-            }
-        });
-
-        fullscreenVideoPlayer.addEventListener('volumechange', function() {
-            // 如果词典面板处于激活状态且音量被改变，立即恢复到保存的音量
-            if (dictionaryPanel.classList.contains('active')) {
-                fullscreenVideoPlayer.volume = savedVolumeFullscreenVideoPlayer;
-            }
+        // 初始化播放器事件
+        videoPlayer.addEventListener('loadedmetadata', function() {
+            console.log('视频时长: ' + videoPlayer.duration + '秒');
         });
         
-        // 初始化示例字幕
-        updateCurrentSubtitle();
+        videoPlayer.addEventListener('play', function() {
+            console.log('视频开始播放');
+        });
+        
+        videoPlayer.addEventListener('pause', function() {
+            console.log('视频已暂停');
+        });
     </script>
 </body>
 </html>

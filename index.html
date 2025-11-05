@@ -1223,12 +1223,41 @@
         // 在词典面板内容区域阻止触摸事件的默认行为
         const dictionaryContent = document.querySelector('.dictionary-content');
         
+        // 为词典和字幕面板添加更彻底的事件阻止
+        [dictionaryPanel, dictionaryOverlay, fullscreenSubtitlesPanel, fullscreenSubtitlesOverlay].forEach(panel => {
+            if (panel) {
+                // 阻止所有触摸事件的默认行为和传播
+                panel.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, { passive: false });
+                
+                panel.addEventListener('touchmove', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, { passive: false });
+                
+                panel.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, { passive: false });
+            }
+        });
+
+        // 为内容区域也添加阻止
         [dictionaryContent, fullscreenSubtitlesContent].forEach(element => {
             if (element) {
+                element.addEventListener('touchstart', function(e) {
+                    e.stopPropagation(); // 只阻止传播，不阻止默认（允许滚动）
+                });
+                
                 element.addEventListener('touchmove', function(e) {
-                    // 阻止触摸事件的默认行为，避免调节音量
-                    e.preventDefault();
-                }, { passive: false });
+                    e.stopPropagation(); // 只阻止传播，不阻止默认（允许滚动）
+                }, { passive: true }); // 这里可以用passive: true提高性能
+                
+                element.addEventListener('touchend', function(e) {
+                    e.stopPropagation(); // 只阻止传播，不阻止默认
+                });
             }
         });
         

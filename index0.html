@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>增强版全屏视频播放器</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>增强版全屏视频播放器</h1>
+            <p class="subtitle">支持本地MP4视频与SRT字幕 - 全屏控制与透明字幕</p>
+        </header>
+        
+        <!-- 文件上传区域 -->
+        <div class="upload-section">
+            <div class="upload-box">
+                <label class="upload-label">选择MP4视频文件</label>
+                <input type="file" id="videoFile" class="file-input" accept="video/mp4">
+            </div>
+            <div class="upload-box">
+                <label class="upload-label">选择SRT字幕文件</label>
+                <input type="file" id="subtitleFile" class="file-input" accept=".srt">
+            </div>
+        </div>
+        
+        <!-- 播放器区域 -->
+        <div class="player-container">
+            <video id="videoPlayer" controls>
+                您的浏览器不支持HTML5视频播放。
+            </video>
+            
+            <div class="player-controls">
+                <button class="control-btn" id="fullscreenBtn">
+                    <span>⛶</span> 全屏播放
+                </button>
+                <button class="control-btn" id="dictBtn">
+                    <span>📖</span> 打开词典
+                </button>
+                <button class="control-btn" id="clipboardBtn">
+                    <span>📋</span> 开启剪贴板
+                </button>
+            </div>
+        </div>
+        
+        <!-- 当前字幕显示 - 非全屏模式保持原有样式 -->
+        <div class="current-subtitle" id="currentSubtitle">
+            <div class="status-message">加载视频和字幕后，当前播放的字幕将显示在这里</div>
+        </div>
+        
+        <!-- 字幕列表 -->
+        <div class="subtitles-container">
+            <h3 class="subtitles-title">
+                <span>字幕列表</span>
+                <span id="subtitleCount">0 条字幕</span>
+            </h3>
+            <div id="subtitlesList">
+                <div class="status-message">请上传SRT字幕文件</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 全屏视频容器 -->
+    <div class="fullscreen-video-container" id="fullscreenVideoContainer" style="display: none;">
+        <video id="fullscreenVideoPlayer">
+            您的浏览器不支持HTML5视频播放。
+        </video>
+    </div>
+    
+    <!-- 全屏字幕显示 - 透明背景 -->
+    <div class="fullscreen-subtitle" id="fullscreenSubtitle" style="display: none;">
+        <div class="status-message">全屏模式下，当前播放的字幕将显示在这里</div>
+    </div>
+    
+    <!-- 全屏控制条 -->
+    <div class="fullscreen-controls" id="fullscreenControls">
+        <button class="fullscreen-control-btn" id="prevSubtitleBtn" title="上一句">⏮</button>
+        <button class="fullscreen-control-btn" id="playPauseBtn" title="播放/暂停">⏸</button>
+        <button class="fullscreen-control-btn" id="nextSubtitleBtn" title="下一句">⏭</button>
+        <div class="fullscreen-progress" id="fullscreenProgress">
+            <div class="fullscreen-progress-bar" id="fullscreenProgressBar"></div>
+        </div>
+        <div class="fullscreen-time" id="fullscreenTime">00:00 / 00:00</div>
+        <button class="fullscreen-control-btn" id="fullscreenDictBtn" title="词典">📖</button>
+        <button class="fullscreen-control-btn" id="fullscreenSubtitlesBtn" title="显示全部字幕">📜</button>
+    </div>
+    
+    <!-- 全屏退出按钮 -->
+    <button class="exit-fullscreen-btn" id="exitFullscreenBtn" title="退出全屏">✕</button>
+    
+    <!-- 全屏字幕面板 -->
+    <div class="fullscreen-subtitles-panel" id="fullscreenSubtitlesPanel">
+        <div class="fullscreen-subtitles-header">
+            <h2 class="fullscreen-subtitles-title">全部字幕</h2>
+            <button class="close-btn" id="closeSubtitlesBtn">×</button>
+        </div>
+        
+        <div class="fullscreen-subtitles-content" id="fullscreenSubtitlesContent">
+            <div class="status-message">请上传SRT字幕文件</div>
+        </div>
+    </div>
+    
+    <!-- 全屏字幕面板遮罩 -->
+    <div class="fullscreen-subtitles-overlay" id="fullscreenSubtitlesOverlay"></div>
+    
+    <!-- 词典面板 -->
+    <div class="dictionary-panel" id="dictionaryPanel">
+        <div class="dictionary-header">
+            <h2 class="dictionary-title">词典查询</h2>
+            <button class="close-btn" id="closeDictBtn">×</button>
+        </div>
+        
+        <div class="dictionary-content">
+            <div class="search-box">
+                <input type="text" id="wordInput" placeholder="输入要查询的单词...">
+                <button id="searchBtn">查询</button>
+            </div>
+            
+            <div id="dictResult">
+                <div class="empty">请输入要查询的单词或点击字幕中的单词</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 词典面板遮罩 -->
+    <div class="dictionary-overlay" id="dictionaryOverlay"></div>
+    
+    <!-- 通知 -->
+    <div class="notification" id="notification"></div>
+
+    <script src="./js/script.js"></script>
+</body>
+</html>

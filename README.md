@@ -36,3 +36,6 @@ src/
 ├── src/                  # 源代码
 ├── scripts/              # 部署脚本
 └── dist/                 # 构建输出（自动生成）
+
+
+* https://cdn.jsdelivr.net/gh/curiousdannii/parchment@gh-pages/dist/

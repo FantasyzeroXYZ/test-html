@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Interactive Novel Player — Single File</title>
+  <style>
+    :root{--bg:#0b0f14;--panel:#0f1720;--accent:#6ee7b7;--muted:#9aa6b2;--glass: rgba(255,255,255,0.03)}
+    html,body{height:100%;margin:0;font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background: radial-gradient(1200px 600px at 10% 5%, rgba(110,231,183,0.04), transparent), var(--bg); color:#e6eef3}
+    .app{display:flex;flex-direction:column;height:100vh;padding:20px;gap:16px;box-sizing:border-box}
+    .topbar{display:flex;align-items:center;gap:12px}
+    .brand{font-weight:700;font-size:18px}
+    .controls{margin-left:auto;display:flex;gap:8px;align-items:center}
+    button{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:10px;color:inherit;cursor:pointer}
+    .layout{display:grid;grid-template-columns:1fr 320px;gap:16px;flex:1;min-height:0}
+    .panel{background:var(--panel);border-radius:14px;padding:18px;box-shadow:0 6px 20px rgba(0,0,0,0.6);display:flex;flex-direction:column;overflow:hidden}
+    .viewport{flex:1;display:flex;flex-direction:column;gap:12px}
+    .scene-area{background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);padding:18px;border-radius:12px;overflow:auto}
+    .scene-text{line-height:1.65;white-space:pre-wrap}
+    .choices{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+    .choice-btn{text-align:left}
+    .sidebar{display:flex;flex-direction:column;gap:12px}
+    .meta{font-size:13px;color:var(--muted)}
+    .history{flex:1;overflow:auto;padding:8px;border-radius:10px;background:var(--glass)}
+    .history-item{padding:8px;border-radius:8px;margin-bottom:8px;background:rgba(255,255,255,0.01);cursor:pointer}
+    input[type=range]{width:120px}
+    .file-row{display:flex;gap:8px;align-items:center}
+    .footer{display:flex;gap:8px;align-items:center;justify-content:flex-end}
+    .small{font-size:13px;color:var(--muted)}
+    .center{display:flex;align-items:center;justify-content:center}
+    @media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{order:2}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">Interactive Novel Player</div>
+      <div class="meta">Single-file, deploy to GitHub Pages</div>
+      <div class="controls">
+        <label class="small">Speed</label>
+        <input id="speed" type="range" min="0" max="100" value="60" />
+        <button id="saveBtn">保存进度</button>
+        <button id="loadBtn">读取进度</button>
+        <button id="exportBtn">导出存档</button>
+        <input id="filePicker" type="file" accept=".json" style="display:none" />
+        <button id="importBtn">导入剧本</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <main class="panel">
+        <div class="viewport">
+          <div id="canvas" class="scene-area">
+            <div id="bg" style="position:relative;min-height:120px"></div>
+            <div id="text" class="scene-text"></div>
+            <div id="choices" class="choices"></div>
+          </div>
+          <div class="footer">
+            <div class="small">快捷键：空格/回车 决定，H 打开历史</div>
+            <div style="flex:1"></div>
+            <button id="restartBtn">重新开始</button>
+          </div>
+        </div>
+      </main>
+
+      <aside class="panel sidebar">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <strong>剧本 / 状态</strong>
+            <small class="small" id="sceneId">-</small>
+          </div>
+          <div class="file-row" style="margin-top:8px">
+            <input id="titleInput" placeholder="剧本标题（可选）" style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit" />
+            <button id="downloadStory">下载剧本</button>
+          </div>
+          <div style="margin-top:8px" class="small">你可以拖放 .json 或点击“导入剧本”加载外部故事，也可以在页面内编辑示例。</div>
+        </div>
+
+        <div>
+          <strong>历史（点击可回溯）</strong>
+          <div id="history" class="history"></div>
+        </div>
+
+        <div>
+          <strong>示例剧本</strong>
+          <div class="small">下面有一个简单的 JSON 示例，适合入门。修改后点击“下载剧本”或导出。</div>
+          <textarea id="storyEditor" style="width:100%;height:160px;margin-top:8px;background:transparent;color:inherit;border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:8px;resize:vertical"></textarea>
+        </div>
+
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // -----------------------------
+    // Interactive Novel Player
+    // Single-file engine: load a JSON story, show scenes, choices, save/load via localStorage.
+    // Story schema (simple):
+    // {
+    //   "start": "scene0",
+    //   "scenes": {
+    //      "scene0": { "text": "...", "choices": [{"text":"Go","target":"scene1"}], "bg":"url.jpg","audio":"bgm.mp3" }
+    //   }
+    // }
+    // -----------------------------
+
+    const DEFAULT_STORY = {
+      "start": "intro",
+      "meta": {"author":"example","version":"1.0"},
+      "scenes": {
+        "intro": {
+          "title":"第一章：黎明",
+          "text":"你在一间陌生的房间醒来。窗外是清冷的天光。\n\n桌上有一张纸条，写着：\n『走出去，选择你的路。』",
+          "choices": [
+            {"text":"穿上鞋子，打开门","target":"street"},
+            {"text":"继续睡觉","target":"sleep"}
+          ]
+        },
+        "street":{
+          "title":"街道",
+          "text":"街道安静但干净。远处有两条路：\n1. 一条向左通往森林；\n2. 一条向右通往城市。",
+          "choices":[
+            {"text":"前往森林","target":"forest"},
+            {"text":"前往城市","target":"city"}
+          ]
+        },
+        "sleep":{
+          "title":"梦境",
+          "text":"你又进入了梦境，梦里有许多窗户。最终你醒来，意识到这只是选择的一部分。",
+          "choices":[{"text":"起床，再次出门","target":"street"}]
+        },
+        "forest":{"title":"森林","text":"树影婆娑，鸟鸣稀落。你觉得心情轻松。\n\n（示例结束）","choices":[]},
+        "city":{"title":"城市","text":"霓虹闪烁，远处有人在叫卖。\n\n（示例结束）","choices":[]}
+      }
+    };
+
+    // DOM refs
+    const textEl = document.getElementById('text');
+    const choicesEl = document.getElementById('choices');
+    const historyEl = document.getElementById('history');
+    const sceneIdEl = document.getElementById('sceneId');
+    const storyEditor = document.getElementById('storyEditor');
+    const titleInput = document.getElementById('titleInput');
+
+    let STORY = JSON.parse(JSON.stringify(DEFAULT_STORY));
+    let currentSceneId = STORY.start;
+    let historyStack = [];
+
+    // --- utilities ---
+    function renderTextWithSimpleMarkdown(text){
+      // very small markdown-like: **bold**, *italic*, lines->paragraphs, [link](url)
+      const esc = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      let out = esc
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n\n+/g, '</p><p>')
+        .replace(/\n/g, '<br/>')
+        .replace(/\[(.*?)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+      return '<p>' + out + '</p>';
+    }
+
+    function setScene(id, pushHistory=true){
+      const scene = STORY.scenes[id];
+      if(!scene){
+        showText('（找不到该场景：'+id+'）');
+        return;
+      }
+      currentSceneId = id;
+      sceneIdEl.textContent = id;
+      if(pushHistory){
+        historyStack.push({id, text: scene.text});
+        renderHistory();
+      }
+      // background
+      const bgDiv = document.getElementById('bg');
+      bgDiv.innerHTML = '';
+      if(scene.bg){
+        const img = document.createElement('img');
+        img.src = scene.bg;
+        img.style.width = '100%'; img.style.maxHeight = '260px'; img.style.objectFit='cover'; img.style.borderRadius='10px';
+        bgDiv.appendChild(img);
+      }
+      // text
+      showText(scene.title ? ('<strong>'+scene.title+'</strong>\n\n'+scene.text) : scene.text);
+      // choices
+      renderChoices(scene.choices || []);
+      saveAuto();
+    }
+
+    function showText(html){
+      // typewriter effect based on speed
+      const speed = document.getElementById('speed').value; // 0..100
+      const fast = speed > 70;
+      const full = renderTextWithSimpleMarkdown(html);
+      if(fast){ textEl.innerHTML = full; return; }
+      // typewriter: reveal character by character
+      const div = document.createElement('div');
+      div.className = 'innerText';
+      textEl.innerHTML = '';
+      textEl.appendChild(div);
+      const plain = full.replace(/<[^>]+>/g,'');
+      let idx = 0;
+      const step = Math.max(1, Math.floor(6 - (speed/20)));
+      const interval = setInterval(()=>{
+        idx += step;
+        if(idx >= plain.length){ idx = plain.length; clearInterval(interval); div.innerHTML = full; return; }
+        div.innerText = plain.slice(0, idx) + '▌';
+      }, 20);
+    }
+
+    function renderChoices(choices){
+      choicesEl.innerHTML = '';
+      if(!choices || choices.length === 0){
+        const endBtn = document.createElement('button');
+        endBtn.textContent = '章节结束 — 返回开始';
+        endBtn.onclick = ()=>{ restart(); };
+        choicesEl.appendChild(endBtn);
+        return;
+      }
+      choices.forEach((c, i)=>{
+        const b = document.createElement('button');
+        b.className = 'choice-btn';
+        b.innerHTML = (i+1)+'. ' + (c.text || '未命名');
+        b.onclick = ()=>{ setScene(c.target); };
+        choicesEl.appendChild(b);
+      });
+    }
+
+    function renderHistory(){
+      historyEl.innerHTML = '';
+      for(let i=0;i<historyStack.length;i++){
+        const it = historyStack[i];
+        const el = document.createElement('div');
+        el.className = 'history-item';
+        el.innerHTML = '<strong>'+it.id+'</strong><div class="small">'+(it.text ? it.text.slice(0,80) : '')+'</div>';
+        el.onclick = ()=>{ // go back to this
+          historyStack = historyStack.slice(0, i+1);
+          setScene(it.id, false);
+        };
+        historyEl.appendChild(el);
+      }
+    }
+
+    function restart(){ historyStack = []; setScene(STORY.start); }
+
+    // Save/load
+    const STORAGE_KEY = 'interactive_novel_save_v1';
+    function saveAuto(){
+      const state = {scene: currentSceneId, history: historyStack, title: titleInput.value || ''};
+      try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){console.warn('save fail',e)}
+    }
+    function loadAuto(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return false;
+        const state = JSON.parse(raw);
+        if(state.scene) { currentSceneId = state.scene; historyStack = state.history || []; setScene(currentSceneId, false); renderHistory(); }
+        if(state.title) titleInput.value = state.title;
+        return true;
+      }catch(e){console.warn('load fail',e); return false}
+    }
+
+    // Export/import story
+    function downloadJSON(obj, filename='story.json'){
+      const blob = new Blob([JSON.stringify(obj, null, 2)],{type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url);
+    }
+
+    // init
+    function init(){
+      storyEditor.value = JSON.stringify(DEFAULT_STORY, null, 2);
+      STORY = JSON.parse(JSON.stringify(DEFAULT_STORY));
+      titleInput.value = STORY.meta && STORY.meta.title ? STORY.meta.title : '';
+      setScene(STORY.start);
+
+      document.getElementById('restartBtn').onclick = ()=>{ restart(); };
+      document.getElementById('saveBtn').onclick = ()=>{ saveAuto(); alert('已保存到本地（localStorage）'); };
+      document.getElementById('loadBtn').onclick = ()=>{ if(loadAuto()) alert('已从存档读取'); else alert('没有存档'); };
+      document.getElementById('exportBtn').onclick = ()=>{ const state = {scene:currentSceneId,history:historyStack,story:STORY}; downloadJSON(state,'save.json'); };
+      document.getElementById('importBtn').onclick = ()=>{ document.getElementById('filePicker').click(); };
+      document.getElementById('filePicker').onchange = (e)=>{ const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ()=>{ try{ const parsed = JSON.parse(r.result); if(parsed.scenes) { STORY = parsed; storyEditor.value = JSON.stringify(parsed, null, 2); restart(); alert('已加载外部剧本'); } else if(parsed.story && parsed.scene){ // a saved file
+            STORY = parsed.story; storyEditor.value = JSON.stringify(STORY, null, 2); restart(); setScene(parsed.scene); historyStack = parsed.history||[]; renderHistory(); alert('已加载存档文件'); } else { alert('未识别的 JSON 格式'); } }catch(err){ alert('JSON 解析失败: '+err.message) } }; r.readAsText(f); };
+
+      document.getElementById('downloadStory').onclick = ()=>{ try{ const s = JSON.parse(storyEditor.value); downloadJSON(s, (titleInput.value || 'story') + '.json'); }catch(e){ alert('剧本 JSON 有误：'+e.message) } };
+
+      // keyboard
+      window.addEventListener('keydown', (e)=>{
+        if(e.key === ' ' || e.key === 'Enter'){ // activate first choice
+          const btn = choicesEl.querySelector('button'); if(btn){ btn.click(); e.preventDefault(); }
+        } else if(e.key.toLowerCase() === 'h'){ historyEl.classList.toggle('hidden'); }
+      });
+
+      // wire storyEditor quick apply when modified
+      storyEditor.addEventListener('change', ()=>{ try{ const s = JSON.parse(storyEditor.value); STORY = s; restart(); }catch(e){ /* ignore */ } });
+
+      // load persisted if available
+      loadAuto();
+
+      // auto-save title changes
+      titleInput.addEventListener('input', saveAuto);
+
+      // seed sample into editor if empty
+      if(!storyEditor.value || storyEditor.value.trim() === '') storyEditor.value = JSON.stringify(DEFAULT_STORY, null, 2);
+    }
+
+    init();
+  </script>
+
+  <footer style="position:fixed;left:12px;bottom:12px;font-size:12px;color:var(--muted)">单文件引擎 — 可放到 GitHub Pages（将此文件命名为 index.html 并推到仓库）</footer>
+</body>
+</html>

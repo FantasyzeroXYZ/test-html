@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>字幕转换工具</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>字幕转换工具</h1>
+        <input type="file" id="subtitleFile" accept=".srt,.vtt,.ass">
+        <select id="formatSelect">
+            <option value="srt">SRT</option>
+            <option value="vtt">VTT</option>
+            <option value="ass">ASS</option>
+        </select>
+        <button id="convertBtn">转换</button>
+        <a id="downloadLink" style="display:none;">下载转换后的字幕</a>
+
+        <textarea id="preview" placeholder="转换后的字幕预览"></textarea>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

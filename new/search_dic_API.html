@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多语言词典查询工具</title>
+    <style>
+        :root {
+            --primary-color: #0366d6;
+            --bg-color: #f6f8fa;
+            --border-color: #e1e4e8;
+            --text-color: #24292e;
+            --card-bg: #ffffff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        .search-container {
+            display: flex;
+            margin-bottom: 30px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        select, input, button {
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            font-size: 16px;
+        }
+        select {
+            border-right: none;
+            background-color: var(--card-bg);
+        }
+        input {
+            flex-grow: 1;
+            border-right: none;
+        }
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #0256b9;
+        }
+        .result-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 20px;
+            min-height: 300px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .loading, .error, .empty {
+            text-align: center;
+            padding: 40px;
+            color: #586069;
+        }
+        .error {
+            color: #cb2431;
+        }
+        .word-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .word-title {
+            font-size: 28px;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+        .pronunciation {
+            color: #586069;
+            font-style: italic;
+            margin-bottom: 5px;
+        }
+        .part-of-speech {
+            display: inline-block;
+            background-color: #e1e4e8;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .sense {
+            margin-bottom: 20px;
+        }
+        .definition {
+            margin-bottom: 10px;
+        }
+        .example {
+            background-color: #f6f8fa;
+            padding: 10px;
+            border-left: 3px solid var(--border-color);
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+        .synonyms, .antonyms {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .synonyms span, .antonyms span {
+            font-weight: bold;
+        }
+        .language-tag {
+            display: inline-block;
+            background-color: #dbedff;
+            color: var(--primary-color);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        .entry {
+            margin-bottom: 30px;
+        }
+        .quote {
+            background-color: #f6f8fa;
+            padding: 10px;
+            border-left: 3px solid var(--primary-color);
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+        .quote-reference {
+            font-size: 12px;
+            color: #586069;
+            margin-top: 5px;
+        }
+        .toggle-button {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+            margin: 5px 0 10px 0;
+            text-decoration: underline;
+        }
+        .collapsible-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--border-color);
+        }
+        .initial-forms, .initial-pronunciations {
+            margin-bottom: 5px;
+        }
+        .examples-toggle {
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>多语言词典查询工具</h1>
+        <p>使用 Free Dictionary API 查询英语和日语的单词定义</p>
+    </header>
+    
+    <div class="search-container">
+        <select id="language-select">
+            <option value="en">英语</option>
+            <option value="ja">日语</option>
+        </select>
+        <input type="text" id="word-input" placeholder="输入要查询的单词..." value="hello">
+        <button id="search-btn">查询</button>
+    </div>
+    
+    <div class="result-container" id="result-container">
+        <div class="empty">请输入要查询的单词</div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const languageSelect = document.getElementById('language-select');
+            const wordInput = document.getElementById('word-input');
+            const searchBtn = document.getElementById('search-btn');
+            const resultContainer = document.getElementById('result-container');
+            
+            searchBtn.addEventListener('click', searchWord);
+            wordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') searchWord();
+            });
+
+            // 添加事件委托处理所有切换按钮的点击
+            resultContainer.addEventListener('click', function(e) {
+                if (e.target.classList.contains('toggle-button')) {
+                    const targetId = e.target.getAttribute('data-target');
+                    const element = document.getElementById(targetId);
+                    
+                    if (element) {
+                        if (element.style.display === 'none') {
+                            element.style.display = 'block';
+                            e.target.textContent = e.target.getAttribute('data-hide-text');
+                        } else {
+                            element.style.display = 'none';
+                            e.target.textContent = e.target.getAttribute('data-show-text');
+                        }
+                    }
+                }
+            });
+
+            async function searchWord() {
+                const language = languageSelect.value;
+                const word = wordInput.value.trim();
+                
+                if (!word) {
+                    showError('请输入要查询的单词');
+                    return;
+                }
+                
+                showLoading('查询中...');
+                
+                try {
+                    const apiUrl = `https://freedictionaryapi.com/api/v1/entries/${language}/${encodeURIComponent(word)}`;
+                    const response = await fetch(apiUrl);
+                    
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            throw new Error(`未找到单词 "${word}"`);
+                        } else {
+                            throw new Error(`网络请求失败 (状态码: ${response.status})`);
+                        }
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (!data || typeof data !== 'object') {
+                        throw new Error('API返回的数据格式不正确');
+                    }
+                    
+                    displayResults(data);
+                    
+                } catch (error) {
+                    console.error('查询错误:', error);
+                    showError(`错误: ${error.message}`);
+                }
+            }
+            
+            function displayResults(data) {
+                if (!data.word || !Array.isArray(data.entries)) {
+                    showError('返回的数据缺少必要的单词或条目信息');
+                    return;
+                }
+                
+                let html = `
+                    <div class="word-header">
+                        <h2 class="word-title">${escapeHtml(data.word)}</h2>
+                        <span class="language-tag">${languageSelect.options[languageSelect.selectedIndex].text}</span>
+                    </div>
+                `;
+                
+                // 遍历条目
+                data.entries.forEach((entry, entryIndex) => {
+                    html += `<div class="entry">`;
+                    
+                    // 显示词性 - 放在最前面
+                    if (entry.partOfSpeech) {
+                        html += `<div class="part-of-speech">${escapeHtml(entry.partOfSpeech)}</div>`;
+                    }
+                    
+                    // 显示精选发音 - 只显示美式和英式发音
+                    const filteredPronunciations = filterPronunciations(entry.pronunciations);
+                    if (filteredPronunciations.length > 0) {
+                        html += `<div class="initial-pronunciations">`;
+                        filteredPronunciations.forEach(pronunciation => {
+                            const type = pronunciation.type ? ` (${pronunciation.type})` : '';
+                            const tags = pronunciation.tags && pronunciation.tags.length > 0 ? 
+                                ` <small>${pronunciation.tags.join(', ')}</small>` : '';
+                            html += `<div class="pronunciation">/${escapeHtml(pronunciation.text)}/${type}${tags}</div>`;
+                        });
+                        html += `</div>`;
+                        
+                        // 添加"显示全部发音"的切换按钮
+                        if (entry.pronunciations && entry.pronunciations.length > filteredPronunciations.length) {
+                            const allPronunciationsId = `all-pronunciations-${entryIndex}`;
+                            html += `<button class="toggle-button" 
+                                      data-target="${allPronunciationsId}"
+                                      data-show-text="显示全部发音 (${entry.pronunciations.length})"
+                                      data-hide-text="隐藏全部发音">显示全部发音 (${entry.pronunciations.length})</button>`;
+                            html += `<div id="${allPronunciationsId}" class="collapsible-section" style="display: none;">`;
+                            entry.pronunciations.forEach(pronunciation => {
+                                const type = pronunciation.type ? ` (${pronunciation.type})` : '';
+                                const tags = pronunciation.tags && pronunciation.tags.length > 0 ? 
+                                    ` <small>${pronunciation.tags.join(', ')}</small>` : '';
+                                html += `<div class="pronunciation">/${escapeHtml(pronunciation.text)}/${type}${tags}</div>`;
+                            });
+                            html += `</div>`;
+                        }
+                    }
+                    
+                    // 显示词义 - 这是最重要的部分，放在发音后面
+                    if (Array.isArray(entry.senses)) {
+                        html += renderSenses(entry.senses, entryIndex);
+                    }
+                    
+                    // 显示词形变化 - 同样采用可折叠方式
+                    if (Array.isArray(entry.forms) && entry.forms.length > 0) {
+                        // 只显示前2个词形变化
+                        const maxInitialForms = 2;
+                        const initialForms = entry.forms.slice(0, maxInitialForms);
+                        const remainingForms = entry.forms.slice(maxInitialForms);
+                        
+                        html += `<div class="initial-forms" style="margin-top: 15px;"><small><strong>词形变化:</strong> `;
+                        const initialFormsHtml = initialForms.map(form => 
+                            `${escapeHtml(form.word)}${form.tags && form.tags.length > 0 ? ` (${form.tags.join(', ')})` : ''}`
+                        ).join(', ');
+                        html += initialFormsHtml;
+                        html += `</small></div>`;
+                        
+                        // 如果有更多词形变化，添加切换按钮
+                        if (remainingForms.length > 0) {
+                            const allFormsId = `all-forms-${entryIndex}`;
+                            html += `<button class="toggle-button" 
+                                      data-target="${allFormsId}"
+                                      data-show-text="显示全部词形变化 (${entry.forms.length})"
+                                      data-hide-text="隐藏全部词形变化">显示全部词形变化 (${entry.forms.length})</button>`;
+                            html += `<div id="${allFormsId}" class="collapsible-section" style="display: none;">`;
+                            const allFormsHtml = entry.forms.map(form => 
+                                `${escapeHtml(form.word)}${form.tags && form.tags.length > 0 ? ` (${form.tags.join(', ')})` : ''}`
+                            ).join(', ');
+                            html += allFormsHtml;
+                            html += `</div>`;
+                        }
+                    }
+                    
+                    // 显示整个词条的同义词和反义词
+                    if (Array.isArray(entry.synonyms) && entry.synonyms.length > 0) {
+                        html += `<div class="synonyms"><span>同义词:</span> ${entry.synonyms.map(s => escapeHtml(s)).join(', ')}</div>`;
+                    }
+                    if (Array.isArray(entry.antonyms) && entry.antonyms.length > 0) {
+                        html += `<div class="antonyms"><span>反义词:</span> ${entry.antonyms.map(a => escapeHtml(a)).join(', ')}</div>`;
+                    }
+                    
+                    html += `</div>`;
+                });
+                
+                // 显示来源信息
+                if (data.source) {
+                    html += `<div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid var(--border-color); font-size: 12px; color: #586069;">`;
+                    html += `<div>数据来源: <a href="${data.source.url}" target="_blank">${data.source.url}</a></div>`;
+                    if (data.source.license) {
+                        html += `<div>许可协议: ${data.source.license.name} <a href="${data.source.license.url}" target="_blank">(查看详情)</a></div>`;
+                    }
+                    html += `</div>`;
+                }
+                
+                resultContainer.innerHTML = html;
+            }
+            
+            // 过滤发音，只保留美式和英式发音
+            function filterPronunciations(pronunciations) {
+                if (!Array.isArray(pronunciations)) return [];
+                
+                // 优先选择美式(US)和英式(UK)发音
+                const usPronunciations = pronunciations.filter(p => 
+                    p.tags && p.tags.some(tag => tag === "US")
+                );
+                
+                const ukPronunciations = pronunciations.filter(p => 
+                    p.tags && p.tags.some(tag => tag === "UK")
+                );
+                
+                // 如果美式和英式发音都有，各取一个
+                let result = [];
+                if (usPronunciations.length > 0) {
+                    result.push(usPronunciations[0]);
+                }
+                if (ukPronunciations.length > 0) {
+                    result.push(ukPronunciations[0]);
+                }
+                
+                // 如果既没有美式也没有英式，取前两个
+                if (result.length === 0 && pronunciations.length > 0) {
+                    result = pronunciations.slice(0, 2);
+                }
+                
+                return result;
+            }
+            
+            // 递归渲染词义和子词义
+            function renderSenses(senses, entryIndex, level = 0, sensePath = '') {
+                let html = '';
+                let senseCounter = 0;
+                
+                senses.forEach((sense, index) => {
+                    senseCounter++;
+                    const currentSensePath = sensePath ? `${sensePath}-${index}` : `${entryIndex}-${index}`;
+                    
+                    html += `<div class="sense" style="margin-left: ${level * 20}px;">`;
+                    
+                    // 显示定义
+                    if (sense.definition) {
+                        const number = level === 0 ? `${senseCounter}.` : `${senseCounter}`;
+                        html += `<div class="definition"><strong>${number}</strong> ${escapeHtml(sense.definition)}</div>`;
+                    }
+                    
+                    // 显示标签
+                    if (Array.isArray(sense.tags) && sense.tags.length > 0) {
+                        html += `<div style="font-size: 12px; color: #586069; margin-bottom: 5px;">标签: ${sense.tags.map(t => escapeHtml(t)).join(', ')}</div>`;
+                    }
+                    
+                    // 显示例句 - 采用可折叠方式
+                    if (Array.isArray(sense.examples) && sense.examples.length > 0) {
+                        // 只显示前2个例句
+                        const maxInitialExamples = 2;
+                        const initialExamples = sense.examples.slice(0, maxInitialExamples);
+                        const remainingExamples = sense.examples.slice(maxInitialExamples);
+                        
+                        // 显示初始例句
+                        initialExamples.forEach(example => {
+                            html += `<div class="example">${escapeHtml(example)}</div>`;
+                        });
+                        
+                        // 如果有更多例句，添加切换按钮
+                        if (remainingExamples.length > 0) {
+                            const allExamplesId = `all-examples-${currentSensePath}`;
+                            html += `<button class="toggle-button examples-toggle" 
+                                      data-target="${allExamplesId}"
+                                      data-show-text="显示更多例句 (${sense.examples.length})"
+                                      data-hide-text="隐藏更多例句">显示更多例句 (${sense.examples.length})</button>`;
+                            html += `<div id="${allExamplesId}" class="collapsible-section" style="display: none;">`;
+                            remainingExamples.forEach(example => {
+                                html += `<div class="example">${escapeHtml(example)}</div>`;
+                            });
+                            html += `</div>`;
+                        }
+                    }
+                    
+                    // 显示引文
+                    if (Array.isArray(sense.quotes)) {
+                        sense.quotes.forEach(quote => {
+                            html += `<div class="quote">"${escapeHtml(quote.text)}"`;
+                            if (quote.reference) {
+                                html += `<div class="quote-reference">— ${escapeHtml(quote.reference)}</div>`;
+                            }
+                            html += `</div>`;
+                        });
+                    }
+                    
+                    // 显示特定词义的同义词和反义词
+                    if (Array.isArray(sense.synonyms) && sense.synonyms.length > 0) {
+                        html += `<div class="synonyms"><span>同义词:</span> ${sense.synonyms.map(s => escapeHtml(s)).join(', ')}</div>`;
+                    }
+                    if (Array.isArray(sense.antonyms) && sense.antonyms.length > 0) {
+                        html += `<div class="antonyms"><span>反义词:</span> ${sense.antonyms.map(a => escapeHtml(a)).join(', ')}</div>`;
+                    }
+                    
+                    // 递归渲染子词义
+                    if (Array.isArray(sense.subsenses) && sense.subsenses.length > 0) {
+                        html += renderSenses(sense.subsenses, entryIndex, level + 1, currentSensePath);
+                    }
+                    
+                    html += `</div>`;
+                });
+                return html;
+            }
+            
+            function showLoading(message) {
+                resultContainer.innerHTML = `<div class="loading">${message}</div>`;
+            }
+            
+            function showError(message) {
+                resultContainer.innerHTML = `<div class="error">${message}</div>`;
+            }
+            
+            function escapeHtml(unsafe) {
+                if (typeof unsafe !== 'string') return unsafe;
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+        });
+    </script>
+</body>
+</html>

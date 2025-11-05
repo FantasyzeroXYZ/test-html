@@ -1,15 +1,564 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>外语学习媒体播放器</title>
-    <!-- 添加 Font Awesome 图标 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全屏视频播放器与字幕查词</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #4cc9f0;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: #a5b1c2;
+            font-size: 1.2rem;
+        }
+        
+        /* 播放器样式 */
+        .player-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto 30px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            background: #16213e;
+        }
+        
+        #videoPlayer {
+            width: 100%;
+            height: auto;
+            display: block;
+            background: #000;
+        }
+        
+        .player-controls {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            align-items: center;
+        }
+        
+        .control-btn {
+            background: #4361ee;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-btn:hover {
+            background: #3a56d4;
+            transform: translateY(-2px);
+        }
+        
+        .control-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* 字幕区域样式 */
+        .subtitles-container {
+            background: rgba(22, 33, 62, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .subtitles-title {
+            color: #4cc9f0;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .subtitle-line {
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .subtitle-line:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .subtitle-time {
+            color: #a5b1c2;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        
+        /* 词典面板样式 */
+        .dictionary-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: #16213e;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+            transition: right 0.4s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .dictionary-panel.active {
+            right: 0;
+        }
+        
+        .dictionary-header {
+            padding: 20px;
+            background: #0f3460;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .dictionary-title {
+            font-size: 1.5rem;
+            color: #4cc9f0;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .dictionary-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .search-box {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        #wordInput {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 6px 0 0 6px;
+            background: #1a1a2e;
+            color: white;
+            font-size: 16px;
+        }
+        
+        #searchBtn {
+            background: #4361ee;
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 0 6px 6px 0;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .word-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #30475e;
+        }
+        
+        .word-title {
+            font-size: 28px;
+            color: #4cc9f0;
+            margin-bottom: 5px;
+        }
+        
+        .phonetic {
+            color: #a5b1c2;
+            font-style: italic;
+            margin-bottom: 5px;
+        }
+        
+        .part-of-speech {
+            display: inline-block;
+            background: #30475e;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .meaning-section {
+            margin-bottom: 25px;
+        }
+        
+        .definition {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .example {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-left: 3px solid #4361ee;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #a5b1c2;
+        }
+        
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #e84545;
+        }
+        
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #a5b1c2;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .dictionary-panel {
+                width: 100%;
+                right: -100%;
+            }
+            
+            .player-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .control-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        /* 高亮选中的字幕 */
+        .highlighted {
+            background: rgba(67, 97, 238, 0.3);
+            border-left: 3px solid #4361ee;
+        }
+        
+        /* 全屏样式 */
+        .fullscreen-mode {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 999;
+            background: #000;
+        }
+        
+        .fullscreen-mode .player-container {
+            max-width: 100%;
+            height: 100%;
+            margin: 0;
+            border-radius: 0;
+        }
+        
+        .fullscreen-mode #videoPlayer {
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .fullscreen-mode .subtitles-container {
+            position: absolute;
+            bottom: 80px;
+            left: 0;
+            width: 100%;
+            max-height: 150px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>全屏视频播放器</h1>
+            <p class="subtitle">支持点击字幕查询单词 - 专为语言学习设计</p>
+        </header>
+        
+        <div class="player-container">
+            <video id="videoPlayer" controls>
+                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+                您的浏览器不支持HTML5视频播放。
+            </video>
+            
+            <div class="player-controls">
+                <button class="control-btn" id="fullscreenBtn">
+                    <span>⛶</span> 全屏播放
+                </button>
+                <button class="control-btn" id="dictBtn">
+                    <span>📖</span> 打开词典
+                </button>
+            </div>
+        </div>
+        
+        <div class="subtitles-container">
+            <h3 class="subtitles-title">视频字幕</h3>
+            <div id="subtitlesList">
+                <!-- 字幕将通过JavaScript动态加载 -->
+                <div class="subtitle-line">
+                    <span class="subtitle-time">[00:01]</span>
+                    <span>Welcome to our language learning video player.</span>
+                </div>
+                <div class="subtitle-line">
+                    <span class="subtitle-time">[00:05]</span>
+                    <span>You can click on any word in the subtitles to look it up in the dictionary.</span>
+                </div>
+                <div class="subtitle-line">
+                    <span class="subtitle-time">[00:12]</span>
+                    <span>This is especially useful for language learners who encounter unfamiliar vocabulary.</span>
+                </div>
+                <div class="subtitle-line">
+                    <span class="subtitle-time">[00:20]</span>
+                    <span>The dictionary panel will show definitions, examples, and pronunciation.</span>
+                </div>
+                <div class="subtitle-line">
+                    <span class="subtitle-time">[00:28]</span>
+                    <span>Try clicking on any word in these subtitles to see how it works!</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 词典面板 -->
+    <div class="dictionary-panel" id="dictionaryPanel">
+        <div class="dictionary-header">
+            <h2 class="dictionary-title">词典查询</h2>
+            <button class="close-btn" id="closeDictBtn">×</button>
+        </div>
+        
+        <div class="dictionary-content">
+            <div class="search-box">
+                <input type="text" id="wordInput" placeholder="输入要查询的单词...">
+                <button id="searchBtn">查询</button>
+            </div>
+            
+            <div id="dictResult">
+                <div class="empty">请输入要查询的单词或点击字幕中的单词</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const videoPlayer = document.getElementById('videoPlayer');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const dictBtn = document.getElementById('dictBtn');
+        const dictionaryPanel = document.getElementById('dictionaryPanel');
+        const closeDictBtn = document.getElementById('closeDictBtn');
+        const wordInput = document.getElementById('wordInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const dictResult = document.getElementById('dictResult');
+        const subtitlesList = document.getElementById('subtitlesList');
+        
+        // 切换全屏模式
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`全屏请求错误: ${err.message}`);
+                });
+                document.body.classList.add('fullscreen-mode');
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                    document.body.classList.remove('fullscreen-mode');
+                }
+            }
+        });
+        
+        // 监听全屏变化
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                document.body.classList.remove('fullscreen-mode');
+            }
+        });
+        
+        // 打开词典面板
+        dictBtn.addEventListener('click', () => {
+            dictionaryPanel.classList.add('active');
+        });
+        
+        // 关闭词典面板
+        closeDictBtn.addEventListener('click', () => {
+            dictionaryPanel.classList.remove('active');
+        });
+        
+        // 查询单词
+        searchBtn.addEventListener('click', searchWord);
+        wordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchWord();
+        });
+        
+        // 字幕点击事件 - 使用事件委托
+        subtitlesList.addEventListener('click', (e) => {
+            const subtitleLine = e.target.closest('.subtitle-line');
+            if (subtitleLine) {
+                // 移除其他高亮
+                document.querySelectorAll('.subtitle-line').forEach(el => {
+                    el.classList.remove('highlighted');
+                });
+                
+                // 高亮当前行
+                subtitleLine.classList.add('highlighted');
+                
+                // 获取点击的单词
+                if (e.target.tagName === 'SPAN' && !e.target.classList.contains('subtitle-time')) {
+                    const word = getWordFromText(e.target.textContent, e.clientX, e.clientY);
+                    if (word) {
+                        wordInput.value = word;
+                        searchWord();
+                        dictionaryPanel.classList.add('active');
+                    }
+                }
+            }
+        });
+        
+        // 从文本中获取单词（简化实现）
+        function getWordFromText(text, x, y) {
+            // 在实际应用中，这里应该使用更复杂的逻辑来确定点击的单词
+            // 这里我们简单返回第一个单词作为示例
+            const words = text.trim().split(/\s+/);
+            return words.length > 0 ? words[0] : null;
+        }
+        
+        // 查询单词函数
+        async function searchWord() {
+            const word = wordInput.value.trim();
+            
+            if (!word) {
+                dictResult.innerHTML = '<div class="error">请输入要查询的单词</div>';
+                return;
+            }
+            
+            dictResult.innerHTML = '<div class="loading">查询中...</div>';
+            
+            try {
+                // 使用Free Dictionary API
+                const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+                
+                if (!response.ok) {
+                    throw new Error('单词未找到');
+                }
+                
+                const data = await response.json();
+                displayResult(data[0]);
+            } catch (error) {
+                dictResult.innerHTML = `<div class="error">错误: ${error.message}</div>`;
+            }
+        }
+        
+        // 显示查询结果
+        function displayResult(wordData) {
+            let html = `
+                <div class="word-header">
+                    <h2 class="word-title">${escapeHtml(wordData.word)}</h2>
+            `;
+            
+            if (wordData.phonetic) {
+                html += `<div class="phonetic">${escapeHtml(wordData.phonetic)}</div>`;
+            }
+            
+            html += `</div>`;
+            
+            if (wordData.meanings && wordData.meanings.length > 0) {
+                wordData.meanings.forEach(meaning => {
+                    html += `<div class="meaning-section">
+                        <div class="part-of-speech">${escapeHtml(meaning.partOfSpeech)}</div>`;
+                    
+                    if (meaning.definitions && meaning.definitions.length > 0) {
+                        meaning.definitions.forEach((def, index) => {
+                            if (index < 3) { // 只显示前三个定义
+                                html += `<div class="definition">${index + 1}. ${escapeHtml(def.definition)}</div>`;
+                                if (def.example) {
+                                    html += `<div class="example">${escapeHtml(def.example)}</div>`;
+                                }
+                            }
+                        });
+                    }
+                    
+                    html += `</div>`;
+                });
+            } else {
+                html += `<div class="meaning-section">
+                    <div class="definition">未找到该单词的详细释义。</div>
+                </div>`;
+            }
+            
+            dictResult.innerHTML = html;
+        }
+        
+        // HTML转义函数
+        function escapeHtml(unsafe) {
+            if (typeof unsafe !== 'string') return unsafe;
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+        
+        // 初始化播放器事件
+        videoPlayer.addEventListener('loadedmetadata', function() {
+            console.log('视频时长: ' + videoPlayer.duration + '秒');
+        });
+        
+        videoPlayer.addEventListener('play', function() {
+            console.log('视频开始播放');
+        });
+        
+        videoPlayer.addEventListener('pause', function() {
+            console.log('视频已暂停');
+        });
+    </script>
+</body>
 </html>

@@ -1,0 +1,482 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #fff;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+}
+
+h1 {
+    color: #4cc9f0;
+    margin-bottom: 10px;
+    font-size: 2.5rem;
+    text-shadow: 0 2px 10px rgba(76, 201, 240, 0.3);
+}
+
+.subtitle {
+    color: #a5b1c2;
+    font-size: 1.2rem;
+}
+
+/* 文件上传区域 */
+.upload-section {
+    background: rgba(22, 33, 62, 0.7);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.upload-box {
+    flex: 1;
+    min-width: 250px;
+}
+
+.upload-label {
+    display: block;
+    margin-bottom: 10px;
+    color: #4cc9f0;
+    font-weight: 600;
+}
+
+.file-input {
+    width: 100%;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid #30475e;
+    border-radius: 5px;
+    color: #fff;
+}
+
+/* 播放器样式 */
+.player-container {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto 30px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    background: #16213e;
+}
+
+#videoPlayer {
+    width: 100%;
+    height: auto;
+    display: block;
+    background: #000;
+}
+
+.player-controls {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.7);
+    align-items: center;
+}
+
+.control-btn {
+    background: #4361ee;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.control-btn:hover {
+    background: #3a56d4;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.control-btn:active {
+    transform: translateY(0);
+}
+
+/* 字幕区域样式 */
+.subtitles-container {
+    background: rgba(22, 33, 62, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.subtitles-title {
+    color: #4cc9f0;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.subtitle-line {
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.subtitle-line:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.subtitle-time {
+    color: #a5b1c2;
+    font-size: 0.9rem;
+    margin-right: 10px;
+}
+
+/* 词典面板样式 */
+.dictionary-panel {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 400px;
+    height: 100vh;
+    background: #16213e;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+    transition: right 0.4s ease;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.dictionary-panel.active {
+    right: 0;
+}
+
+.dictionary-header {
+    padding: 20px;
+    background: #0f3460;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dictionary-title {
+    font-size: 1.5rem;
+    color: #4cc9f0;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.2s;
+}
+
+.close-btn:hover {
+    color: #4cc9f0;
+}
+
+.dictionary-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.search-box {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+#wordInput {
+    flex: 1;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 6px 0 0 6px;
+    background: #1a1a2e;
+    color: white;
+    font-size: 16px;
+}
+
+#searchBtn {
+    background: #4361ee;
+    color: white;
+    border: none;
+    padding: 0 20px;
+    border-radius: 0 6px 6px 0;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+}
+
+#searchBtn:hover {
+    background: #3a56d4;
+}
+
+.word-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #30475e;
+}
+
+.word-title {
+    font-size: 28px;
+    color: #4cc9f0;
+    margin-bottom: 5px;
+}
+
+.phonetic {
+    color: #a5b1c2;
+    font-style: italic;
+    margin-bottom: 5px;
+}
+
+.part-of-speech {
+    display: inline-block;
+    background: #30475e;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.meaning-section {
+    margin-bottom: 25px;
+}
+
+.definition {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.example {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px;
+    border-left: 3px solid #4361ee;
+    margin-bottom: 10px;
+    font-style: italic;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #a5b1c2;
+}
+
+.error {
+    text-align: center;
+    padding: 40px;
+    color: #e84545;
+}
+
+.empty {
+    text-align: center;
+    padding: 40px;
+    color: #a5b1c2;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .dictionary-panel {
+        width: 100%;
+        right: -100%;
+    }
+    
+    .player-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .control-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .upload-section {
+        flex-direction: column;
+    }
+}
+
+/* 高亮选中的字幕 */
+.highlighted {
+    background: rgba(67, 97, 238, 0.3);
+    border-left: 3px solid #4361ee;
+}
+
+/* 全屏样式 - 重新设计 */
+.fullscreen-mode {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    background: #000;
+    padding: 0;
+    overflow: hidden;
+}
+
+.fullscreen-mode .container,
+.fullscreen-mode header,
+.fullscreen-mode .upload-section,
+.fullscreen-mode .subtitles-container,
+.fullscreen-mode .player-controls {
+    display: none;
+}
+
+.fullscreen-video-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #000;
+}
+
+.fullscreen-video-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* 全屏字幕样式 */
+.fullscreen-subtitle {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 15px 20px;
+    text-align: center;
+    font-size: 1.5rem;
+    z-index: 100;
+    backdrop-filter: blur(5px);
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.fullscreen-subtitle .word-span {
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin: 0 2px;
+}
+
+.fullscreen-subtitle .word-span:hover {
+    background: rgba(67, 97, 238, 0.5);
+}
+
+/* 移动端横屏适配 */
+@media (max-height: 500px) and (orientation: landscape) {
+    .fullscreen-subtitle {
+        font-size: 1.2rem;
+        padding: 10px 15px;
+        min-height: 60px;
+    }
+}
+
+/* 移动端竖屏适配 */
+@media (max-width: 768px) and (orientation: portrait) {
+    .fullscreen-subtitle {
+        font-size: 1.3rem;
+        padding: 12px 15px;
+        min-height: 70px;
+    }
+}
+
+/* 当前字幕样式 */
+.current-subtitle {
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 15px;
+    background: rgba(67, 97, 238, 0.1);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.word-span {
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.word-span:hover {
+    background: rgba(67, 97, 238, 0.3);
+}
+
+.status-message {
+    text-align: center;
+    padding: 15px;
+    color: #a5b1c2;
+    font-style: italic;
+}
+
+/* 全屏退出按钮 */
+.exit-fullscreen-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 101;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+}
+
+.fullscreen-mode .exit-fullscreen-btn {
+    display: flex;
+}
+
+.exit-fullscreen-btn:hover {
+    background: rgba(0, 0, 0, 0.7);
+}

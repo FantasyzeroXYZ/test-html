@@ -857,6 +857,7 @@
         let wasPlayingBeforeSubtitles = false;
         let currentSubtitleIndex = -1;
         let controlsTimeout;
+        let volumeBeforeDict = 1; // 用于记录词典弹出前的音量
 
         // 初始：确保隐藏的播放器默认静音，避免加载或意外播放时造成回音
         fullscreenVideoPlayer.muted = true;
@@ -1263,10 +1264,15 @@
         
         // 打开词典面板
         function openDictionary() {
-            // 记录当前播放状态
+            // 记录当前播放状态和音量
             wasPlayingBeforeDict = isFullscreen ? 
                 !fullscreenVideoPlayer.paused : 
                 !videoPlayer.paused;
+            
+            // 记录当前音量
+            volumeBeforeDict = isFullscreen ? 
+                fullscreenVideoPlayer.volume : 
+                videoPlayer.volume;
             
             // 暂停播放
             if (isFullscreen) {
@@ -1283,6 +1289,13 @@
         function closeDictionary() {
             dictionaryPanel.classList.remove('active');
             dictionaryOverlay.classList.remove('active');
+            
+            // 恢复之前的音量
+            if (isFullscreen) {
+                fullscreenVideoPlayer.volume = volumeBeforeDict;
+            } else {
+                videoPlayer.volume = volumeBeforeDict;
+            }
             
             // 恢复之前的播放状态
             if (wasPlayingBeforeDict) {

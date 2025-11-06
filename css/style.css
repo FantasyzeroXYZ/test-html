@@ -492,6 +492,16 @@ h1 {
     background: rgba(52, 152, 219, 1);
 }
 
+/* 剪贴板按钮激活状态 */
+.control-btn.active {
+    background: rgba(46, 204, 113, 0.8);
+    box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.5);
+}
+
+.control-btn.active:hover {
+    background: rgba(46, 204, 113, 1);
+}
+
 /* 时间跳转栏 */
 .time-input-container {
     display: flex;
@@ -975,8 +985,10 @@ h1 {
         -1px -1px 3px rgba(0, 0, 0, 0.8),
         1px -1px 3px rgba(0, 0, 0, 0.8),
         -1px 1px 3px rgba(0, 0, 0, 0.8);
+    transition: bottom 0.3s ease;
 }
 
+/* 全屏字幕单词样式 */
 .fullscreen-subtitle .word-span {
     cursor: pointer;
     transition: all 0.2s;
@@ -1031,6 +1043,7 @@ h1 {
     justify-content: space-between;
     z-index: 100;
     backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
 }
 
 .fullscreen-mode .fullscreen-controls {
@@ -1053,6 +1066,27 @@ h1 {
     background: #4361ee;
     border-radius: 3px;
     width: 0%;
+    transition: width 0.1s;
+}
+
+/* 全屏进度条滑块 */
+.fullscreen-progress-thumb {
+    position: absolute;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    z-index: 102;
+    transition: all 0.2s;
+}
+
+.fullscreen-progress-thumb:hover {
+    transform: translate(-50%, -50%) scale(1.2);
+    background: #4361ee;
 }
 
 .fullscreen-progress:hover .fullscreen-progress-bar {
@@ -1388,6 +1422,11 @@ footer {
         width: 95%;
         height: 80%;
     }
+    
+    .fullscreen-progress-thumb {
+        width: 14px;
+        height: 14px;
+    }
 }
 
 @media (max-height: 500px) and (orientation: landscape) {
@@ -1401,6 +1440,11 @@ footer {
     .fullscreen-controls {
         height: 50px;
     }
+    
+    .fullscreen-progress-thumb {
+        width: 12px;
+        height: 12px;
+    }
 }
 
 /* 移动端触摸优化 */
@@ -1410,6 +1454,11 @@ footer {
         display: flex;
         align-items: center;
         padding: 8px 12px;
+    }
+    
+    .fullscreen-progress-thumb {
+        width: 20px;
+        height: 20px;
     }
 }
 
@@ -1467,4 +1516,71 @@ footer {
     -ms-user-select: text;
     cursor: text;
     line-height: 1.4;
+}
+
+/* 剪贴板功能激活状态指示 */
+.clipboard-active .word,
+.clipboard-active .selectable-word,
+.clipboard-active .sentence-word {
+    background-color: rgba(46, 204, 113, 0.1);
+    border: 1px dashed rgba(46, 204, 113, 0.3);
+}
+
+.clipboard-active .word:hover,
+.clipboard-active .selectable-word:hover,
+.clipboard-active .sentence-word:hover {
+    background-color: rgba(46, 204, 113, 0.2);
+    border: 1px dashed rgba(46, 204, 113, 0.5);
+}
+
+/* 全屏模式下的剪贴板指示 */
+.fullscreen-mode.clipboard-active .word-span {
+    background: rgba(46, 204, 113, 0.3);
+    border: 1px dashed rgba(46, 204, 113, 0.5);
+}
+
+.fullscreen-mode.clipboard-active .word-span:hover {
+    background: rgba(46, 204, 113, 0.5);
+    border: 1px dashed rgba(46, 204, 113, 0.7);
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dictionary-panel.active,
+.subtitle-list-panel.active,
+.fullscreen-subtitles-panel.active {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* 平滑过渡 */
+* {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+    .control-btn,
+    .anki-btn,
+    .media-mode-btn,
+    .language-mode-btn,
+    .import-btn {
+        border: 1px solid #fff;
+    }
+    
+    .fullscreen-subtitle {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }

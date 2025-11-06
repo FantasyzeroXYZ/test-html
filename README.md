@@ -4,19 +4,19 @@ icon图标：https://fontawesome.com/v4/icons/
 ├── index.html
 ├── styles.css
 └── js/
-    ├── dom-elements.js          # DOM元素引用
-    ├── state-variables.js       # 状态变量
-    ├── utils.js                 # 工具函数
+    ├── dom-elements.js          ## DOM元素引用
+    ├── state-variables.js       ## 状态变量
+    ├── utils.js                 ## 工具函数
     ├── media-handler.js         # 媒体文件处理
-    ├── audio-controls.js        # 音频控制功能 (新增)
+    ├── audio-controls.js        # 音频控制功能
     ├── subtitle-handler.js      # 字幕处理
     ├── dictionary-panel.js      # 词典面板功能
     ├── anki-handler.js          # Anki相关功能
     ├── fullscreen-handler.js    # 全屏功能
     ├── clipboard-handler.js     # 剪贴板功能
-    ├── mobile-optimize.js       # 移动端优化
-    ├── event-listeners.js       # 事件监听器
-    └── init.js                  # 初始化函数
+    ├── mobile-optimize.js       ## 移动端优化
+    ├── event-listeners.js       ## 事件监听器
+    └── init.js                  ## 初始化函数
 ```
 功能模块：
 * DOM元素引用 - 所有DOM元素

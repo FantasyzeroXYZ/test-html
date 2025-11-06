@@ -16,7 +16,7 @@ function toggleClipboardFunction() {
     updateClipboardBodyClass();
 
     showNotification(clipboardEnabled ? 
-        '剪贴板功能已开启，点击字幕单词将自动复制' : 
+        '剪贴板功能已开启' : 
         '剪贴板功能已关闭');
 }
 

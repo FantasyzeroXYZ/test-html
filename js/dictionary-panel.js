@@ -3,7 +3,6 @@
 // 底部面板功能
 function openDictionaryPanel() {
     panelDictionaryResult.style.display = 'block';
-    panelWordTitle.style.display = 'block';
     dictionaryPanel.classList.add('active');
     panelOverlay.classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -42,7 +41,6 @@ async function searchWordInPanel(word) {
     
     openDictionaryPanel();
     panelDictionaryResult.innerHTML = '<div class="loading">查询中...</div>';
-    panelWordTitle.textContent = `查询: ${word}`;
     panelSearchInput.value = word;
     
     try {
@@ -240,7 +238,6 @@ async function searchJapaneseWordInPanel(word) {
     
     openDictionaryPanel();
     panelDictionaryResult.innerHTML = '<div class="loading">查询中...</div>';
-    panelWordTitle.textContent = `查询: ${word}`;
     panelSearchInput.value = word;
     
     try {
@@ -458,8 +455,6 @@ async function showJapaneseWordSegmentation(sentence, currentWord = '') {
                 }
             });
         });
-
-        panelWordTitle.textContent = `日语分词`;
 
         if (window.japaneseSegmentationComplete) {
             window.japaneseSegmentationComplete(sentence, japaneseWords);

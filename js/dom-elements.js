@@ -69,7 +69,6 @@ const dictionaryPanel = document.getElementById('dictionary-panel');
 const panelOverlay = document.getElementById('panel-overlay');
 const closePanelBtn = document.getElementById('close-panel');
 const panelDictionaryResult = document.getElementById('panel-dictionary-result');
-const panelWordTitle = document.getElementById('panel-word-title');
 const panelSearchInput = document.getElementById('panel-search-input');
 const panelSearchBtn = document.getElementById('panel-search-btn');
 const originalSentence = document.getElementById('original-sentence');

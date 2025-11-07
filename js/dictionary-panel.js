@@ -43,23 +43,28 @@ async function searchWordInPanel(word) {
     panelDictionaryResult.innerHTML = '<div class="loading">查询中...</div>';
     panelSearchInput.value = word;
     
-    try {
-        const apiUrl = `https://freedictionaryapi.com/api/v1/entries/en/${encodeURIComponent(word)}`;
-        const response = await fetch(apiUrl);
-        
-        if (!response.ok) {
-            if (response.status === 404) {
-                throw new Error(`未找到单词 "${word}"`);
-            } else {
-                throw new Error(`API请求失败: ${response.status}`);
+    if (activeTab === 'web-tab') {
+        loadWebSearch(word);
+    }
+    else {
+        try {
+            const apiUrl = `https://freedictionaryapi.com/api/v1/entries/en/${encodeURIComponent(word)}`;
+            const response = await fetch(apiUrl);
+            
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error(`未找到单词 "${word}"`);
+                } else {
+                    throw new Error(`API请求失败: ${response.status}`);
+                }
             }
+            
+            const data = await response.json();
+            displayWordDataInPanel(data);
+        } catch (error) {
+            panelDictionaryResult.innerHTML = `<div class="error">${error.message}</div>`;
+            console.error('查询错误:', error);
         }
-        
-        const data = await response.json();
-        displayWordDataInPanel(data);
-    } catch (error) {
-        panelDictionaryResult.innerHTML = `<div class="error">${error.message}</div>`;
-        console.error('查询错误:', error);
     }
 }
 
@@ -248,24 +253,30 @@ async function searchJapaneseWordInPanel(word) {
     panelDictionaryResult.innerHTML = '<div class="loading">查询中...</div>';
     panelSearchInput.value = word;
     
-    try {
-        const apiUrl = `https://freedictionaryapi.com/api/v1/entries/ja/${encodeURIComponent(word)}`;
-        const response = await fetch(apiUrl);
-        
-        if (!response.ok) {
-            if (response.status === 404) {
-                throw new Error(`未找到日语单词 "${word}"`);
-            } else {
-                throw new Error(`API请求失败: ${response.status}`);
-            }
-        }
-        
-        const data = await response.json();
-        displayJapaneseWordDataInPanel(data);
-    } catch (error) {
-        panelDictionaryResult.innerHTML = `<div class="error">${error.message}</div>`;
-        console.error('查询错误:', error);
+    if (activeTab === 'web-tab') {
+        loadWebSearch(word);
     }
+    else {
+        try {
+            const apiUrl = `https://freedictionaryapi.com/api/v1/entries/ja/${encodeURIComponent(word)}`;
+            const response = await fetch(apiUrl);
+            
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error(`未找到日语单词 "${word}"`);
+                } else {
+                    throw new Error(`API请求失败: ${response.status}`);
+                }
+            }
+            
+            const data = await response.json();
+            displayJapaneseWordDataInPanel(data);
+        } catch (error) {
+            panelDictionaryResult.innerHTML = `<div class="error">${error.message}</div>`;
+            console.error('查询错误:', error);
+        }
+    }
+
 }
 
 // 显示日语单词数据在底部面板
@@ -521,10 +532,6 @@ function handleSentenceWordClick(e) {
     } else {
         searchJapaneseWordInPanel(word);
     }
-
-    if (activeTab === 'web-tab') {
-        loadWebSearch(word);
-    }
 }
 
 // 重置追加词汇和搜索栏
@@ -569,10 +576,6 @@ appendWordBtn.addEventListener('click', () => {
     } else {
         searchJapaneseWordInPanel(panelSearchInput.value);
     }
-
-    if (activeTab === 'web-tab') {
-        loadWebSearch(panelSearchInput.value);
-    }
 });
 
 // 修复搜索按钮功能
@@ -596,10 +599,6 @@ function handleSearch() {
         searchWordInPanel(word);
     } else {
         searchJapaneseWordInPanel(word);
-    }
-    
-    if (activeTab === 'web-tab') {
-        loadWebSearch(word);
     }
 }
 

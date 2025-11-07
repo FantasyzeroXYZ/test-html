@@ -235,7 +235,7 @@ h1 {
 
 .video-player {
     width: 100%;
-    height: 300px;
+    height: 400px; /* PC端增大视频播放器高度 */
     background: #000;
     border-radius: 8px;
     overflow: hidden;
@@ -473,12 +473,12 @@ h1 {
     line-height: 1.4;
 }
 
-/* 视频控制按钮 */
+/* 视频控制按钮 - 缩小以适应移动端单行排列 */
 .video-controls {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px; /* 减小间距 */
     margin-top: 15px;
     flex-wrap: wrap;
 }
@@ -487,14 +487,16 @@ h1 {
     background: rgba(52, 152, 219, 0.7);
     color: white;
     border: none;
-    padding: 8px 12px;
+    padding: 6px 10px; /* 减小内边距 */
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.3s;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.9rem;
+    font-size: 0.8rem; /* 减小字体大小 */
+    min-width: 36px; /* 设置最小宽度 */
+    min-height: 36px; /* 设置最小高度 */
 }
 
 .control-btn:hover, .control-btn:active {
@@ -547,7 +549,7 @@ h1 {
     justify-content: center;
 }
 
-/* 视频字幕 */
+/* 视频字幕 - 修复单词黑框问题 */
 .video-subtitles {
     position: absolute;
     bottom: 20px;
@@ -555,8 +557,12 @@ h1 {
     right: 0;
     text-align: center;
     color: white;
-    font-size: 1.2rem;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    font-size: 1rem; /* 减小字体大小 */
+    text-shadow: 
+        1px 1px 3px rgba(0, 0, 0, 0.8),
+        -1px -1px 3px rgba(0, 0, 0, 0.8),
+        1px -1px 3px rgba(0, 0, 0, 0.8),
+        -1px 1px 3px rgba(0, 0, 0, 0.8);
     padding: 0 15px;
     z-index: 10;
     cursor: text;
@@ -573,9 +579,23 @@ h1 {
     cursor: text;
     user-select: text;
     pointer-events: auto;
+    transition: background-color 0.2s ease; /* 添加平滑过渡 */
 }
 
-/* 音频字幕 - 修复英语模式显示 */
+/* 修复视频字幕单词黑框问题 */
+.video-subtitles .word-span {
+    background: transparent !important; /* 移除单个单词背景 */
+    padding: 0 1px !important; /* 减少内边距 */
+    margin: 0 !important;
+    border-radius: 0 !important;
+    display: inline !important;
+}
+
+.video-subtitles .word-span:hover {
+    background: rgba(52, 152, 219, 0.3) !important; /* 悬停时显示背景 */
+}
+
+/* 音频字幕 - 修复移动端显示和换行问题 */
 .audio-subtitles {
     margin-top: 15px;
     max-height: 200px;
@@ -605,6 +625,11 @@ h1 {
     letter-spacing: normal;
     white-space: normal;
     text-align: left;
+    word-break: break-word; /* 确保长单词换行 */
+    overflow-wrap: break-word; /* 确保长单词换行 */
+    hyphens: auto; /* 自动断字 */
+    width: 100%; /* 确保宽度100% */
+    box-sizing: border-box; /* 包含内边距和边框 */
 }
 
 .audio-subtitle-item:hover, .audio-subtitle-item:active {
@@ -636,13 +661,20 @@ h1 {
     transform: translateY(0);
 }
 
+/* 修复词典框标题行固定置顶 - 消除顶部缝隙 */
 .panel-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
-    padding-bottom: 10px;
+    padding: 15px 0 10px 0; /* 调整内边距消除缝隙 */
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: sticky;
+    top: -20px; /* 调整位置消除缝隙 */
+    background: rgba(30, 30, 40, 0.95);
+    z-index: 10;
+    margin-top: -20px; /* 调整外边距消除缝隙 */
+    backdrop-filter: blur(10px); /* 添加模糊背景防止内容透出 */
 }
 
 .panel-title {
@@ -689,8 +721,11 @@ h1 {
 
 .panel-search-container {
     display: flex;
-    gap: 10px;
+    gap: 8px; /* 减小间距 */
     width: 100%;
+    align-items: center;
+    flex-wrap: nowrap; /* 防止换行 */
+    overflow: hidden; /* 隐藏溢出内容 */
 }
 
 .panel-search-input {
@@ -702,13 +737,14 @@ h1 {
     color: white;
     font-size: 1rem;
     min-height: 44px;
+    min-width: 0; /* 允许缩小 */
 }
 
 .panel-search-btn {
     background: rgba(46, 204, 113, 0.7);
     color: white;
     border: none;
-    padding: 12px 20px;
+    padding: 12px 15px; /* 统一内边距 */
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.3s;
@@ -717,7 +753,8 @@ h1 {
     align-items: center;
     justify-content: center;
     min-height: 44px;
-    min-width: 80px;
+    min-width: 50px; /* 统一最小宽度 */
+    flex-shrink: 0;
 }
 
 .panel-search-btn:hover, .panel-search-btn:active {
@@ -728,7 +765,7 @@ h1 {
     background: rgba(241, 196, 15, 0.7);
     color: white;
     border: none;
-    padding: 12px;
+    padding: 12px 15px; /* 统一内边距 */
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.3s;
@@ -738,7 +775,8 @@ h1 {
     justify-content: center;
     white-space: nowrap;
     min-height: 44px;
-    min-width: 50px;
+    min-width: 50px; /* 统一最小宽度 */
+    flex-shrink: 0;
 }
 
 .append-word-btn:hover, .append-word-btn:active {
@@ -749,7 +787,7 @@ h1 {
     background: rgba(231, 76, 60, 0.7);
     color: white;
     border: none;
-    padding: 12px;
+    padding: 12px 15px; /* 统一内边距 */
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.3s;
@@ -759,14 +797,15 @@ h1 {
     justify-content: center;
     white-space: nowrap;
     min-height: 44px;
-    min-width: 50px;
+    min-width: 50px; /* 统一最小宽度 */
+    flex-shrink: 0;
 }
 
 .panel-anki-btn:hover, .panel-anki-btn:active {
     background: rgba(231, 76, 60, 1);
 }
 
-/* 原句显示 - 修复移动端显示 */
+/* 原句显示 - 修复移动端显示和换行 */
 .original-sentence {
     margin-bottom: 15px;
     padding: 12px;
@@ -778,6 +817,8 @@ h1 {
     letter-spacing: normal;
     white-space: normal;
     text-align: left;
+    word-break: break-word; /* 确保长句子换行 */
+    overflow-wrap: break-word; /* 确保长句子换行 */
 }
 
 .sentence-word {
@@ -1032,7 +1073,7 @@ h1 {
     display: flex;
 }
 
-/* 全屏字幕单词样式 */
+/* 全屏字幕单词样式 - 修复文字和标点符号对齐 */
 .fullscreen-subtitle .word-span {
     cursor: pointer;
     transition: all 0.2s;
@@ -1042,10 +1083,18 @@ h1 {
     background: rgba(67, 97, 238, 0.2);
     display: inline;
     word-break: keep-all;
+    vertical-align: baseline; /* 确保文字和标点符号在同一水平线 */
+    line-height: 1.4; /* 统一行高 */
 }
 
 .fullscreen-subtitle .word-span:hover {
     background: rgba(67, 97, 238, 0.5);
+}
+
+/* 全屏字幕标点符号样式 - 确保与文字对齐 */
+.fullscreen-subtitle .punctuation {
+    vertical-align: baseline; /* 确保标点符号与文字对齐 */
+    line-height: 1.4; /* 统一行高 */
 }
 
 /* 全屏退出按钮 */
@@ -1455,7 +1504,23 @@ footer {
         height: 250px;
     }
     
-    /* 顶部按钮移动端优化 */
+    /* 顶部按钮移动端优化 - 修复Anki状态显示 */
+    .anki-status-row {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+    }
+    
+    .anki-status {
+        min-width: auto;
+        flex: 1;
+    }
+    
+    .anki-controls {
+        flex-shrink: 0;
+    }
+    
     .top-controls {
         gap: 6px;
     }
@@ -1498,7 +1563,7 @@ footer {
         min-width: 80px;
     }
     
-    /* 词典面板移动端优化 */
+    /* 词典面板移动端优化 - 修复搜索栏按钮排列 */
     .dictionary-panel-fullscreen {
         width: 100%;
         right: -100%;
@@ -1514,18 +1579,18 @@ footer {
         height: 14px;
     }
     
-    /* 底部面板移动端优化 */
-    .panel-search-anki-container {
-        flex-direction: column;
-    }
-    
+    /* 底部面板移动端优化 - 修复搜索栏按钮排列和大小统一 */
     .panel-search-container {
-        flex-direction: column;
+        flex-direction: row; /* 保持水平排列 */
+        flex-wrap: nowrap;
+        gap: 6px; /* 进一步减小间距 */
     }
     
     .panel-search-input {
         min-height: 44px;
         font-size: 16px; /* 防止iOS缩放 */
+        min-width: 0; /* 允许缩小 */
+        flex: 1; /* 占据剩余空间 */
     }
     
     .panel-search-btn,
@@ -1533,6 +1598,9 @@ footer {
     .panel-anki-btn {
         min-height: 44px;
         font-size: 1rem;
+        min-width: 44px; /* 统一按钮大小 */
+        padding: 12px; /* 统一内边距 */
+        flex-shrink: 0; /* 防止缩小 */
     }
     
     /* 原句显示移动端优化 */
@@ -1547,11 +1615,41 @@ footer {
         margin: 0 2px;
     }
     
-    /* 音频字幕移动端优化 */
+    /* 音频字幕移动端优化 - 修复竖屏换行问题 */
     .audio-subtitle-item {
         padding: 10px 12px;
         font-size: 0.95rem;
         line-height: 1.3;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        width: 100%;
+        white-space: pre-line; /* 保留换行符并自动换行 */
+    }
+    
+    /* 移动端视频字幕进一步缩小并修复单词黑框 */
+    .video-subtitles {
+        font-size: 0.9rem; /* 进一步缩小移动端视频字幕 */
+    }
+    
+    .video-subtitles .word-span {
+        background: transparent !important;
+        padding: 0 1px !important;
+    }
+    
+    /* 音频滚动字幕横屏模式修复 */
+    @media (orientation: landscape) and (max-width: 768px) {
+        .audio-subtitles {
+            display: flex;
+            flex-direction: column;
+            max-height: 150px;
+        }
+        
+        .audio-subtitle-item {
+            flex-shrink: 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
     }
 }
 
@@ -1583,6 +1681,17 @@ footer {
     /* 横屏时词典框显示优化 */
     .dictionary-panel-fullscreen {
         width: 60%;
+    }
+    
+    /* 音频滚动字幕横屏模式修复 */
+    .audio-subtitles {
+        max-height: 120px;
+    }
+    
+    /* 音频滚动字幕横屏模式确保垂直排列 */
+    .audio-subtitle-item {
+        width: 100%;
+        display: block;
     }
 }
 
@@ -1800,13 +1909,53 @@ footer {
     }
     
     .panel-header {
-        flex-direction: column;
+        flex-direction: row; /* 保持水平排列 */
         gap: 10px;
-        align-items: flex-start;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: -15px; /* 调整消除缝隙 */
+        padding: 15px 0 10px 0; /* 调整内边距 */
+        top: -15px; /* 调整位置消除缝隙 */
     }
     
     .close-panel {
-        align-self: flex-end;
+        align-self: center;
+    }
+    
+    /* 修复移动端竖屏搜索栏按钮排列和超出问题 */
+    .panel-search-container {
+        flex-wrap: nowrap;
+        gap: 5px; /* 进一步减小间距 */
+    }
+    
+    .panel-search-btn,
+    .append-word-btn,
+    .panel-anki-btn {
+        min-width: 44px; /* 统一按钮大小 */
+        padding: 12px;
+        flex-shrink: 0;
+    }
+    
+    .panel-search-input {
+        min-width: 0;
+        flex: 1;
+    }
+    
+    /* 移动端视频字幕进一步缩小并修复单词黑框 */
+    .video-subtitles {
+        font-size: 0.85rem; /* 小屏幕进一步缩小 */
+    }
+    
+    .video-subtitles .word-span {
+        background: transparent !important;
+        padding: 0 1px !important;
+    }
+    
+    /* 修复移动端竖屏音频滚动字幕换行 */
+    .audio-subtitle-item {
+        white-space: pre-line; /* 保留换行符并自动换行 */
+        word-break: break-word;
+        overflow-wrap: break-word;
     }
 }
 
@@ -1839,5 +1988,35 @@ footer {
         font-size: 1.1rem;
         min-width: 36px;
         min-height: 36px;
+    }
+    
+    /* 超小屏幕按钮进一步缩小 */
+    .control-btn {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        min-width: 32px;
+        min-height: 32px;
+    }
+    
+    /* 超小屏幕搜索栏按钮进一步调整 */
+    .panel-search-container {
+        gap: 4px;
+    }
+    
+    .panel-search-btn,
+    .append-word-btn,
+    .panel-anki-btn {
+        min-width: 40px;
+        padding: 10px;
+    }
+    
+    /* 超小屏幕视频字幕最小化并修复单词黑框 */
+    .video-subtitles {
+        font-size: 0.8rem; /* 超小屏幕最小字号 */
+    }
+    
+    .video-subtitles .word-span {
+        background: transparent !important;
+        padding: 0 1px !important;
     }
 }

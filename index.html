@@ -9,12 +9,12 @@
     <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
+    <header>
+        <h1>VAMplayer</h1>
+        <p class="subtitle">支持视频/音频播放、字幕显示与Anki制卡</p>
+    </header>
+    
     <div class="container">
-        <header>
-            <h1>VAMplayer</h1>
-            <p class="subtitle">支持视频/音频播放、字幕显示与Anki制卡</p>
-        </header>
-        
         <!-- Anki配置区域 -->
         <section class="anki-section">
             <div class="anki-container">
@@ -194,12 +194,13 @@
             </div>
             <p class="hint">提示：直接点击字幕中的单词，该单词会自动查询并显示释义</p>
         </section>
-        
-        <div class="github-link">
-            <a href="https://github.com/FantasyzeroXYZ/VAMplayer" target="_blank" title="查看项目源码">
-                <i class="fab fa-github"></i>
-            </a>
-        </div>
+    </div>
+    
+    <!-- GitHub链接放在黑框外 -->
+    <div class="github-link">
+        <a href="https://github.com/FantasyzeroXYZ/VAMplayer" target="_blank" title="查看项目源码">
+            <i class="fab fa-github"></i>
+        </a>
     </div>
     
     <!-- 全屏视频容器 -->
@@ -303,7 +304,7 @@
     
     <!-- 字幕列表面板 -->
     <div class="subtitle-list-panel" id="subtitle-list-panel">
-        <div class="panel-header">
+        <div class="panel-header" style="margin-top: 0; padding-top: 0;">
             <div class="panel-title">全部字幕</div>
             <button class="close-panel" id="close-subtitle-list-panel">×</button>
         </div>

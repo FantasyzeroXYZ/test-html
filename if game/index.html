@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Quixe 本地游戏加载器</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="./media/glkote.css">
+<link rel="stylesheet" href="./media/dialog.css">
+
+<style>
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background-color: #f3f3f3;
+  color: #222;
+}
+
+header {
+  background-color: #e0e0e0;
+  text-align: center;
+  padding: 1em;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+main {
+  padding: 1em;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+#gameport {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  min-height: 400px;
+  padding: 1em;
+  margin-top: 1em;
+  position: relative;
+}
+
+#loadingpane {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(3px);
+  text-align: center;
+  padding-top: 10%;
+  z-index: 10;
+}
+
+#loadingpane img {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 1em;
+}
+
+footer {
+  text-align: center;
+  color: #666;
+  padding: 1em;
+  font-size: 0.9em;
+}
+</style>
+
+<script src="./lib/jquery-1.12.4.min.js"></script>
+<script src="./lib/glkote.min.js"></script>
+<script src="./lib/quixe.min.js"></script>
+
+<script>
+let game_options = {
+  spacing: 0,
+  log_execution_time: true,
+  set_page_title: true
+};
+
+async function loadLocalGame(file) {
+  const loadingPane = document.getElementById('loadingpane');
+  loadingPane.style.display = 'flex';
+
+  try {
+    // 1️⃣ 读取二进制数据
+    const arrayBuffer = await file.arrayBuffer();
+    const storyData = new Uint8Array(arrayBuffer);
+
+    // 2️⃣ 创建一个 data: URL（base64 编码）
+    const base64String = btoa(
+      String.fromCharCode.apply(null, storyData)
+    );
+    const dataUrl = `data:application/octet-stream;base64,${base64String}`;
+
+    console.log('Data URL length:', dataUrl.length);
+
+    // 3️⃣ 清空旧窗口
+    document.getElementById('windowport').innerHTML = '';
+
+    // 4️⃣ 使用 URL 参数形式调用
+    GiLoad.load_run({
+      options: game_options,
+      story_url: dataUrl
+    });
+
+  } catch (err) {
+    alert('加载失败: ' + err.message);
+    console.error(err);
+  } finally {
+    setTimeout(() => (loadingPane.style.display = 'none'), 1000);
+  }
+}
+
+window.onload = function() {
+  const input = document.getElementById('fileInput');
+  input.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) loadLocalGame(file);
+  });
+};
+</script>
+</head>
+
+<body>
+  <header>
+    <h2>Quixe 本地 IF 游戏运行器</h2>
+    <p>选择一个 <code>.gblorb</code> 或 <code>.ulx</code> 文件开始游戏：</p>
+    <input type="file" id="fileInput" accept=".gblorb,.ulx">
+  </header>
+
+  <main>
+    <div id="gameport">
+      <div id="windowport">
+        <noscript><p>请启用 JavaScript 以运行游戏。</p></noscript>
+      </div>
+      <div id="loadingpane">
+        <img src="./media/waiting.gif" alt="加载中"><br>
+        <em>正在加载游戏，请稍候...</em>
+      </div>
+      <div id="errorpane" style="display:none;"><div id="errorcontent">...</div></div>
+    </div>
+  </main>
+
+  <footer>
+    Powered by <strong>Quixe</strong>
+  </footer>
+</body>
+</html>

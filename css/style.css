@@ -796,7 +796,7 @@ h1 {
     background: rgba(231, 76, 60, 1);
 }
 
-/* 原句显示 */
+/* 原句显示 - 修复换行问题 */
 .original-sentence {
     margin-bottom: 15px;
     padding: 12px;
@@ -810,6 +810,7 @@ h1 {
     text-align: left;
     word-break: break-word;
     overflow-wrap: break-word;
+    hyphens: auto;
 }
 
 .sentence-word {
@@ -1415,7 +1416,7 @@ h1 {
     font-style: italic;
 }
 
-/* GitHub链接样式 */
+/* GitHub链接样式 - 移动到黑框外 */
 .github-link {
     margin-top: 15px;
     text-align: center;
@@ -1518,6 +1519,7 @@ footer {
         width: 38px !important;
         padding: 8px !important;
         font-size: 0.8rem !important;
+        min-height: 38px !important;
     }
     
     .panel-search-input {
@@ -1573,6 +1575,7 @@ footer {
         min-width: 36px !important;
         width: 36px !important;
         padding: 7px !important;
+        min-height: 36px !important;
     }
 }
 
@@ -1592,6 +1595,7 @@ footer {
         min-width: 34px !important;
         width: 34px !important;
         padding: 6px !important;
+        min-height: 34px !important;
     }
     
     .panel-search-input {
@@ -1601,7 +1605,7 @@ footer {
     }
 }
 
-/* 横屏模式优化 */
+/* 横屏模式优化 - 修复Anki按钮高度问题 */
 @media (max-height: 500px) and (orientation: landscape) {
     .audio-subtitles {
         max-height: 120px;
@@ -1609,6 +1613,18 @@ footer {
     
     .fullscreen-subtitle {
         font-size: 1.2rem;
+    }
+    
+    /* 横屏时统一按钮高度 */
+    .panel-search-btn,
+    .append-word-btn,
+    .panel-anki-btn {
+        min-height: 36px !important;
+        height: 36px !important;
+    }
+    
+    .panel-search-input {
+        min-height: 36px;
     }
 }
 

@@ -277,13 +277,75 @@ addToAnkiBtn.addEventListener('click', async () => {
     let definition = '';
 
     if (activeTab === 'dictionary-tab') {
-        const definitionElements = panelDictionaryResult.querySelectorAll('.definition');
-        if (definitionElements.length > 0) {
-            definitionElements.forEach(el => {
-                definition += el.textContent + '\n';
-            });
+        let definition = '';
+        
+        // 提取单词标题
+        const wordTitle = panelDictionaryResult.querySelector('.word-title');
+        if (wordTitle) {
+            definition += `【${wordTitle.textContent.trim()}】\n\n`;
         }
-    } else if (activeTab === 'custom-tab') {
+        
+        // 提取所有词条
+        const entries = panelDictionaryResult.querySelectorAll('.entry');
+        entries.forEach((entry, entryIndex) => {
+            definition += `${entryIndex + 1}. `;
+            
+            // 提取词性
+            const partOfSpeech = entry.querySelector('.part-of-speech');
+            if (partOfSpeech) {
+                definition += `[${partOfSpeech.textContent.trim()}] `;
+            }
+            
+            // 提取发音
+            const pronunciations = entry.querySelectorAll('.pronunciation');
+            if (pronunciations.length > 0) {
+                definition += '发音: ';
+                const pronList = Array.from(pronunciations).map(p => p.textContent.trim());
+                definition += pronList.join('; ') + '\n';
+            } else {
+                definition += '\n';
+            }
+            
+            // 提取释义
+            const definitions = entry.querySelectorAll('.definition');
+            if (definitions.length > 0) {
+                definition += '   释义:\n';
+                definitions.forEach((def, defIndex) => {
+                    definition += `   ${defIndex + 1}. ${def.textContent.trim()}\n`;
+                });
+            }
+            
+            // 提取例句
+            const examples = entry.querySelectorAll('.example');
+            if (examples.length > 0) {
+                definition += '   例句:\n';
+                examples.forEach((example, exIndex) => {
+                    definition += `     ${exIndex + 1}. ${example.textContent.trim()}\n`;
+                });
+            }
+            
+            // 提取同义词
+            const synonyms = entry.querySelectorAll('.synonyms');
+            if (synonyms.length > 0) {
+                synonyms.forEach(synonym => {
+                    definition += `   ${synonym.textContent.trim()}\n`;
+                });
+            }
+            
+            // 提取反义词
+            const antonyms = entry.querySelectorAll('.antonyms');
+            if (antonyms.length > 0) {
+                antonyms.forEach(antonym => {
+                    definition += `   ${antonym.textContent.trim()}\n`;
+                });
+            }
+            
+            // 词条间空行
+            if (entryIndex < entries.length - 1) {
+                definition += '\n';
+            }
+        });
+    }else if (activeTab === 'custom-tab') {
         definition = customDefinitionInput.value.trim();
     }
 
@@ -316,6 +378,8 @@ addToAnkiBtn.addEventListener('click', async () => {
         addToAnkiBtn.innerHTML = originalAddToAnkiHTML;
     }
 });
+
+
 
 // 处理Anki卡片
 async function processAnkiCard(word, definition) {

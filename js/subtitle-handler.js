@@ -226,6 +226,10 @@ function handleSubtitleTextClick(e) {
             pauseCurrentMedia();
             searchWordInPanel(word);
             
+            if (activeTab === 'web-tab') {
+                loadWebSearch(word);
+            }
+
             currentWord = word;
             if (index >= 0 && index < subtitles.length) {
                 currentSentence = subtitles[index].text;
@@ -369,6 +373,11 @@ function handleSubtitleClick(e, text, index) {
 
             pauseCurrentMedia();
             searchWordInPanel(word);
+
+            if (activeTab === 'web-tab') {
+                loadWebSearch(word);
+            }
+
             currentWord = word;
             currentSentence = text;
             updateOriginalSentence(currentSentence, word);

@@ -32,7 +32,7 @@ function closeDictionaryPanel() {
     resetAppendedWords();
 }
 
-// 在面板中查询单词
+// 在面板中查询英语单词
 async function searchWordInPanel(word) {
     if (!word.trim()) {
         panelDictionaryResult.innerHTML = '<div class="error">请输入要查询的单词</div>';
@@ -102,9 +102,7 @@ function displayWordDataInPanel(wordData) {
                 if (entry.pronunciations.length > filteredPronunciations.length) {
                     const allPronunciationsId = `all-pronunciations-${entryIndex}`;
                     html += `<button class="toggle-button" 
-                              data-target="${allPronunciationsId}"
-                              data-show-text="显示全部发音 (${entry.pronunciations.length})"
-                              data-hide-text="隐藏全部发音">显示全部发音 (${entry.pronunciations.length})</button>`;
+                              onclick="toggleSection('${allPronunciationsId}', this, '显示全部发音 (${entry.pronunciations.length})', '隐藏全部发音')">显示全部发音 (${entry.pronunciations.length})</button>`;
                     html += `<div id="${allPronunciationsId}" class="collapsible-section" style="display: none;">`;
                     entry.pronunciations.forEach(pronunciation => {
                         const type = pronunciation.type ? ` (${pronunciation.type})` : '';
@@ -149,9 +147,7 @@ function displayWordDataInPanel(wordData) {
                         if (remainingExamples.length > 0) {
                             const allExamplesId = `all-examples-${currentSensePath}`;
                             sensesHtml += `<button class="toggle-button examples-toggle" 
-                                      data-target="${allExamplesId}"
-                                      data-show-text="显示更多例句 (${sense.examples.length})"
-                                      data-hide-text="隐藏更多例句">显示更多例句 (${sense.examples.length})</button>`;
+                                      onclick="toggleSection('${allExamplesId}', this, '显示更多例句 (${sense.examples.length})', '隐藏更多例句')">显示更多例句 (${sense.examples.length})</button>`;
                             sensesHtml += `<div id="${allExamplesId}" class="collapsible-section" style="display: none;">`;
                             remainingExamples.forEach(example => {
                                 sensesHtml += `<div class="example">${escapeHtml(example)}</div>`;
@@ -204,9 +200,7 @@ function displayWordDataInPanel(wordData) {
             if (remainingForms.length > 0) {
                 const allFormsId = `all-forms-${entryIndex}`;
                 html += `<button class="toggle-button" 
-                          data-target="${allFormsId}"
-                          data-show-text="显示全部词形变化 (${entry.forms.length})"
-                          data-hide-text="隐藏全部词形变化">显示全部词形变化 (${entry.forms.length})</button>`;
+                          onclick="toggleSection('${allFormsId}', this, '显示全部词形变化 (${entry.forms.length})', '隐藏全部词形变化')">显示全部词形变化 (${entry.forms.length})</button>`;
                 html += `<div id="${allFormsId}" class="collapsible-section" style="display: none;">`;
                 const allFormsHtml = entry.forms.map(form => 
                     `${escapeHtml(form.word)}${form.tags && form.tags.length > 0 ? ` (${form.tags.join(', ')})` : ''}`
@@ -227,6 +221,20 @@ function displayWordDataInPanel(wordData) {
     });
     
     panelDictionaryResult.innerHTML = html;
+}
+
+// 添加这个全局函数让嵌入词典框里的释义收缩内容点击后能够正常展开和收起
+function toggleSection(sectionId, button, showText, hideText) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        if (section.style.display === 'none') {
+            section.style.display = 'block';
+            button.textContent = hideText;
+        } else {
+            section.style.display = 'none';
+            button.textContent = showText;
+        }
+    }
 }
 
 // 查询日语单词

@@ -1,5 +1,5 @@
 # 测试
-icon图标：https://fontawesome.com/v4/icons/
+Font Awesome icon图标：https://fontawesome.com/v4/icons/
 ```
 ├── index.html
 ├── styles.css
@@ -18,6 +18,7 @@ icon图标：https://fontawesome.com/v4/icons/
     ├── event-listeners.js       ## 事件监听器
     └── init.js                  ## 初始化函数
 ```
+
 功能模块：
 * DOM元素引用 - 所有DOM元素
 * 状态变量 - 所有全局状态变量

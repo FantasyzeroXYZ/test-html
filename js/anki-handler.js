@@ -277,74 +277,172 @@ addToAnkiBtn.addEventListener('click', async () => {
     let definition = '';
 
     if (activeTab === 'dictionary-tab') {
-        let definition = '';
-        
-        // 提取单词标题
-        const wordTitle = panelDictionaryResult.querySelector('.word-title');
-        if (wordTitle) {
-            definition += `【${wordTitle.textContent.trim()}】\n\n`;
-        }
-        
         // 提取所有词条
         const entries = panelDictionaryResult.querySelectorAll('.entry');
         entries.forEach((entry, entryIndex) => {
-            definition += `${entryIndex + 1}. `;
+            definition += `<div class="entry">`;
             
-            // 提取词性
+            // 词条标题
+            definition += `<div class="entry-header">`;
+            definition += `<h3>词条 ${entryIndex + 1}</h3>`;
+            definition += `<hr class="entry-divider">`;
+            definition += `</div>`;
+            
+            // 词性
             const partOfSpeech = entry.querySelector('.part-of-speech');
             if (partOfSpeech) {
-                definition += `[${partOfSpeech.textContent.trim()}] `;
+                definition += `<div class="part-of-speech"><strong>词性:</strong> ${partOfSpeech.textContent.trim()}</div>`;
             }
             
-            // 提取发音
-            const pronunciations = entry.querySelectorAll('.pronunciation');
-            if (pronunciations.length > 0) {
-                definition += '发音: ';
-                const pronList = Array.from(pronunciations).map(p => p.textContent.trim());
-                definition += pronList.join('; ') + '\n';
-            } else {
-                definition += '\n';
-            }
-            
-            // 提取释义
+            // 释义
             const definitions = entry.querySelectorAll('.definition');
             if (definitions.length > 0) {
-                definition += '   释义:\n';
+                definition += `<div class="section">`;
+                definition += `<div class="section-title">释义</div>`;
+                definition += `<hr class="section-divider">`;
+                definition += `<ol class="definition-list">`;
                 definitions.forEach((def, defIndex) => {
-                    definition += `   ${defIndex + 1}. ${def.textContent.trim()}\n`;
+                    const cleanDef = def.textContent.trim().replace(/^\d+\.?\s*/, '');
+                    definition += `<li>${cleanDef}</li>`;
                 });
+                definition += `</ol>`;
+                definition += `</div>`;
             }
             
-            // 提取例句
+            // 例句
             const examples = entry.querySelectorAll('.example');
             if (examples.length > 0) {
-                definition += '   例句:\n';
+                definition += `<div class="section">`;
+                definition += `<div class="section-title">例句</div>`;
+                definition += `<hr class="section-divider">`;
+                definition += `<ol class="example-list">`;
                 examples.forEach((example, exIndex) => {
-                    definition += `     ${exIndex + 1}. ${example.textContent.trim()}\n`;
+                    definition += `<li><em>${example.textContent.trim()}</em></li>`;
                 });
+                definition += `</ol>`;
+                definition += `</div>`;
             }
             
-            // 提取同义词
+            // 同义词
             const synonyms = entry.querySelectorAll('.synonyms');
             if (synonyms.length > 0) {
+                definition += `<div class="section">`;
+                definition += `<div class="section-title">同义词</div>`;
+                definition += `<hr class="section-divider">`;
+                definition += `<ul class="synonym-list">`;
                 synonyms.forEach(synonym => {
-                    definition += `   ${synonym.textContent.trim()}\n`;
+                    const synText = synonym.textContent.trim().replace(/^同义词:\s*/, '');
+                    definition += `<li>${synText}</li>`;
                 });
+                definition += `</ul>`;
+                definition += `</div>`;
             }
             
-            // 提取反义词
+            // 反义词
             const antonyms = entry.querySelectorAll('.antonyms');
             if (antonyms.length > 0) {
+                definition += `<div class="section">`;
+                definition += `<div class="section-title">反义词</div>`;
+                definition += `<hr class="section-divider">`;
+                definition += `<ul class="antonym-list">`;
                 antonyms.forEach(antonym => {
-                    definition += `   ${antonym.textContent.trim()}\n`;
+                    const antText = antonym.textContent.trim().replace(/^反义词:\s*/, '');
+                    definition += `<li>${antText}</li>`;
                 });
+                definition += `</ul>`;
+                definition += `</div>`;
             }
             
-            // 词条间空行
-            if (entryIndex < entries.length - 1) {
-                definition += '\n';
+            // 词形变化
+            const initialForms = entry.querySelector('.initial-forms');
+            if (initialForms) {
+                definition += `<div class="section">`;
+                definition += `<div class="section-title">词形变化</div>`;
+                definition += `<hr class="section-divider">`;
+                const formsText = initialForms.textContent.trim().replace(/^词形变化:\s*/, '');
+                definition += `<div class="forms">${formsText}</div>`;
+                definition += `</div>`;
             }
+            
+            definition += `</div>`; // 关闭entry
         });
+        
+        // 添加CSS样式
+        definition += `
+        <style>
+            .word-title {
+                font-size: 24px;
+                font-weight: bold;
+                text-align: center;
+                margin-bottom: 20px;
+                color: #2c3e50;
+            }
+            .entry {
+                margin-bottom: 25px;
+                padding: 15px;
+                border: 1px solid #e1e4e8;
+                border-radius: 8px;
+                background-color: #fafbfc;
+            }
+            .entry-header h3 {
+                margin: 0 0 8px 0;
+                color: #0366d6;
+                font-size: 18px;
+            }
+            .entry-divider {
+                border: none;
+                border-top: 2px solid #0366d6;
+                margin: 5px 0 15px 0;
+            }
+            .part-of-speech {
+                font-weight: bold;
+                color: #586069;
+                margin-bottom: 15px;
+                font-size: 16px;
+            }
+            .section {
+                margin-bottom: 15px;
+            }
+            .section-title {
+                font-weight: bold;
+                color: #24292e;
+                margin-bottom: 5px;
+                font-size: 16px;
+            }
+            .section-divider {
+                border: none;
+                border-top: 1px solid #d1d5da;
+                margin: 5px 0 10px 0;
+            }
+            .definition-list, .example-list {
+                margin: 10px 0;
+                padding-left: 20px;
+            }
+            .definition-list li, .example-list li {
+                margin-bottom: 8px;
+                line-height: 1.4;
+            }
+            .example-list li {
+                color: #22863a;
+                font-style: italic;
+            }
+            .synonym-list, .antonym-list {
+                margin: 10px 0;
+                padding-left: 20px;
+            }
+            .synonym-list li {
+                color: #005cc5;
+            }
+            .antonym-list li {
+                color: #d73a49;
+            }
+            .forms {
+                color: #6a737d;
+                font-family: monospace;
+                margin: 10px 0;
+            }
+        </style>
+        `;
     }else if (activeTab === 'custom-tab') {
         definition = customDefinitionInput.value.trim();
     }
@@ -386,6 +484,42 @@ async function processAnkiCard(word, definition) {
     console.log('audioBuffer', audioBuffer, 'audioContext', audioContext, 'currentSubtitleIndex', currentSubtitleIndex);
 
     let cleanSentence = currentSentence;
+    
+    // 如果句子为空或只有单词，尝试从多个来源恢复完整句子
+    if (!cleanSentence || cleanSentence === word || cleanSentence.split(/\s+/).length <= 2) {
+        console.log('需要恢复完整句子，当前句子:', cleanSentence);
+        
+        // 方法1: 从当前字幕索引获取
+        if (currentSubtitleIndex >= 0 && subtitles[currentSubtitleIndex]) {
+            cleanSentence = subtitles[currentSubtitleIndex].text;
+            console.log('从字幕索引恢复句子:', cleanSentence);
+        }
+        // 方法2: 从全屏字幕元素获取
+        else if (isFullscreen) {
+            const fullscreenSubtitle = document.getElementById('fullscreenSubtitle');
+            if (fullscreenSubtitle) {
+                // 获取所有可点击元素的 data-sentence 属性
+                const sentenceElements = fullscreenSubtitle.querySelectorAll('[data-sentence]');
+                if (sentenceElements.length > 0) {
+                    cleanSentence = sentenceElements[0].getAttribute('data-sentence');
+                    console.log('从data-sentence属性恢复句子:', cleanSentence);
+                } else {
+                    // 如果没有data-sentence，直接获取文本内容
+                    cleanSentence = fullscreenSubtitle.textContent;
+                    console.log('从字幕文本恢复句子:', cleanSentence);
+                }
+            }
+        }
+        // 方法3: 从普通字幕元素获取
+        else {
+            const subtitleElement = document.querySelector('.subtitle-text');
+            if (subtitleElement) {
+                cleanSentence = subtitleElement.textContent;
+                console.log('从普通字幕恢复句子:', cleanSentence);
+            }
+        }
+    }
+
     if (cleanSentence) {
         cleanSentence = cleanSubtitleText(cleanSentence);
     }
@@ -490,8 +624,15 @@ async function captureVideoFrame(word) {
     return new Promise((resolve, reject) => {
         try {
             const canvas = document.createElement('canvas');
-            const video = document.getElementById('player');
+            // 根据是否全屏状态选择不同的视频元素
+            const video = isFullscreen ? document.getElementById('fullscreenVideoPlayer') : document.getElementById('player');
             
+            if (!video) {
+                reject(new Error('视频元素未找到'));
+                return;
+            }
+            
+            // 设置画布尺寸为视频的实际尺寸
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             

@@ -58,7 +58,6 @@ async function init() {
     initSearchFunction();
     optimizeMobileLayout();
     fixFullscreenControlsDisplay();
-    
     // 初始隐藏控制条
     fullscreenControls.style.display = 'none';
 }

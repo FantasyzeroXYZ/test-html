@@ -29,6 +29,7 @@ function closeDictionaryPanel() {
         }
     }
 
+    // 重置追加词汇状态
     resetAppendedWords();
 }
 
@@ -457,23 +458,44 @@ async function showJapaneseWordSegmentation(sentence, currentWord = '') {
         const japaneseWords = result.map(item => item.surface_form);
 
         openDictionaryPanel();
-        updateOriginalSentence(sentence, currentWord, 'japanese', japaneseWords);
-
-        panelDictionaryResult.querySelectorAll('.word').forEach(wordElement => {
-            wordElement.addEventListener('click', () => {
-                const word = wordElement.getAttribute('data-word');
-                const index = parseInt(wordElement.getAttribute('data-index'));
-                panelDictionaryResult.querySelectorAll('.word').forEach(w => w.classList.remove('highlight'));
-                wordElement.classList.add('highlight');
-                panelSearchInput.value = word;
-                
-                if (window.japaneseWordClicked) {
-                    window.japaneseWordClicked(word, index);
-                } else {
-                    searchJapaneseWordInPanel(word);
-                }
-            });
+        
+        // 清空词典释义框
+        panelDictionaryResult.innerHTML = '';
+        
+        // 更新原句显示 - 保持原句完整结构，分词可点击
+        let clickableSentence = '';
+        let lastIndex = 0;
+        
+        result.forEach((item, index) => {
+            // 添加分词前的文本（保持原有间距和格式）
+            if (item.word_position > lastIndex) {
+                clickableSentence += sentence.substring(lastIndex, item.word_position);
+            }
+            
+            // 添加可点击的分词（不添加额外间距）
+            const wordClass = 'sentence-word selectable-word';
+            clickableSentence += `<span class="${wordClass}" data-word="${item.surface_form}" data-index="${index}">${item.surface_form}</span>`;
+            
+            lastIndex = item.word_position + item.surface_form.length;
         });
+        
+        // 添加剩余文本
+        if (lastIndex < sentence.length) {
+            clickableSentence += sentence.substring(lastIndex);
+        }
+        
+        originalSentence.innerHTML = clickableSentence;
+        currentOriginalSentence = sentence;
+
+        // 重新绑定点击事件
+        originalSentence.removeEventListener('click', handleSentenceWordClick);
+        originalSentence.addEventListener('click', handleSentenceWordClick);
+
+        // 初始化状态
+        currentSentence = sentence;
+        currentWordIndex = -1;
+        appendedWords = [];
+        panelSearchInput.value = '';
 
         if (window.japaneseSegmentationComplete) {
             window.japaneseSegmentationComplete(sentence, japaneseWords);
@@ -485,25 +507,106 @@ async function showJapaneseWordSegmentation(sentence, currentWord = '') {
     }
 }
 
+
 // 更新原句显示
 function updateOriginalSentence(sentence, currentWord, currentLanguageMode = 'english', japaneseWords = []) {
-    let clickableSentence = '';
+    if (currentLanguageMode === 'japanese') {
+        let clickableSentence = '';
+        
+        if (japaneseWords && japaneseWords.length > 0) {
+            // 日语模式：保持原句完整结构，分词可点击
+            let lastIndex = 0;
+            let currentPos = 0;
+            
+            japaneseWords.forEach((word, index) => {
+                // 在原句中查找单词位置
+                const wordPosition = sentence.indexOf(word, currentPos);
+                if (wordPosition === -1) {
+                    // 如果找不到单词，跳过
+                    return;
+                }
+                
+                // 添加单词前的文本
+                if (wordPosition > currentPos) {
+                    clickableSentence += sentence.substring(currentPos, wordPosition);
+                }
+                
+                // 添加可点击的单词
+                const isCurrentWord = currentWord && word === currentWord;
+                const wordClass = isCurrentWord ? 'sentence-word highlight selectable-word' : 'sentence-word selectable-word';
+                clickableSentence += `<span class="${wordClass}" data-word="${word}" data-index="${index}">${word}</span>`;
+                
+                currentPos = wordPosition + word.length;
+            });
+            
+            // 添加剩余文本
+            if (currentPos < sentence.length) {
+                clickableSentence += sentence.substring(currentPos);
+            }
+        } else {
+            // 如果没有分词数据，直接显示原句（不可点击）
+            clickableSentence = `<span>${sentence}</span>`;
+        }
 
-    const words = currentLanguageMode === 'japanese' && japaneseWords.length > 0 
-        ? japaneseWords 
-        : sentence.match(/\S+/g) || [];
+        originalSentence.innerHTML = clickableSentence;
+        currentOriginalSentence = sentence;
 
-    words.forEach((word, index) => {
-        const wordClass = appendedWords.includes(word) ? 'sentence-word highlight selectable-word' : 'sentence-word selectable-word';
-        const space = currentLanguageMode === 'japanese' ? '' : '&nbsp;';
+        // 重新绑定点击事件
+        originalSentence.removeEventListener('click', handleSentenceWordClick);
+        originalSentence.addEventListener('click', handleSentenceWordClick);
+    } else {
+        // 英语模式处理逻辑
+        let clickableSentence = '';
+        
+        // 英语模式：分割单词，清理标点符号，单词可点击
+        const words = sentence.split(/(\s+)/).filter(word => word.trim().length > 0);
+        
+        // 重置状态
+        appendedWords = [];
+        currentWordIndex = -1;
+        
+        words.forEach((word, index) => {
+            // 只处理字母单词，忽略纯空格
+            if (/^[a-zA-Z]/.test(word)) {
+                const cleanWord = word.replace(/[^\w]/g, '');
+                
+                // 检查是否是当前点击的单词
+                const isCurrentWord = currentWord && 
+                    cleanWord.toLowerCase() === currentWord.toLowerCase();
+                
+                const wordClass = isCurrentWord ? 'sentence-word highlight selectable-word' : 'sentence-word selectable-word';
+                const space = ' ';
+                
+                clickableSentence += `<span class="${wordClass}" data-word="${cleanWord}" data-index="${index}">${word}</span>${space}`;
+                
+                // 记录第一个匹配的索引
+                if (isCurrentWord && currentWordIndex === -1) {
+                    currentWordIndex = index;
+                    appendedWords = [cleanWord];
+                }
+            } else if (word.trim().length > 0) {
+                // 非字母字符（标点符号等）直接显示，不可点击
+                clickableSentence += `<span>${word}</span>`;
+            } else {
+                // 空格直接添加
+                clickableSentence += word;
+            }
+        });
 
-        clickableSentence += `<span class="${wordClass}" data-word="${word}" data-index="${index}">${word}</span>${space}`;
-    });
+        originalSentence.innerHTML = clickableSentence;
+        currentOriginalSentence = sentence;
 
-    originalSentence.innerHTML = clickableSentence;
-
-    originalSentence.removeEventListener('click', handleSentenceWordClick);
-    originalSentence.addEventListener('click', handleSentenceWordClick);
+        // 重新绑定点击事件
+        originalSentence.removeEventListener('click', handleSentenceWordClick);
+        originalSentence.addEventListener('click', handleSentenceWordClick);
+        
+        console.log('英语原句更新完成:', { 
+            sentence, 
+            currentWord, 
+            currentWordIndex,
+            appendedWords 
+        });
+    }
 }
 
 // 处理原句中单词点击
@@ -514,25 +617,30 @@ function handleSentenceWordClick(e) {
     const word = span.getAttribute('data-word');
     const index = parseInt(span.getAttribute('data-index'));
 
+    console.log('点击原句日语分词:', word, '索引:', index);
+
     // 剪贴板功能
     if (clipboardEnabled) {
         copyWordToClipboard(word);
     }
 
+    // 移除其他高亮
+    originalSentence.querySelectorAll('.sentence-word').forEach(s => {
+        s.classList.remove('highlight');
+    });
+
+    // 高亮当前点击的单词
+    span.classList.add('highlight');
+
+    // 重置状态并设置新的点击单词
     appendedWords = [word];
     currentWordIndex = index;
     panelSearchInput.value = word;
 
-    originalSentence.querySelectorAll('.sentence-word').forEach((s) => {
-        s.classList.toggle('highlight', appendedWords.includes(s.getAttribute('data-word')));
-    });
-
-    if (currentLanguageMode === 'english') {
-        searchWordInPanel(word);
-    } else {
-        searchJapaneseWordInPanel(word);
-    }
+    // 执行搜索
+    searchJapaneseWordInPanel(word);
 }
+
 
 // 重置追加词汇和搜索栏
 function resetAppendedWords() {
@@ -548,16 +656,35 @@ function resetAppendedWords() {
 // 追加词汇功能
 appendWordBtn.addEventListener('click', () => {
     const sentenceSpans = originalSentence.querySelectorAll('.sentence-word');
-    if (!sentenceSpans.length) return;
-
-    if (currentWordIndex >= sentenceSpans.length - 1) {
+    if (!sentenceSpans.length) {
+        console.log('没有可用的句子单词');
         return;
     }
 
-    currentWordIndex++;
+    console.log('追加前状态 - 索引:', currentWordIndex, '追加词汇:', appendedWords, '句子长度:', sentenceSpans.length);
+
+    // 如果没有有效的当前索引，从第一个单词开始
+    if (currentWordIndex === -1) {
+        currentWordIndex = 0;
+        console.log('重置索引为0');
+    } 
+    // 如果已经是最后一个单词，不再追加
+    else if (currentWordIndex >= sentenceSpans.length - 1) {
+        console.log('已经是最后一个单词，无法继续追加');
+        return;
+    }
+    // 否则移动到下一个单词
+    else {
+        currentWordIndex++;
+        console.log('移动到下一个索引:', currentWordIndex);
+    }
+
     const currentSpan = sentenceSpans[currentWordIndex];
     const word = currentSpan.getAttribute('data-word');
 
+    console.log('追加单词:', word, '位置:', currentWordIndex);
+
+    // 更新搜索输入框
     if (currentLanguageMode === 'english' && appendedWords.length > 0) {
         panelSearchInput.value += ' ' + word;
     } else {
@@ -566,17 +693,21 @@ appendWordBtn.addEventListener('click', () => {
     
     appendedWords.push(word);
 
+    // 更新高亮显示 - 高亮所有已追加的单词
     sentenceSpans.forEach((span, idx) => {
         const spanWord = span.getAttribute('data-word');
-        span.classList.toggle('highlight', appendedWords.includes(spanWord) && idx <= currentWordIndex);
+        const isAppended = appendedWords.includes(spanWord);
+        span.classList.toggle('highlight', isAppended && idx <= currentWordIndex);
     });
 
+    // 执行搜索
     if (currentLanguageMode === 'english') {
         searchWordInPanel(panelSearchInput.value);
     } else {
         searchJapaneseWordInPanel(panelSearchInput.value);
     }
 });
+
 
 // 修复搜索按钮功能
 function initSearchFunction() {

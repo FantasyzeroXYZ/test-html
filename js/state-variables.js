@@ -26,6 +26,7 @@ let japaneseWords = [];
 let tokenizer = null;
 let currentWordIndex = -1;
 let appendedWords = [];
+let currentOriginalSentence = '';
 let isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 // 全屏相关状态变量

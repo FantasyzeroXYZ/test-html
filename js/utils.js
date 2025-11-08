@@ -76,11 +76,16 @@ function createClickableSubtitleContent(text, index) {
         
         let match;
         while ((match = wordRegex.exec(text)) !== null) {
+            // 添加非单词内容（标点符号等）
             clickableWords += text.substring(lastIndex, match.index);
-            clickableWords += `<span class="word selectable-word" data-word="${match[0]}" data-index="${index}">${match[0]}</span>`;
+            
+            // 创建可点击的单词，但存储清理后的单词
+            const cleanWord = match[0].replace(/[^\w]/g, '');
+            clickableWords += `<span class="word selectable-word" data-word="${cleanWord}" data-index="${index}">${match[0]}</span>`;
             lastIndex = match.index + match[0].length;
         }
         
+        // 添加剩余内容
         clickableWords += text.substring(lastIndex);
         return clickableWords;
     } else {

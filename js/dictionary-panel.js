@@ -47,7 +47,8 @@ async function searchWordInPanel(word) {
     if (activeTab === 'web-tab') {
         loadWebSearch(word);
     }
-    else {
+    // dictionary-tab 时自动查询
+    else if (activeTab === 'dictionary-tab')  {
         try {
             const apiUrl = `https://freedictionaryapi.com/api/v1/entries/en/${encodeURIComponent(word)}`;
             const response = await fetch(apiUrl);
@@ -69,7 +70,8 @@ async function searchWordInPanel(word) {
     }
 }
 
-// 显示单词数据在底部面板
+
+// 显示英语单词数据在底部面板
 function displayWordDataInPanel(wordData) {
     if (!wordData.word || !Array.isArray(wordData.entries)) {
         panelDictionaryResult.innerHTML = '<div class="error">返回的数据格式不正确</div>';
@@ -257,7 +259,8 @@ async function searchJapaneseWordInPanel(word) {
     if (activeTab === 'web-tab') {
         loadWebSearch(word);
     }
-    else {
+    // dictionary-tab 时自动查询
+    else if (activeTab === 'dictionary-tab')  {
         try {
             const apiUrl = `https://freedictionaryapi.com/api/v1/entries/ja/${encodeURIComponent(word)}`;
             const response = await fetch(apiUrl);
@@ -277,8 +280,8 @@ async function searchJapaneseWordInPanel(word) {
             console.error('查询错误:', error);
         }
     }
-
 }
+
 
 // 显示日语单词数据在底部面板
 function displayJapaneseWordDataInPanel(wordData) {
@@ -286,89 +289,75 @@ function displayJapaneseWordDataInPanel(wordData) {
         panelDictionaryResult.innerHTML = '<div class="error">返回的数据格式不正确</div>';
         return;
     }
-    
+
     let html = `
         <div class="word-header">
             <div class="word-title">${escapeHtml(wordData.word)}</div>
             <span class="language-tag">日语</span>
         </div>
     `;
-    
+
     wordData.entries.forEach((entry, entryIndex) => {
         html += `<div class="entry">`;
-        
+
         if (entry.partOfSpeech) {
             html += `<div class="part-of-speech">${escapeHtml(entry.partOfSpeech)}</div>`;
         }
-        
+
+        // 发音处理
         if (Array.isArray(entry.pronunciations) && entry.pronunciations.length > 0) {
-            const filteredPronunciations = entry.pronunciations.filter(p => 
-                p.tags && p.tags.some(tag => tag === "US" || tag === "UK")
-            ).slice(0, 2);
-            
+            const filteredPronunciations = entry.pronunciations.slice(0, 2);
             if (filteredPronunciations.length > 0) {
                 html += `<div class="initial-pronunciations">`;
                 filteredPronunciations.forEach(pronunciation => {
                     const type = pronunciation.type ? ` (${pronunciation.type})` : '';
-                    const tags = pronunciation.tags && pronunciation.tags.length > 0 ? 
-                        ` <small>${pronunciation.tags.join(', ')}</small>` : '';
-                    html += `<div class="pronunciation">/${escapeHtml(pronunciation.text)}/${type}${tags}</div>`;
+                    html += `<div class="pronunciation">/${escapeHtml(pronunciation.text)}/${type}</div>`;
                 });
                 html += `</div>`;
-                
+
                 if (entry.pronunciations.length > filteredPronunciations.length) {
                     const allPronunciationsId = `all-pronunciations-${entryIndex}`;
                     html += `<button class="toggle-button" 
-                              data-target="${allPronunciationsId}"
-                              data-show-text="显示全部发音 (${entry.pronunciations.length})"
-                              data-hide-text="隐藏全部发音">显示全部发音 (${entry.pronunciations.length})</button>`;
+                              onclick="toggleSection('${allPronunciationsId}', this, '显示全部发音 (${entry.pronunciations.length})', '隐藏全部发音')">显示全部发音 (${entry.pronunciations.length})</button>`;
                     html += `<div id="${allPronunciationsId}" class="collapsible-section" style="display: none;">`;
                     entry.pronunciations.forEach(pronunciation => {
                         const type = pronunciation.type ? ` (${pronunciation.type})` : '';
-                        const tags = pronunciation.tags && pronunciation.tags.length > 0 ? 
-                            ` <small>${pronunciation.tags.join(', ')}</small>` : '';
-                        html += `<div class="pronunciation">/${escapeHtml(pronunciation.text)}/${type}${tags}</div>`;
+                        html += `<div class="pronunciation">/${escapeHtml(pronunciation.text)}/${type}</div>`;
                     });
                     html += `</div>`;
                 }
             }
         }
-        
+
+        // 释义/例句/同义词/反义词
         if (Array.isArray(entry.senses)) {
             let senseCounter = 0;
-            
+
             const renderSenses = (senses, level = 0, sensePath = '') => {
                 let sensesHtml = '';
                 senses.forEach((sense, index) => {
                     senseCounter++;
                     const currentSensePath = sensePath ? `${sensePath}-${index}` : `${entryIndex}-${index}`;
-                    
                     sensesHtml += `<div class="sense" style="margin-left: ${level * 15}px;">`;
-                    
+
                     if (sense.definition) {
                         const number = level === 0 ? `${senseCounter}.` : `${senseCounter}`;
                         sensesHtml += `<div class="definition"><strong>${number}</strong> ${escapeHtml(sense.definition)}</div>`;
                     }
-                    
-                    if (Array.isArray(sense.tags) && sense.tags.length > 0) {
-                        sensesHtml += `<div style="font-size: 12px; color: #586069; margin-bottom: 5px;">标签: ${sense.tags.map(t => escapeHtml(t)).join(', ')}</div>`;
-                    }
-                    
+
                     if (Array.isArray(sense.examples) && sense.examples.length > 0) {
                         const maxInitialExamples = 2;
                         const initialExamples = sense.examples.slice(0, maxInitialExamples);
                         const remainingExamples = sense.examples.slice(maxInitialExamples);
-                        
+
                         initialExamples.forEach(example => {
                             sensesHtml += `<div class="example">${escapeHtml(example)}</div>`;
                         });
-                        
+
                         if (remainingExamples.length > 0) {
                             const allExamplesId = `all-examples-${currentSensePath}`;
                             sensesHtml += `<button class="toggle-button examples-toggle" 
-                                      data-target="${allExamplesId}"
-                                      data-show-text="显示更多例句 (${sense.examples.length})"
-                                      data-hide-text="隐藏更多例句">显示更多例句 (${sense.examples.length})</button>`;
+                                      onclick="toggleSection('${allExamplesId}', this, '显示更多例句 (${sense.examples.length})', '隐藏更多例句')">显示更多例句 (${sense.examples.length})</button>`;
                             sensesHtml += `<div id="${allExamplesId}" class="collapsible-section" style="display: none;">`;
                             remainingExamples.forEach(example => {
                                 sensesHtml += `<div class="example">${escapeHtml(example)}</div>`;
@@ -376,81 +365,32 @@ function displayJapaneseWordDataInPanel(wordData) {
                             sensesHtml += `</div>`;
                         }
                     }
-                    
-                    if (Array.isArray(sense.quotes)) {
-                        sense.quotes.forEach(quote => {
-                            sensesHtml += `<div class="quote">"${escapeHtml(quote.text)}"`;
-                            if (quote.reference) {
-                                sensesHtml += `<div class="quote-reference">— ${escapeHtml(quote.reference)}</div>`;
-                            }
-                            sensesHtml += `</div>`;
-                        });
-                    }
-                    
-                    if (Array.isArray(sense.synonyms) && sense.synonyms.length > 0) {
-                        sensesHtml += `<div class="synonyms"><span>同义词:</span> ${sense.synonyms.map(s => escapeHtml(s)).join(', ')}</div>`;
-                    }
-                    if (Array.isArray(sense.antonyms) && sense.antonyms.length > 0) {
-                        sensesHtml += `<div class="antonyms"><span>反义词:</span> ${sense.antonyms.map(a => escapeHtml(a)).join(', ')}</div>`;
-                    }
-                    
+
                     if (Array.isArray(sense.subsenses) && sense.subsenses.length > 0) {
                         sensesHtml += renderSenses(sense.subsenses, level + 1, currentSensePath);
                     }
-                    
+
                     sensesHtml += `</div>`;
                 });
                 return sensesHtml;
             };
-            
+
             html += renderSenses(entry.senses);
         }
-        
-        if (Array.isArray(entry.forms) && entry.forms.length > 0) {
-            const maxInitialForms = 2;
-            const initialForms = entry.forms.slice(0, maxInitialForms);
-            const remainingForms = entry.forms.slice(maxInitialForms);
-            
-            html += `<div class="initial-forms" style="margin-top: 15px;"><small><strong>词形变化:</strong> `;
-            const initialFormsHtml = initialForms.map(form => 
-                `${escapeHtml(form.word)}${form.tags && form.tags.length > 0 ? ` (${form.tags.join(', ')})` : ''}`
-            ).join(', ');
-            html += initialFormsHtml;
-            html += `</small></div>`;
-            
-            if (remainingForms.length > 0) {
-                const allFormsId = `all-forms-${entryIndex}`;
-                html += `<button class="toggle-button" 
-                          data-target="${allFormsId}"
-                          data-show-text="显示全部词形变化 (${entry.forms.length})"
-                          data-hide-text="隐藏全部词形变化">显示全部词形变化 (${entry.forms.length})</button>`;
-                html += `<div id="${allFormsId}" class="collapsible-section" style="display: none;">`;
-                const allFormsHtml = entry.forms.map(form => 
-                    `${escapeHtml(form.word)}${form.tags && form.tags.length > 0 ? ` (${form.tags.join(', ')})` : ''}`
-                ).join(', ');
-                html += allFormsHtml;
-                html += `</div>`;
-            }
-        }
-        
-        if (Array.isArray(entry.synonyms) && entry.synonyms.length > 0) {
-            html += `<div class="synonyms"><span>同义词:</span> ${entry.synonyms.map(s => escapeHtml(s)).join(', ')}</div>`;
-        }
-        if (Array.isArray(entry.antonyms) && entry.antonyms.length > 0) {
-            html += `<div class="antonyms"><span>反义词:</span> ${entry.antonyms.map(a => escapeHtml(a)).join(', ')}</div>`;
-        }
-        
-        html += `</div>`;
+
+        html += `</div>`; // entry 结束
     });
-    
+
     panelDictionaryResult.innerHTML = html;
 }
+
+
 
 // 日语分词显示
 async function showJapaneseWordSegmentation(sentence, currentWord = '') {
     if (!tokenizer) {
         console.error('分词器未初始化');
-        return;
+        return [];
     }
 
     try {
@@ -458,52 +398,39 @@ async function showJapaneseWordSegmentation(sentence, currentWord = '') {
         const japaneseWords = result.map(item => item.surface_form);
 
         openDictionaryPanel();
-        
-        // 清空词典释义框
         panelDictionaryResult.innerHTML = '';
-        
-        // 更新原句显示 - 保持原句完整结构，分词可点击
+
         let clickableSentence = '';
         let lastIndex = 0;
-        
+
         result.forEach((item, index) => {
-            // 添加分词前的文本（保持原有间距和格式）
-            if (item.word_position > lastIndex) {
-                clickableSentence += sentence.substring(lastIndex, item.word_position);
-            }
-            
-            // 添加可点击的分词（不添加额外间距）
-            const wordClass = 'sentence-word selectable-word';
-            clickableSentence += `<span class="${wordClass}" data-word="${item.surface_form}" data-index="${index}">${item.surface_form}</span>`;
-            
+            if (item.word_position > lastIndex) clickableSentence += sentence.substring(lastIndex, item.word_position);
+
+            clickableSentence += `<span class="sentence-word selectable-word" data-word="${item.surface_form}" data-index="${index}">${item.surface_form}</span>`;
+
             lastIndex = item.word_position + item.surface_form.length;
         });
-        
-        // 添加剩余文本
-        if (lastIndex < sentence.length) {
-            clickableSentence += sentence.substring(lastIndex);
-        }
-        
+
+        if (lastIndex < sentence.length) clickableSentence += sentence.substring(lastIndex);
+
         originalSentence.innerHTML = clickableSentence;
         currentOriginalSentence = sentence;
 
-        // 重新绑定点击事件
         originalSentence.removeEventListener('click', handleSentenceWordClick);
         originalSentence.addEventListener('click', handleSentenceWordClick);
 
-        // 初始化状态
         currentSentence = sentence;
-        currentWordIndex = -1;
-        appendedWords = [];
-        panelSearchInput.value = '';
+        currentWordIndex = currentWord ? japaneseWords.indexOf(currentWord) : -1;
+        appendedWords = currentWord ? [currentWord] : [];
+        panelSearchInput.value = currentWord || '';
 
-        if (window.japaneseSegmentationComplete) {
-            window.japaneseSegmentationComplete(sentence, japaneseWords);
-        }
+        if (window.japaneseSegmentationComplete) window.japaneseSegmentationComplete(sentence, japaneseWords);
 
+        return japaneseWords; // 返回分词数组，避免重复 tokenize
     } catch (error) {
         console.error('日语分词失败:', error);
         panelDictionaryResult.innerHTML = `<div class="error">日语分词失败: ${error.message}</div>`;
+        return [];
     }
 }
 

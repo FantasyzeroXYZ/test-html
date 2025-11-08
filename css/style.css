@@ -814,13 +814,12 @@ h1 {
 }
 
 .sentence-word {
-    cursor: pointer;
-    transition: background-color 0.2s;
-    padding: 2px 4px;
-    border-radius: 3px;
-    margin: 0 1px;
-    display: inline;
-    word-break: keep-all;
+    cursor: pointer;                 /* 鼠标悬停变手型 */
+    display: inline;                 /* 紧密排列 */
+    padding: 0;                      /* 内边距去掉 */
+    margin: 0;                       /* 外间距去掉 */
+    word-break: keep-all;            /* 不换行 */
+    transition: background-color 0.2s; /* 高亮过渡效果 */
 }
 
 .sentence-word:hover, .sentence-word:active {

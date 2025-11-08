@@ -153,52 +153,87 @@
             background: white;
         }
         
+        /* 结果区域 - 统一为一个方框 */
         .results-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
             margin-bottom: 30px;
         }
         
-        @media (max-width: 1024px) {
-            .results-container {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .result-section {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            min-height: 400px;
+        /* 标签页样式 */
+        .tabs-container {
+            width: 100%;
             display: flex;
             flex-direction: column;
+            height: 600px;
         }
         
-        .result-section.hidden {
-            display: none;
-        }
-        
-        .section-header {
+        .primary-tabs {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+            padding: 0 15px;
+            min-height: 50px;
         }
         
-        .section-header h3 {
+        .primary-tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        
+        .primary-tab.active {
+            border-bottom-color: #2575fc;
             color: #2575fc;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            background: white;
         }
         
-        .section-content {
+        .secondary-tabs {
+            display: flex;
+            background: #f1f3f4;
+            border-bottom: 1px solid #ddd;
+            padding: 0 15px;
+            flex-wrap: wrap;
+            min-height: 40px;
+        }
+        
+        .secondary-tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        
+        .secondary-tab.active {
+            border-bottom-color: #6a11cb;
+            color: #6a11cb;
+            background: white;
+        }
+        
+        .tab-content {
             flex: 1;
-            overflow-y: auto;
+            overflow: auto;
+            padding: 20px;
+            background: white;
+        }
+        
+        .tab-pane {
+            display: none;
+            height: 100%;
+        }
+        
+        .tab-pane.active {
+            display: block;
         }
         
         .web-content-frame {
@@ -357,6 +392,7 @@
             font-size: 0.9rem;
         }
         
+        /* 移动端优化 */
         @media (max-width: 768px) {
             .search-container {
                 flex-direction: column;
@@ -375,6 +411,23 @@
             
             .mode-options {
                 flex-direction: column;
+            }
+            
+            .primary-tabs, .secondary-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .primary-tab, .secondary-tab {
+                font-size: 0.85rem;
+                padding: 10px 12px;
+            }
+            
+            .tabs-container {
+                height: 500px;
+            }
+            
+            header h1 {
+                font-size: 2rem;
             }
         }
     </style>
@@ -403,6 +456,11 @@
                     <input type="checkbox" id="modeAPI">
                     <i class="fas fa-code"></i>
                     <span>API查询</span>
+                </label>
+                <label class="mode-option" id="modeTranslateOption">
+                    <input type="checkbox" id="modeTranslate">
+                    <i class="fas fa-language"></i>
+                    <span>翻译</span>
                 </label>
             </div>
         </div>
@@ -435,52 +493,28 @@
             </div>
         </div>
         
+        <!-- 统一的结果区域 -->
         <div class="results-container">
-            <!-- Yomitan词典结果区域 -->
-            <div class="result-section" id="dictionarySection">
-                <div class="section-header">
-                    <h3><i class="fas fa-book"></i> Yomitan词典</h3>
-                    <div class="results-count" id="dictionaryResultsCount">等待搜索...</div>
+            <div class="tabs-container">
+                <div class="primary-tabs" id="primaryTabs">
+                    <!-- 一级标签页将根据选择的模式动态生成 -->
                 </div>
-                <div class="section-content" id="dictionaryResultsContent">
-                    <div class="no-results">
-                        <i class="fas fa-search"></i> 输入搜索词开始查询词典
-                    </div>
+                <div class="secondary-tabs" id="secondaryTabs">
+                    <!-- 二级标签页将由油猴脚本动态生成 -->
                 </div>
-            </div>
-            
-            <!-- 网页内容结果区域 -->
-            <div class="result-section hidden" id="webSection">
-                <div class="section-header">
-                    <h3><i class="fas fa-globe"></i> 网页内容</h3>
-                    <div class="results-count" id="webResultsCount">等待搜索...</div>
-                </div>
-                <div class="section-content" id="webResultsContent">
+                <div class="tab-content" id="tabContent">
+                    <!-- 标签页内容将动态生成 -->
                     <div class="web-content-placeholder">
                         <i class="fas fa-browser"></i>
-                        <h4>网页内容区域</h4>
-                        <p>此区域用于显示通过油猴脚本获取的网页内容</p>
-                        <p>请安装相应的油猴脚本并开始搜索</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- API查询结果区域 -->
-            <div class="result-section hidden" id="apiSection">
-                <div class="section-header">
-                    <h3><i class="fas fa-code"></i> API查询</h3>
-                    <div class="results-count" id="apiResultsCount">等待搜索...</div>
-                </div>
-                <div class="section-content" id="apiResultsContent">
-                    <div class="no-results">
-                        <i class="fas fa-search"></i> 输入搜索词开始API查询
+                        <h4>多功能词典查询</h4>
+                        <p>请选择搜索模式并输入搜索词开始查询</p>
                     </div>
                 </div>
             </div>
         </div>
         
         <footer>
-            <p>Yomitan多功能词典查询页面 &copy; 2023 | 支持词典查询、网页内容搜索和API查询</p>
+            <p>Yomitan多功能词典查询页面 &copy; 2023 | 支持词典查询、网页内容搜索、API查询和翻译</p>
         </footer>
     </div>
 
@@ -496,7 +530,223 @@
         let activeModes = {
             dictionary: true,
             web: false,
-            api: false
+            api: false,
+            translate: false
+        };
+
+        // 模式顺序记录
+        let modeOrder = ['dictionary', 'web', 'api', 'translate'];
+
+        // 标签页管理
+        const tabManager = {
+            primaryTabs: [],
+            secondaryTabs: [],
+            activePrimaryTab: null,
+            activeSecondaryTab: null,
+            
+            // 初始化标签页
+            init() {
+                this.updatePrimaryTabs();
+                this.setupTabEvents();
+            },
+            
+            // 更新一级标签页
+            updatePrimaryTabs() {
+                const primaryTabsContainer = document.getElementById('primaryTabs');
+                primaryTabsContainer.innerHTML = '';
+                
+                this.primaryTabs = [];
+                
+                // 根据激活的模式和顺序添加标签页
+                modeOrder.forEach(modeId => {
+                    if (activeModes[modeId]) {
+                        this.addPrimaryTab(modeId);
+                    }
+                });
+                
+                // 设置默认激活的标签页
+                if (this.primaryTabs.length > 0) {
+                    this.setActivePrimaryTab(this.primaryTabs[0].id);
+                }
+            },
+            
+            // 添加一级标签页
+            addPrimaryTab(modeId) {
+                const primaryTabsContainer = document.getElementById('primaryTabs');
+                
+                let label, iconClass;
+                switch(modeId) {
+                    case 'dictionary':
+                        label = 'Yomitan词典';
+                        iconClass = 'fas fa-book';
+                        break;
+                    case 'web':
+                        label = '网页内容';
+                        iconClass = 'fas fa-globe';
+                        break;
+                    case 'api':
+                        label = 'API查询';
+                        iconClass = 'fas fa-code';
+                        break;
+                    case 'translate':
+                        label = '翻译';
+                        iconClass = 'fas fa-language';
+                        break;
+                }
+                
+                const tab = document.createElement('div');
+                tab.className = 'primary-tab';
+                tab.dataset.tabId = modeId;
+                tab.innerHTML = `<i class="${iconClass}"></i> ${label}`;
+                
+                primaryTabsContainer.appendChild(tab);
+                
+                this.primaryTabs.push({
+                    id: modeId,
+                    label: label,
+                    iconClass: iconClass,
+                    element: tab
+                });
+                
+                return tab;
+            },
+            
+            // 设置激活的一级标签页
+            setActivePrimaryTab(tabId) {
+                // 移除所有标签页的激活状态
+                this.primaryTabs.forEach(tab => {
+                    tab.element.classList.remove('active');
+                });
+                
+                // 设置当前标签页为激活状态
+                const activeTab = this.primaryTabs.find(tab => tab.id === tabId);
+                if (activeTab) {
+                    activeTab.element.classList.add('active');
+                    this.activePrimaryTab = activeTab;
+                    
+                    // 更新二级标签页
+                    this.updateSecondaryTabs(tabId);
+                }
+            },
+            
+            // 更新二级标签页
+            updateSecondaryTabs(primaryTabId) {
+                const secondaryTabsContainer = document.getElementById('secondaryTabs');
+                secondaryTabsContainer.innerHTML = '';
+                
+                this.secondaryTabs = [];
+                
+                // 根据一级标签页添加对应的二级标签页
+                if (primaryTabId === 'web' || primaryTabId === 'translate') {
+                    // 网页和翻译标签页的二级标签将由油猴脚本动态添加
+                    // 这里可以添加一些默认的二级标签页
+                    this.addSecondaryTab('default', '默认页面', true);
+                } else {
+                    // 其他标签页不需要二级标签
+                    secondaryTabsContainer.style.display = 'none';
+                    this.updateTabContent();
+                    return;
+                }
+                
+                secondaryTabsContainer.style.display = 'flex';
+                
+                // 设置默认激活的二级标签页
+                if (this.secondaryTabs.length > 0) {
+                    this.setActiveSecondaryTab(this.secondaryTabs[0].id);
+                }
+            },
+            
+            // 添加二级标签页
+            addSecondaryTab(id, label, isActive = false) {
+                const secondaryTabsContainer = document.getElementById('secondaryTabs');
+                
+                const tab = document.createElement('div');
+                tab.className = 'secondary-tab';
+                if (isActive) tab.classList.add('active');
+                tab.dataset.tabId = id;
+                tab.textContent = label;
+                
+                secondaryTabsContainer.appendChild(tab);
+                
+                this.secondaryTabs.push({
+                    id: id,
+                    label: label,
+                    element: tab,
+                    content: null
+                });
+                
+                return tab;
+            },
+            
+            // 设置激活的二级标签页
+            setActiveSecondaryTab(tabId) {
+                // 移除所有二级标签页的激活状态
+                this.secondaryTabs.forEach(tab => {
+                    tab.element.classList.remove('active');
+                });
+                
+                // 设置当前二级标签页为激活状态
+                const activeTab = this.secondaryTabs.find(tab => tab.id === tabId);
+                if (activeTab) {
+                    activeTab.element.classList.add('active');
+                    this.activeSecondaryTab = activeTab;
+                    
+                    // 更新标签页内容
+                    this.updateTabContent();
+                }
+            },
+            
+            // 更新标签页内容
+            updateTabContent() {
+                const tabContent = document.getElementById('tabContent');
+                
+                if (this.activePrimaryTab && this.activeSecondaryTab) {
+                    // 如果标签页有存储的内容，显示它
+                    if (this.activeSecondaryTab.content) {
+                        tabContent.innerHTML = this.activeSecondaryTab.content;
+                    } else {
+                        // 否则显示默认内容
+                        tabContent.innerHTML = `<div class="web-content-placeholder">
+                            <i class="fas fa-browser"></i>
+                            <h4>${this.activePrimaryTab.label} - ${this.activeSecondaryTab.label}</h4>
+                            <p>此区域用于显示${this.activePrimaryTab.label}内容</p>
+                            <p>当前标签页: ${this.activeSecondaryTab.id}</p>
+                        </div>`;
+                    }
+                } else if (this.activePrimaryTab) {
+                    // 没有二级标签页的情况
+                    if (this.activePrimaryTab.id === 'dictionary') {
+                        // 词典标签页
+                        tabContent.innerHTML = `<div class="no-results">
+                            <i class="fas fa-search"></i> 请输入搜索词查询词典
+                        </div>`;
+                    } else if (this.activePrimaryTab.id === 'api') {
+                        // API标签页
+                        tabContent.innerHTML = `<div class="no-results">
+                            <i class="fas fa-search"></i> 请输入搜索词查询API
+                        </div>`;
+                    }
+                }
+            },
+            
+            // 设置标签页事件
+            setupTabEvents() {
+                // 一级标签页点击事件
+                document.getElementById('primaryTabs').addEventListener('click', (e) => {
+                    if (e.target.classList.contains('primary-tab')) {
+                        const tabId = e.target.dataset.tabId;
+                        this.setActivePrimaryTab(tabId);
+                    }
+                });
+                
+                // 二级标签页点击事件
+                document.getElementById('secondaryTabs').addEventListener('click', (e) => {
+                    if (e.target.classList.contains('secondary-tab')) {
+                        const tabId = e.target.dataset.tabId;
+                        this.setActiveSecondaryTab(tabId);
+                    }
+                });
+            }
         };
 
         // 初始化模式选择
@@ -504,10 +754,12 @@
             const modeDictionary = document.getElementById('modeDictionary');
             const modeWeb = document.getElementById('modeWeb');
             const modeAPI = document.getElementById('modeAPI');
+            const modeTranslate = document.getElementById('modeTranslate');
             
             const modeDictionaryOption = document.getElementById('modeDictionaryOption');
             const modeWebOption = document.getElementById('modeWebOption');
             const modeAPIOption = document.getElementById('modeAPIOption');
+            const modeTranslateOption = document.getElementById('modeTranslateOption');
             
             // 设置初始状态
             updateModeUI();
@@ -516,19 +768,25 @@
             modeDictionary.addEventListener('change', function() {
                 activeModes.dictionary = this.checked;
                 updateModeUI();
-                updateResultsVisibility();
+                tabManager.updatePrimaryTabs();
             });
             
             modeWeb.addEventListener('change', function() {
                 activeModes.web = this.checked;
                 updateModeUI();
-                updateResultsVisibility();
+                tabManager.updatePrimaryTabs();
             });
             
             modeAPI.addEventListener('change', function() {
                 activeModes.api = this.checked;
                 updateModeUI();
-                updateResultsVisibility();
+                tabManager.updatePrimaryTabs();
+            });
+            
+            modeTranslate.addEventListener('change', function() {
+                activeModes.translate = this.checked;
+                updateModeUI();
+                tabManager.updatePrimaryTabs();
             });
         }
         
@@ -537,6 +795,7 @@
             const modeDictionaryOption = document.getElementById('modeDictionaryOption');
             const modeWebOption = document.getElementById('modeWebOption');
             const modeAPIOption = document.getElementById('modeAPIOption');
+            const modeTranslateOption = document.getElementById('modeTranslateOption');
             
             if (activeModes.dictionary) {
                 modeDictionaryOption.classList.add('active');
@@ -555,42 +814,11 @@
             } else {
                 modeAPIOption.classList.remove('active');
             }
-        }
-        
-        // 更新结果区域可见性
-        function updateResultsVisibility() {
-            const dictionarySection = document.getElementById('dictionarySection');
-            const webSection = document.getElementById('webSection');
-            const apiSection = document.getElementById('apiSection');
             
-            if (activeModes.dictionary) {
-                dictionarySection.classList.remove('hidden');
+            if (activeModes.translate) {
+                modeTranslateOption.classList.add('active');
             } else {
-                dictionarySection.classList.add('hidden');
-            }
-            
-            if (activeModes.web) {
-                webSection.classList.remove('hidden');
-            } else {
-                webSection.classList.add('hidden');
-            }
-            
-            if (activeModes.api) {
-                apiSection.classList.remove('hidden');
-            } else {
-                apiSection.classList.add('hidden');
-            }
-            
-            // 更新网格布局
-            const resultsContainer = document.querySelector('.results-container');
-            const activeSections = [activeModes.dictionary, activeModes.web, activeModes.api].filter(Boolean).length;
-            
-            if (activeSections === 1) {
-                resultsContainer.style.gridTemplateColumns = '1fr';
-            } else if (activeSections === 2) {
-                resultsContainer.style.gridTemplateColumns = '1fr 1fr';
-            } else {
-                resultsContainer.style.gridTemplateColumns = '1fr 1fr';
+                modeTranslateOption.classList.remove('active');
             }
         }
 
@@ -600,7 +828,7 @@
                 console.log('开始加载词典数据...');
                 
                 // 显示加载状态
-                document.getElementById('dictionaryResultsContent').innerHTML = `
+                document.getElementById('tabContent').innerHTML = `
                     <div class="loading">
                         <i class="fas fa-spinner fa-spin"></i> 正在加载词典数据...
                     </div>
@@ -650,7 +878,7 @@
                 console.log(`加载了 ${loadedBanks} 个term_bank文件，共 ${dictionaryData.termBanks.length} 个术语`);
 
                 // 更新词典信息
-                document.getElementById('dictionaryResultsContent').innerHTML = `
+                document.getElementById('tabContent').innerHTML = `
                     <div class="no-results">
                         <i class="fas fa-search"></i> 词典加载完成，请输入搜索词
                     </div>
@@ -658,7 +886,7 @@
 
             } catch (error) {
                 console.error('加载词典数据时出错:', error);
-                document.getElementById('dictionaryResultsContent').innerHTML = `
+                document.getElementById('tabContent').innerHTML = `
                     <div class="error">
                         <i class="fas fa-exclamation-triangle"></i> 加载词典数据失败: ${error.message}
                     </div>
@@ -678,25 +906,29 @@
                 return;
             }
             
-            // 执行词典搜索
-            if (activeModes.dictionary) {
-                performDictionarySearch(query, searchMode, maxResults, caseSensitive);
-            }
+            // 根据当前激活的主标签页执行不同的搜索
+            const activePrimaryTab = tabManager.activePrimaryTab;
+            if (!activePrimaryTab) return;
             
-            // 执行网页内容搜索
-            if (activeModes.web) {
-                performWebSearch(query);
-            }
-            
-            // 执行API搜索
-            if (activeModes.api) {
-                performAPISearch(query);
+            switch(activePrimaryTab.id) {
+                case 'dictionary':
+                    performDictionarySearch(query, searchMode, maxResults, caseSensitive);
+                    break;
+                case 'web':
+                    performWebSearch(query);
+                    break;
+                case 'api':
+                    performAPISearch(query);
+                    break;
+                case 'translate':
+                    performTranslateSearch(query);
+                    break;
             }
         }
 
         // 执行词典搜索
         function performDictionarySearch(query, searchMode, maxResults, caseSensitive) {
-            document.getElementById('dictionaryResultsContent').innerHTML = `
+            document.getElementById('tabContent').innerHTML = `
                 <div class="loading">
                     <i class="fas fa-spinner fa-spin"></i> 正在搜索词典...
                 </div>
@@ -743,8 +975,7 @@
 
         // 显示词典搜索结果
         function displayDictionaryResults(results, query) {
-            const resultsContent = document.getElementById('dictionaryResultsContent');
-            const resultsCount = document.getElementById('dictionaryResultsCount');
+            const resultsContent = document.getElementById('tabContent');
             
             if (results.length === 0) {
                 resultsContent.innerHTML = `
@@ -752,11 +983,8 @@
                         <i class="fas fa-search"></i> 没有找到匹配"${query}"的术语
                     </div>
                 `;
-                resultsCount.textContent = '未找到结果';
                 return;
             }
-            
-            resultsCount.textContent = `找到 ${results.length} 个结果`;
             
             let html = '<div class="term-list">';
             
@@ -794,104 +1022,118 @@
 
         // 执行网页内容搜索
         function performWebSearch(query) {
-            document.getElementById('webResultsContent').innerHTML = `
+            document.getElementById('tabContent').innerHTML = `
                 <div class="loading">
                     <i class="fas fa-spinner fa-spin"></i> 正在获取网页内容...
                 </div>
             `;
             
-            document.getElementById('webResultsCount').textContent = '获取中...';
-            
-            // 这里预留油猴脚本接口
-            // 油猴脚本可以通过以下方式将内容注入到这个区域：
-            // 1. 监听搜索事件
-            // 2. 获取网页内容
-            // 3. 调用 window.injectWebContent(htmlContent) 函数
-            
-            // 模拟延迟，等待油猴脚本响应
-            setTimeout(() => {
-                // 如果没有油猴脚本响应，显示提示信息
-                if (document.getElementById('webResultsContent').innerHTML.includes('正在获取网页内容')) {
-                    document.getElementById('webResultsContent').innerHTML = `
-                        <div class="web-content-placeholder">
-                            <i class="fas fa-browser"></i>
-                            <h4>等待油猴脚本响应</h4>
-                            <p>此区域需要油猴脚本提供网页内容</p>
-                            <p>请确保已安装相应的油猴脚本</p>
-                            <p>搜索词: "${query}"</p>
-                        </div>
-                    `;
-                    document.getElementById('webResultsCount').textContent = '等待脚本';
-                }
-            }, 2000);
+            // 触发油猴脚本搜索
+            if (window.YomitanInterface && window.YomitanInterface.onWebSearch) {
+                window.YomitanInterface.onWebSearch(query, 'web');
+            }
         }
 
         // 执行API搜索
         function performAPISearch(query) {
-            document.getElementById('apiResultsContent').innerHTML = `
+            document.getElementById('tabContent').innerHTML = `
                 <div class="loading">
                     <i class="fas fa-spinner fa-spin"></i> 正在查询API...
                 </div>
             `;
             
-            document.getElementById('apiResultsCount').textContent = '查询中...';
-            
-            // 模拟API查询结果
-            setTimeout(() => {
-                const results = [
-                    {
-                        source: '词典API',
-                        content: `找到关于"${query}"的5个相关结果`
-                    },
-                    {
-                        source: '翻译API',
-                        content: `"${query}"的翻译结果: 示例翻译内容`
-                    },
-                    {
-                        source: '例句API',
-                        content: `"${query}"的例句: 这是一个示例句子。`
+            // 使用Free Dictionary API
+            fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(query)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('未找到该词的释义');
                     }
-                ];
-                
-                displayAPIResults(results, query);
-            }, 1500);
+                    return response.json();
+                })
+                .then(data => {
+                    displayAPIResults(data, query);
+                })
+                .catch(error => {
+                    document.getElementById('tabContent').innerHTML = `
+                        <div class="error">
+                            <i class="fas fa-exclamation-triangle"></i> API查询失败: ${error.message}
+                        </div>
+                    `;
+                });
         }
 
         // 显示API搜索结果
-        function displayAPIResults(results, query) {
-            const resultsContent = document.getElementById('apiResultsContent');
-            const resultsCount = document.getElementById('apiResultsCount');
+        function displayAPIResults(data, query) {
+            const resultsContent = document.getElementById('tabContent');
             
-            if (results.length === 0) {
+            if (!data || data.length === 0) {
                 resultsContent.innerHTML = `
                     <div class="no-results">
                         <i class="fas fa-search"></i> 没有找到匹配"${query}"的API结果
                     </div>
                 `;
-                resultsCount.textContent = '未找到结果';
                 return;
             }
             
-            resultsCount.textContent = `找到 ${results.length} 个API结果`;
-            
             let html = '<div class="api-results">';
             
-            for (const result of results) {
+            for (const entry of data) {
                 html += `
                     <div class="api-item">
                         <div class="api-source">
                             <i class="fas fa-database"></i>
-                            ${escapeHtml(result.source)}
+                            Free Dictionary API - ${entry.word}
                         </div>
                         <div class="api-content">
-                            ${escapeHtml(result.content)}
-                        </div>
-                    </div>
                 `;
+                
+                if (entry.phonetic) {
+                    html += `<p><strong>发音:</strong> ${entry.phonetic}</p>`;
+                }
+                
+                if (entry.phonetics && entry.phonetics.length > 0) {
+                    html += `<p><strong>音标:</strong> `;
+                    entry.phonetics.forEach(phonetic => {
+                        if (phonetic.text) {
+                            html += `${phonetic.text} `;
+                        }
+                    });
+                    html += `</p>`;
+                }
+                
+                if (entry.meanings && entry.meanings.length > 0) {
+                    entry.meanings.forEach(meaning => {
+                        html += `<p><strong>${meaning.partOfSpeech}:</strong> `;
+                        if (meaning.definitions && meaning.definitions.length > 0) {
+                            meaning.definitions.forEach((def, index) => {
+                                if (index < 3) { // 只显示前3个定义
+                                    html += `${def.definition}; `;
+                                }
+                            });
+                        }
+                        html += `</p>`;
+                    });
+                }
+                
+                html += `</div></div>`;
             }
             
             html += '</div>';
             resultsContent.innerHTML = html;
+        }
+
+        // 执行翻译搜索
+        function performTranslateSearch(query) {
+            document.getElementById('tabContent').innerHTML = `
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> 正在翻译...
+                </div>
+            `;
+            
+            // 触发油猴脚本翻译
+            if (window.YomitanInterface && window.YomitanInterface.onTranslate) {
+                window.YomitanInterface.onTranslate(query);
+            }
         }
 
         // HTML转义函数
@@ -902,9 +1144,68 @@
         }
 
         // 全局函数，供油猴脚本调用
-        window.injectWebContent = function(htmlContent) {
-            document.getElementById('webResultsContent').innerHTML = htmlContent;
-            document.getElementById('webResultsCount').textContent = '内容已加载';
+        window.YomitanInterface = {
+            // 添加新的二级标签页
+            addSecondaryTab: function(primaryTabId, tabId, tabLabel, position = null) {
+                // 确保指定的主标签页是激活状态
+                if (tabManager.activePrimaryTab && tabManager.activePrimaryTab.id === primaryTabId) {
+                    const newTab = tabManager.addSecondaryTab(tabId, tabLabel);
+                    
+                    // 如果指定了位置，调整标签页顺序
+                    if (position !== null && position >= 0 && position < tabManager.secondaryTabs.length) {
+                        const tabsContainer = document.getElementById('secondaryTabs');
+                        const currentIndex = tabManager.secondaryTabs.findIndex(t => t.id === tabId);
+                        if (currentIndex !== -1) {
+                            // 从数组中移除
+                            const [tab] = tabManager.secondaryTabs.splice(currentIndex, 1);
+                            // 插入到指定位置
+                            tabManager.secondaryTabs.splice(position, 0, tab);
+                            
+                            // 更新DOM
+                            tabsContainer.innerHTML = '';
+                            tabManager.secondaryTabs.forEach(t => {
+                                tabsContainer.appendChild(t.element);
+                            });
+                        }
+                    }
+                    
+                    return newTab;
+                }
+                return null;
+            },
+            
+            // 设置激活的二级标签页
+            setActiveSecondaryTab: function(tabId) {
+                tabManager.setActiveSecondaryTab(tabId);
+            },
+            
+            // 向标签页注入内容
+            injectTabContent: function(tabId, htmlContent) {
+                // 存储内容到对应的标签页
+                const tab = tabManager.secondaryTabs.find(t => t.id === tabId);
+                if (tab) {
+                    tab.content = htmlContent;
+                    
+                    // 如果当前激活的标签页是目标标签页，直接更新内容
+                    if (tabManager.activeSecondaryTab && tabManager.activeSecondaryTab.id === tabId) {
+                        document.getElementById('tabContent').innerHTML = htmlContent;
+                    }
+                }
+            },
+            
+            // 获取当前搜索查询
+            getCurrentQuery: function() {
+                return document.getElementById('searchInput').value.trim();
+            },
+            
+            // 触发搜索
+            triggerSearch: function() {
+                performSearch();
+            },
+            
+            // 油猴脚本可以实现的回调函数
+            onWebSearch: null,
+            onTranslate: null
         };
 
         // 设置事件监听器
@@ -922,6 +1223,7 @@
             console.log('开始初始化页面...');
             initModeSelector();
             setupEventListeners();
+            tabManager.init();
             loadDictionaryData().then(() => {
                 console.log('页面初始化完成');
             }).catch(error => {

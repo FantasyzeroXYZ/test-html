@@ -211,109 +211,78 @@ function updateCurrentSubtitle() {
     }
 }
 
-// 处理字幕文本点击事件 - 修复版本
+// 处理字幕文本点击事件
 function handleSubtitleTextClick(e) {
     if (currentLanguageMode === 'english') {
+        // 英语模式逻辑保持不变
         if (e.target.classList.contains('word')) {
             const word = e.target.getAttribute('data-word');
             const subtitleIndex = parseInt(e.target.getAttribute('data-index'));
-            
-            // console.log('字幕点击 - 单词:', word, '字幕索引:', subtitleIndex); // 调试信息
 
-            // 剪贴板功能
-            if (clipboardEnabled) {
-                copyWordToClipboard(word);
-            }
-
+            if (clipboardEnabled) copyWordToClipboard(word);
             pauseCurrentMedia();
             searchWordInPanel(word);
-            
-            if (activeTab === 'web-tab') {
-                loadWebSearch(word);
-            }
+
+            if (activeTab === 'web-tab') loadWebSearch(word);
 
             currentWord = word;
             if (subtitleIndex >= 0 && subtitleIndex < subtitles.length) {
                 currentSentence = subtitles[subtitleIndex].text;
-                
-                // 关键修复：立即重置状态
                 currentWordIndex = -1;
                 appendedWords = [];
                 panelSearchInput.value = word;
-                
-                // console.log('更新原句前状态:', { currentWordIndex, appendedWords }); // 调试
-                
-                // 更新原句显示
+
                 updateOriginalSentence(currentSentence, word, currentLanguageMode);
-                
-                // 强制设置当前单词索引
+
                 setTimeout(() => {
                     const sentenceSpans = originalSentence.querySelectorAll('.sentence-word');
-                    // console.log('原句单词数量:', sentenceSpans.length); // 调试
-                    
                     let foundIndex = -1;
+
                     sentenceSpans.forEach((span, idx) => {
                         const spanWord = span.getAttribute('data-word');
                         const clickedWordClean = word.toLowerCase().replace(/[^a-z0-9]/g, '');
                         const spanWordClean = spanWord.toLowerCase().replace(/[^a-z0-9]/g, '');
-                        
-                        // console.log(`比较: "${spanWordClean}" === "${clickedWordClean}"`, spanWordClean === clickedWordClean); // 调试
-                        
-                        if (spanWordClean === clickedWordClean && foundIndex === -1) {
-                            foundIndex = idx;
-                            // console.log('找到匹配索引:', foundIndex); // 调试
-                        }
+                        if (spanWordClean === clickedWordClean && foundIndex === -1) foundIndex = idx;
                     });
-                    
+
                     if (foundIndex !== -1) {
                         currentWordIndex = foundIndex;
                         appendedWords = [word];
-                        // console.log('最终设置索引:', currentWordIndex, '追加词汇:', appendedWords); // 调试
-                        
-                        // 立即更新高亮显示
-                        sentenceSpans.forEach((span, idx) => {
-                            span.classList.toggle('highlight', idx === foundIndex);
-                        });
+                        sentenceSpans.forEach((span, idx) => span.classList.toggle('highlight', idx === foundIndex));
                     } else {
-                        console.warn('未找到匹配的单词索引'); // 调试
-                        // 如果没有找到精确匹配，设置第一个单词
                         currentWordIndex = 0;
                         appendedWords = [sentenceSpans[0]?.getAttribute('data-word') || word];
                     }
                 }, 10);
             }
-            
-            // 更新字幕高亮
-            if (currentHighlightedWord) {
-                currentHighlightedWord.classList.remove('highlight');
-            }
+
+            if (currentHighlightedWord) currentHighlightedWord.classList.remove('highlight');
             e.target.classList.add('highlight');
             currentHighlightedWord = e.target;
         }
     } else {
+        // 日语模式
         if (e.target.classList.contains('japanese-sentence')) {
             const text = e.target.getAttribute('data-sentence');
-            const index = parseInt(e.target.getAttribute('data-index'));
 
-            // 剪贴板功能
-            if (clipboardEnabled) {
-                copyWordToClipboard(text);
-            }
-            
+            if (clipboardEnabled) copyWordToClipboard(text);
             pauseCurrentMedia();
-            showJapaneseWordSegmentation(text);
-            
-            currentSentence = text;
-            // 对于日语模式，重置索引
-            currentWordIndex = 0;
-            appendedWords = [text];
-            panelSearchInput.value = text;
-            
-            // 更新原句显示
-            updateOriginalSentence(currentSentence, '', currentLanguageMode);
+
+            showJapaneseWordSegmentation(text).then((japaneseWords) => {
+                if (japaneseWords && japaneseWords.length > 0) {
+                    currentSentence = text;
+                    currentWordIndex = 0;
+                    appendedWords = [japaneseWords[0]];
+                    panelSearchInput.value = japaneseWords[0];
+
+                    updateOriginalSentence(currentSentence, japaneseWords[0], currentLanguageMode, japaneseWords);
+                }
+            });
         }
     }
 }
+
+
 
 // 更新字幕列表
 function updateSubtitleList() {

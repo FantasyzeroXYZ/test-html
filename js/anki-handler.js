@@ -279,8 +279,9 @@ addToAnkiBtn.addEventListener('click', async () => {
     if (activeTab === 'dictionary-tab') {
         // ✅ 直接拿面板中显示的HTML，不再提取内容
         definition = panelDictionaryResult.innerHTML.trim();
-
-    } else if (activeTab === 'custom-tab') {
+    } else if (activeTab === 'tampermonkey-tab') {  // 油猴Tab支持
+        definition = panelTampermonkeyResult.innerHTML.trim();
+    } else if (activeTab === 'custom-tab') { // 自定义Tab支持
         definition = customDefinitionInput.value.trim();
     }
 

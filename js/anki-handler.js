@@ -319,51 +319,35 @@ addToAnkiBtn.addEventListener('click', async () => {
 
 
 
-// 处理Anki卡片
+// 处理Anki卡片（单词对应字幕整句）
 async function processAnkiCard(word, definition) {
     console.log('audioBuffer', audioBuffer, 'audioContext', audioContext, 'currentSubtitleIndex', currentSubtitleIndex);
 
-    let cleanSentence = currentSentence;
-    
-    // 如果句子为空或只有单词，尝试从多个来源恢复完整句子
-    if (!cleanSentence || cleanSentence === word || cleanSentence.split(/\s+/).length <= 2) {
-        console.log('需要恢复完整句子，当前句子:', cleanSentence);
-        
-        // 方法1: 从当前字幕索引获取
-        if (currentSubtitleIndex >= 0 && subtitles[currentSubtitleIndex]) {
-            cleanSentence = subtitles[currentSubtitleIndex].text;
-            console.log('从字幕索引恢复句子:', cleanSentence);
-        }
-        // 方法2: 从全屏字幕元素获取
-        else if (isFullscreen) {
-            const fullscreenSubtitle = document.getElementById('fullscreenSubtitle');
-            if (fullscreenSubtitle) {
-                // 获取所有可点击元素的 data-sentence 属性
-                const sentenceElements = fullscreenSubtitle.querySelectorAll('[data-sentence]');
-                if (sentenceElements.length > 0) {
-                    cleanSentence = sentenceElements[0].getAttribute('data-sentence');
-                    console.log('从data-sentence属性恢复句子:', cleanSentence);
-                } else {
-                    // 如果没有data-sentence，直接获取文本内容
-                    cleanSentence = fullscreenSubtitle.textContent;
-                    console.log('从字幕文本恢复句子:', cleanSentence);
-                }
-            }
-        }
-        // 方法3: 从普通字幕元素获取
-        else {
-            const subtitleElement = document.querySelector('.subtitle-text');
-            if (subtitleElement) {
-                cleanSentence = subtitleElement.textContent;
-                console.log('从普通字幕恢复句子:', cleanSentence);
-            }
+    // 1️⃣ 获取当前单词对应字幕的整句
+    let cleanSentence = '';
+
+    if (currentSubtitleIndex >= 0 && subtitles[currentSubtitleIndex]) {
+        // 直接取字幕数组里的整句
+        cleanSentence = subtitles[currentSubtitleIndex].text;
+        console.log('从字幕数组获取整句:', cleanSentence);
+    } else {
+        // fallback：从页面字幕元素获取
+        const subtitleElement = document.querySelector('.subtitle-text') || document.getElementById('fullscreenSubtitle');
+        if (subtitleElement) {
+            const sentenceEl = subtitleElement.querySelector('[data-sentence]');
+            cleanSentence = sentenceEl
+                ? sentenceEl.getAttribute('data-sentence')
+                : subtitleElement.textContent.trim();
+            console.log('从字幕元素获取整句:', cleanSentence);
         }
     }
 
+    // 2️⃣ 清理文本（去掉 HTML 标签、空格等）
     if (cleanSentence) {
         cleanSentence = cleanSubtitleText(cleanSentence);
     }
 
+    // 3️⃣ 构建 Anki 卡片
     const note = {
         deckName: deckSelect.value,
         modelName: modelSelect.value,
@@ -376,6 +360,7 @@ async function processAnkiCard(word, definition) {
         tags: ['media-player']
     };
 
+    // 4️⃣ 添加音频片段
     if (audioBuffer && currentSubtitleIndex >= 0) {
         try {
             const audioBlob = await generateAudioClip(currentSubtitleIndex);
@@ -391,6 +376,7 @@ async function processAnkiCard(word, definition) {
         }
     }
 
+    // 5️⃣ 截图视频帧
     if (imageFieldSelect.value && currentMediaType === 'video' && currentMediaFile) {
         try {
             const storedImageName = await captureVideoFrame(word);
@@ -403,6 +389,7 @@ async function processAnkiCard(word, definition) {
         }
     }
 
+    // 6️⃣ 添加卡片到 Anki
     await addCardToAnki(note);
 }
 

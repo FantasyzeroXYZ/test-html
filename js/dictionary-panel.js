@@ -283,7 +283,7 @@ async function searchJapaneseWordInPanel(word) {
 }
 
 
-// 显示日语单词数据在底部面板
+// 显示生成结构化日语单词数据html页面转给底部面板显示
 function displayJapaneseWordDataInPanel(wordData) {
     if (!wordData.word || !Array.isArray(wordData.entries)) {
         panelDictionaryResult.innerHTML = '<div class="error">返回的数据格式不正确</div>';

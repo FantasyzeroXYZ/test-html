@@ -65,21 +65,47 @@ async function init() {
 // 启动初始化
 init();
 
-// 油猴脚本接口
+// 油猴脚本接口-用来接收外部传入的内容并显示在底部面板
 window.mediaPlayer = {
     setJapaneseSegmentation: (words) => {
         japaneseWords = words;
         currentWordIndex = 0;
     },
-    
-    setJapaneseWordData: (html) => {
-        panelDictionaryResult.innerHTML = html;
+
+    // 修改后：仅接收外部传入的内容，不发请求
+    setWordData: (wordOrHtml) => {
+        if (!panelTampermonkeyResult) {
+            console.warn('油猴 Tab 未初始化');
+            return;
+        }
+
+        // 仅在油猴 Tab 当前被激活时才执行
+        if (activeTab !== 'tampermonkey-tab') return;
+
+        if (!wordOrHtml) return;
+
+        panelTampermonkeyResult.innerHTML = '<div class="loading">加载中...</div>';
+
+        try {
+            // 根据语言模式显示内容
+            if (currentLanguageMode === 'english') {
+                // 英语逻辑：直接显示传入 HTML 或文本
+                panelTampermonkeyResult.innerHTML = wordOrHtml;
+            } else {
+                // 日语逻辑：直接显示传入 HTML 或文本
+                panelTampermonkeyResult.innerHTML = wordOrHtml;
+            }
+
+        } catch (err) {
+            panelTampermonkeyResult.innerHTML = `<div class="error">显示失败: ${err.message}</div>`;
+            console.error('油猴显示错误:', err);
+        }
     },
-    
+
     setWebSearchUrl: (url) => {
         webSearchFrame.src = url;
     },
-    
+
     getState: () => ({
         currentWord: currentWord,
         currentSentence: currentSentence,
@@ -87,8 +113,7 @@ window.mediaPlayer = {
         currentMediaType: currentMediaType,
         clipboardEnabled: clipboardEnabled
     }),
-    
-    // 新增接口
+
     toggleClipboard: toggleClipboardFunction,
     openDictionary: openFullscreenDictionary
 };

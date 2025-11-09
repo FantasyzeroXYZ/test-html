@@ -927,6 +927,44 @@ h1 {
     margin-bottom: 8px;
 }
 
+/* 油猴结果样式 */
+.tampermonkey-result {
+    margin-top: 15px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    min-height: 100px;
+    line-height: 1.6;
+    max-height: 300px;
+    overflow-y: auto;
+    font-size: 0.95rem;
+}
+
+.tampermonkey-content {
+    color: #fff;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.tampermonkey-content h3 {
+    color: #3498db;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.tampermonkey-content p {
+    margin-bottom: 8px;
+}
+
+.tampermonkey-content ul {
+    margin-left: 20px;
+    margin-bottom: 10px;
+}
+
+.tampermonkey-content li {
+    margin-bottom: 5px;
+}
+
 /* 自定义释义 */
 .custom-definition {
     margin-top: 15px;
@@ -1401,11 +1439,13 @@ h1 {
     text-align: center;
     color: #3498db;
     font-style: italic;
+    padding: 20px;
 }
 
 .error {
     color: #e74c3c;
     text-align: center;
+    padding: 20px;
 }
 
 .status-message {

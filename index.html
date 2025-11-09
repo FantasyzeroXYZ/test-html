@@ -279,27 +279,42 @@
         <div class="dictionary-tabs">
             <button class="tab-button active" data-tab="dictionary-tab">词典释义</button>
             <button class="tab-button" data-tab="web-tab">网页查询</button>
+            <button class="tab-button" data-tab="tampermonkey-tab" id="tampermonkey-btn">油猴操作</button>
             <button class="tab-button" data-tab="custom-tab">自定义释义</button>
         </div>
-        
+
         <!-- 标签页内容 -->
         <div class="tab-content">
+            <!-- 词典 -->
             <div id="dictionary-tab" class="tab-pane active">
                 <div class="dictionary-result" id="panel-dictionary-result">
                     查询结果将显示在这里...
                 </div>
             </div>
-            <div id="custom-tab" class="tab-pane">
-                <div class="custom-definition">
-                    <textarea id="panel-custom-definition-input" placeholder="如果查词没有返回内容或者想自定义释义内容，请在此输入..."></textarea>
-                </div>
-            </div>
+
+            <!-- 网页 -->
             <div id="web-tab" class="tab-pane">
                 <div class="dictionary-result" id="panel-web-result">
                     <iframe id="web-search-frame" style="width: 100%; height: 300px; border: none;" src="about:blank"></iframe>
                 </div>
             </div>
+
+            <!-- 油猴结果 -->
+            <div id="tampermonkey-tab" class="tab-pane">
+                <div class="dictionary-result" id="panel-tampermonkey-result">
+                    <div class="loading">等待油猴返回结果...</div>
+                </div>
+            </div>
+
+            <!-- 自定义 -->
+            <div id="custom-tab" class="tab-pane">
+                <div class="custom-definition">
+                    <textarea id="panel-custom-definition-input"
+                        placeholder="如果查词没有返回内容或者想自定义释义内容，请在此输入..."></textarea>
+                </div>
+            </div>
         </div>
+
     </div>
     
     <!-- 字幕列表面板 -->

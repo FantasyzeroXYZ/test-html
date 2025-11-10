@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Dict.cn 结构化词典面板
+// @name         haici(zh-en)词典
 // @namespace    http://tampermonkey.net/
 // @version      1.0
-// @description  抓取 Dict.cn 词典内容并在底部面板显示
+// @description  获取词典内容并在底部面板显示
 // @author       Assistant
 // @match        http://localhost:8080/*
 // @match        http://127.0.0.1:8080/*
@@ -78,7 +78,15 @@
     }
 
     function extractContent(doc, query) {
-        let content = `<div style="font-family:Segoe UI, sans-serif; color:#212529;">`;
+        // 外部背景容器
+        let content = `<div style="
+            font-family:Segoe UI, sans-serif;
+            color:#212529;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            padding:20px;
+            border-radius:12px;
+            box-shadow:0 4px 12px rgba(0,0,0,0.1);
+        ">`;
 
         // 单词标题
         const word = doc.querySelector('.dict-basic-ul .keyword')?.textContent.trim() || query;
@@ -109,7 +117,7 @@
         }
 
         content += addFooter('Dict.cn');
-        content += `</div>`;
+        content += `</div>`; // 结束外部背景容器
         return content;
     }
 

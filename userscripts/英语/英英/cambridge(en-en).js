@@ -1,11 +1,12 @@
 // ==UserScript==
-// @name         剑桥词典稳定版（结构化版）
+// @name         Cambridge Dictionary Structured Panel (Boxed)
 // @namespace    http://tampermonkey.net/
-// @version      1.6
-// @description  稳定获取剑桥词典完整内容，并显示在底部面板（结构化美观）
+// @version      1.3
+// @description  剑桥词典结构化显示（方框风格，B2等级词义旁显示，去重复例句）
 // @author       Assistant
 // @match        http://localhost:8080/*
 // @match        http://127.0.0.1:8080/*
+// @match        https://fantasyzeroxyz.github.io/*
 // @grant        GM_xmlhttpRequest
 // @connect      dictionary.cambridge.org
 // ==/UserScript==
@@ -84,44 +85,48 @@
     }
 
     function extractContent(doc, query) {
-        let content = `<div style="font-family:Segoe UI, sans-serif; color:#212529;">`;
+        // 外部方框
+        let content = `<div style="font-family:Segoe UI, sans-serif; color:#212529; background:#ffffff; padding:20px; border-radius:12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">`;
 
-        // 单词标题 + 发音 + 词性
+        // 单词 / 发音 / 词性
         const word = doc.querySelector('h1.hw, .headword')?.textContent.trim() || query;
         const pron = doc.querySelector('.pron.dpron, .dpron')?.textContent.trim() || '';
         const pos = doc.querySelector('.pos.dpos, .dpos')?.textContent.trim() || '';
+        content += `<h1 style="margin-bottom:5px;">${escapeHtml(word)}</h1>`;
+        if(pos) content += `<div style="display:inline-block; font-weight:bold; margin-bottom:10px;">${escapeHtml(pos)}</div>`;
+        if(pron) content += `<div style="margin-bottom:15px; color:#6c757d;">${escapeHtml(pron)}</div>`;
 
-        content += `<div style="border-bottom:2px solid #2575fc; padding-bottom:10px; margin-bottom:15px;">
-            <h2 style="color:#2575fc; margin-bottom:5px;"><i class="fas fa-book"></i> ${escapeHtml(word)}</h2>`;
-        if (pron) content += `<div style="color:#6c757d; font-size:1.1rem; margin-bottom:5px;">
-            <i class="fas fa-volume-up"></i> ${escapeHtml(pron)}</div>`;
-        if (pos) content += `<div style="display:inline-block; background:#e7f1ff; color:#2575fc; padding:3px 8px; border-radius:5px; font-weight:bold;">${escapeHtml(pos)}</div>`;
-        content += `</div>`;
+        // 词义 + B2等级
+        const defs = doc.querySelectorAll('.def-block');
+        let seq = 1;
+        let seenSentences = new Set();
+        defs.forEach(defBlock => {
+            const levelElem = defBlock.querySelector('.dlevel');
+            const level = levelElem ? levelElem.textContent.trim() : '';
+            const defElem = defBlock.querySelector('.def');
+            if(!defElem) return;
+            const defText = defElem.textContent.trim();
+            if(!defText) return;
 
-        // 词义
-        const defs = doc.querySelectorAll('.def.ddef_d.db, .ddef_d, .definition');
-        if (defs.length > 0) {
-            content += `<h3 style="color:#495057; margin-bottom:10px;"><i class="fas fa-list"></i> 词义</h3>`;
-            defs.forEach((def, idx) => {
-                content += `<div style="margin-bottom:8px; padding:10px; background:#f8f9fa; border-radius:6px; border-left:4px solid #2575fc;">
-                    <strong>${idx + 1}. ${escapeHtml(def.textContent.trim())}</strong>`;
-                // 例句
-                const exs = def.querySelectorAll('.eg.deg, .dexamp, .example, .deg');
-                if (exs.length > 0) {
-                    content += `<div style="margin-top:6px;">`;
-                    exs.forEach(ex => {
-                        content += `<div style="margin-bottom:5px; padding:5px 8px; background:#ffffff; border:1px solid #e9ecef; border-radius:4px; font-style:italic; color:#495057;">
-                            <i class="fas fa-quote-left" style="color:#6c757d;"></i> ${escapeHtml(ex.textContent.trim())}
-                        </div>`;
-                    });
-                    content += `</div>`;
+            content += `<div style="margin-bottom:12px; padding:12px; border:1px solid #e9ecef; border-radius:6px; background:#f8f9fa;">`;
+            content += `<strong>${seq}. ${escapeHtml(defText)}</strong> ${level ? escapeHtml(level) : ''}<br>`;
+
+            // 例句去重
+            const examples = defBlock.querySelectorAll('.examp .eg');
+            examples.forEach(ex => {
+                const text = ex.textContent.trim();
+                if(text && !seenSentences.has(text)) {
+                    content += `<div style="margin-left:20px; margin-top:5px; font-style:italic; color:#495057;">${escapeHtml(text)}</div>`;
+                    seenSentences.add(text);
                 }
-                content += `</div>`;
             });
-        }
+
+            content += `</div>`;
+            seq++;
+        });
 
         content += addFooter();
-        content += `</div>`;
+        content += `</div>`; // 外部方框结束
         return content;
     }
 

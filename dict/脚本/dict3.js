@@ -6,6 +6,7 @@
 // @author       Assistant
 // @match        http://localhost:8080/*
 // @match        http://127.0.0.1:8080/*
+// @match        https://fantasyzeroxyz.github.io/*
 // @grant        GM_xmlhttpRequest
 // @connect      vocabulary.com
 // @connect      www.vocabulary.com

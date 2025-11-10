@@ -1,11 +1,12 @@
 // ==UserScript==
-// @name         Urban Dictionary内容获取器 - 修复版
+// @name         Urban Dictionary
 // @namespace    http://tampermonkey.net/
-// @version      1.1
-// @description  修复Urban Dictionary内容获取问题
+// @version      1.0
+// @description  Urban Dictionary内容获取
 // @author       Assistant
 // @match        http://localhost:8080/*
 // @match        http://127.0.0.1:8080/*
+// @match        https://fantasyzeroxyz.github.io/*
 // @grant        GM_xmlhttpRequest
 // @connect      urbandictionary.com
 // @connect      www.urbandictionary.com

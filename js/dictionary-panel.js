@@ -41,7 +41,7 @@ async function searchWordInPanel(word) {
     }
     
     openDictionaryPanel();
-    panelDictionaryResult.innerHTML = '<div class="loading">查询中...</div>';
+    panelDictionaryResult.innerHTML = '<div class="loading">查询中...若无显示,请手动点击搜索按键</div>';
     panelSearchInput.value = word;
     
     if (activeTab === 'web-tab') {
@@ -253,7 +253,7 @@ async function searchJapaneseWordInPanel(word) {
     }
     
     openDictionaryPanel();
-    panelDictionaryResult.innerHTML = '<div class="loading">查询中...</div>';
+    panelDictionaryResult.innerHTML = '<div class="loading">查询中...若无显示,请手动点击搜索按键</div>';
     panelSearchInput.value = word;
     
     if (activeTab === 'web-tab') {

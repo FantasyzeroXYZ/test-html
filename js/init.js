@@ -65,7 +65,7 @@ async function init() {
 // 启动初始化
 init();
 
-// 油猴脚本接口-用来接收外部传入的内容并显示在底部面板
+// 油猴脚本接口-用来接收外部传入的内容并显示在底部对应的油猴面板
 window.mediaPlayer = {
     setJapaneseSegmentation: (words) => {
         japaneseWords = words;

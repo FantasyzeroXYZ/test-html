@@ -590,13 +590,14 @@ appendWordBtn.addEventListener('click', () => {
         return;
     }
 
-    console.log('追加前状态 - 索引:', currentWordIndex, '追加词汇:', appendedWords, '句子长度:', sentenceSpans.length);
+    // console.log('追加前状态 - 索引:', currentWordIndex, '追加词汇:', appendedWords, '句子长度:', sentenceSpans.length);
 
     // 如果没有有效的当前索引，从第一个单词开始
     if (currentWordIndex === -1) {
         currentWordIndex = 0;
         console.log('重置索引为0');
     } 
+
     // 如果已经是最后一个单词，不再追加
     else if (currentWordIndex >= sentenceSpans.length - 1) {
         console.log('已经是最后一个单词，无法继续追加');
@@ -611,13 +612,20 @@ appendWordBtn.addEventListener('click', () => {
     const currentSpan = sentenceSpans[currentWordIndex];
     const word = currentSpan.getAttribute('data-word');
 
-    console.log('追加单词:', word, '位置:', currentWordIndex);
+    // console.log('追加单词:', word, '位置:', currentWordIndex);
+    
+
 
     // 更新搜索输入框
     if (currentLanguageMode === 'english' && appendedWords.length > 0) {
         panelSearchInput.value += ' ' + word;
     } else {
         panelSearchInput.value += word;
+    }
+
+    // 剪贴板功能
+    if (clipboardEnabled) {
+        copyWordToClipboard(panelSearchInput.value);
     }
     
     appendedWords.push(word);

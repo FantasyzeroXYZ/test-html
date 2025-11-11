@@ -81,7 +81,6 @@ function displayWordDataInPanel(wordData) {
     let html = `
         <div class="word-header">
             <div class="word-title">${escapeHtml(wordData.word)}</div>
-            <span class="language-tag">英语</span>
         </div>
     `;
     
@@ -293,7 +292,6 @@ function displayJapaneseWordDataInPanel(wordData) {
     let html = `
         <div class="word-header">
             <div class="word-title">${escapeHtml(wordData.word)}</div>
-            <span class="language-tag">日语</span>
         </div>
     `;
 
@@ -536,7 +534,7 @@ function updateOriginalSentence(sentence, currentWord, currentLanguageMode = 'en
     }
 }
 
-// 处理原句中单词点击
+// 处理字幕进行的单词点击
 function handleSentenceWordClick(e) {
     const span = e.target.closest('.sentence-word');
     if (!span) return;
@@ -544,7 +542,7 @@ function handleSentenceWordClick(e) {
     const word = span.getAttribute('data-word');
     const index = parseInt(span.getAttribute('data-index'));
 
-    console.log('点击原句日语分词:', word, '索引:', index);
+    // console.log('点击原句日语分词:', word, '索引:', index);
 
     // 剪贴板功能
     if (clipboardEnabled) {
@@ -565,7 +563,11 @@ function handleSentenceWordClick(e) {
     panelSearchInput.value = word;
 
     // 执行搜索
-    searchJapaneseWordInPanel(word);
+    if (currentLanguageMode === 'english') {
+        searchWordInPanel(word);
+    } else {
+        searchJapaneseWordInPanel(word);
+    }
 }
 
 

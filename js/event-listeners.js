@@ -186,7 +186,7 @@ showSubtitleListBtn.addEventListener('click', () => {
 
 closeSubtitleListPanel.addEventListener('click', closeSubtitleListPanelFunc);
 
-// 标签页切换功能
+// 标签页切换功能-切换页面时触发
 tabButtons.forEach(button => {
     button.addEventListener('click', () => {
         const tabId = button.getAttribute('data-tab');
@@ -203,6 +203,15 @@ tabButtons.forEach(button => {
             const word = panelSearchInput.value.trim();
             if (word) {
                 loadWebSearch(word);
+            }
+        } else if (tabId === 'dictionary-tab') {
+            const word = panelSearchInput.value.trim();
+            if (word) {
+                if (currentLanguageMode === 'english') {
+                    searchWordInPanel(word);
+                } else {
+                    searchJapaneseWordInPanel(word);
+                }
             }
         }
     });

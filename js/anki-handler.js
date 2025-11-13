@@ -321,9 +321,9 @@ addToAnkiBtn.addEventListener('click', async () => {
 
 // 处理Anki卡片（单词对应字幕整句）
 async function processAnkiCard(word, definition) {
-    console.log('audioBuffer', audioBuffer, 'audioContext', audioContext, 'currentSubtitleIndex', currentSubtitleIndex);
+    // console.log('audioBuffer', audioBuffer, 'audioContext', audioContext, 'currentSubtitleIndex', currentSubtitleIndex);
 
-    // 1️⃣ 获取当前单词对应字幕的整句
+    // 获取当前单词对应字幕的整句
     let cleanSentence = '';
 
     if (currentSubtitleIndex >= 0 && subtitles[currentSubtitleIndex]) {
@@ -342,12 +342,12 @@ async function processAnkiCard(word, definition) {
         }
     }
 
-    // 2️⃣ 清理文本（去掉 HTML 标签、空格等）
+    // 清理文本（去掉 HTML 标签、空格等）
     if (cleanSentence) {
         cleanSentence = cleanSubtitleText(cleanSentence);
     }
 
-    // 3️⃣ 构建 Anki 卡片
+    // 构建 Anki 卡片
     const note = {
         deckName: deckSelect.value,
         modelName: modelSelect.value,
@@ -360,7 +360,7 @@ async function processAnkiCard(word, definition) {
         tags: ['media-player']
     };
 
-    // 4️⃣ 添加音频片段
+    // 添加音频片段
     if (audioBuffer && currentSubtitleIndex >= 0) {
         try {
             const audioBlob = await generateAudioClip(currentSubtitleIndex);
@@ -376,7 +376,7 @@ async function processAnkiCard(word, definition) {
         }
     }
 
-    // 5️⃣ 截图视频帧
+    // 截图视频帧
     if (imageFieldSelect.value && currentMediaType === 'video' && currentMediaFile) {
         try {
             const storedImageName = await captureVideoFrame(word);
@@ -389,7 +389,7 @@ async function processAnkiCard(word, definition) {
         }
     }
 
-    // 6️⃣ 添加卡片到 Anki
+    // 添加卡片到 Anki
     await addCardToAnki(note);
 }
 
@@ -412,7 +412,7 @@ function generateImageFileName(word) {
 async function processAudioFile(word, audioBlob) {
     try {
         const audioFileName = generateAudioFileName(word);
-        console.log('准备存储音频文件:', audioFileName);
+        // console.log('准备存储音频文件:', audioFileName);
 
         const base64Audio = await blobToBase64(audioBlob);
 

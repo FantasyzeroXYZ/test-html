@@ -69,25 +69,28 @@ function findPrevSubtitleIndex(currentTime) {
 
 // 创建可点击的字幕内容
 function createClickableSubtitleContent(text, index) {
-    if (currentLanguageMode === 'english') {
-        const wordRegex = /[a-zA-Z]+(?:[''’][a-zA-Z]+)*/g;
+    if (currentLanguageMode === 'english') {  
+
+        // 支持几乎所有欧洲语言
+        const wordRegex = /\p{L}+(?:['’]\p{L}+)?/gu;
+
         let lastIndex = 0;
         let clickableWords = '';
-        
         let match;
+
         while ((match = wordRegex.exec(text)) !== null) {
-            // 添加非单词内容（标点符号等）
+
             clickableWords += text.substring(lastIndex, match.index);
-            
-            // 创建可点击的单词，但存储清理后的单词
-            const cleanWord = match[0].replace(/[^\w]/g, '');
+
+            const cleanWord = match[0]; 
             clickableWords += `<span class="word selectable-word" data-word="${cleanWord}" data-index="${index}">${match[0]}</span>`;
+
             lastIndex = match.index + match[0].length;
         }
-        
-        // 添加剩余内容
+
         clickableWords += text.substring(lastIndex);
         return clickableWords;
+
     } else {
         return `<span class="japanese-sentence selectable-text" data-sentence="${text}" data-index="${index}">${text}</span>`;
     }

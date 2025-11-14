@@ -436,85 +436,57 @@ async function showJapaneseWordSegmentation(sentence, currentWord = '') {
 // 更新原句显示
 function updateOriginalSentence(sentence, currentWord, currentLanguageMode = 'english', japaneseWords = []) {
     if (currentLanguageMode === 'japanese') {
+        // 日语逻辑保持不变
         let clickableSentence = '';
-        
         if (japaneseWords && japaneseWords.length > 0) {
-            // 日语模式：保持原句完整结构，分词可点击
             let lastIndex = 0;
             let currentPos = 0;
             
             japaneseWords.forEach((word, index) => {
-                // 在原句中查找单词位置
                 const wordPosition = sentence.indexOf(word, currentPos);
-                if (wordPosition === -1) {
-                    // 如果找不到单词，跳过
-                    return;
-                }
+                if (wordPosition === -1) return;
                 
-                // 添加单词前的文本
-                if (wordPosition > currentPos) {
-                    clickableSentence += sentence.substring(currentPos, wordPosition);
-                }
+                if (wordPosition > currentPos) clickableSentence += sentence.substring(currentPos, wordPosition);
                 
-                // 添加可点击的单词
                 const isCurrentWord = currentWord && word === currentWord;
                 const wordClass = isCurrentWord ? 'sentence-word highlight selectable-word' : 'sentence-word selectable-word';
                 clickableSentence += `<span class="${wordClass}" data-word="${word}" data-index="${index}">${word}</span>`;
                 
                 currentPos = wordPosition + word.length;
             });
-            
-            // 添加剩余文本
-            if (currentPos < sentence.length) {
-                clickableSentence += sentence.substring(currentPos);
-            }
+            if (currentPos < sentence.length) clickableSentence += sentence.substring(currentPos);
         } else {
-            // 如果没有分词数据，直接显示原句（不可点击）
             clickableSentence = `<span>${sentence}</span>`;
         }
 
         originalSentence.innerHTML = clickableSentence;
         currentOriginalSentence = sentence;
-
-        // 重新绑定点击事件
         originalSentence.removeEventListener('click', handleSentenceWordClick);
         originalSentence.addEventListener('click', handleSentenceWordClick);
     } else {
-        // 英语模式处理逻辑
+        // 英语及其他空格分词语言
         let clickableSentence = '';
+        const words = sentence.split(/(\s+)/); // 保留空格
         
-        // 英语模式：分割单词，清理标点符号，单词可点击
-        const words = sentence.split(/(\s+)/).filter(word => word.trim().length > 0);
-        
-        // 重置状态
         appendedWords = [];
         currentWordIndex = -1;
         
         words.forEach((word, index) => {
-            // 只处理字母单词，忽略纯空格
-            if (/^[a-zA-Z]/.test(word)) {
-                const cleanWord = word.replace(/[^\w]/g, '');
-                
-                // 检查是否是当前点击的单词
-                const isCurrentWord = currentWord && 
-                    cleanWord.toLowerCase() === currentWord.toLowerCase();
-                
+            if (/^\s+$/.test(word)) {
+                // 空格原样添加
+                clickableSentence += word;
+            } else {
+                // 支持欧洲字母及变音符号
+                const cleanWord = word.replace(/[^\p{L}\p{M}']/gu, '');
+                const isCurrentWord = currentWord && cleanWord.toLowerCase() === currentWord.toLowerCase();
                 const wordClass = isCurrentWord ? 'sentence-word highlight selectable-word' : 'sentence-word selectable-word';
-                const space = ' ';
                 
-                clickableSentence += `<span class="${wordClass}" data-word="${cleanWord}" data-index="${index}">${word}</span>${space}`;
+                clickableSentence += `<span class="${wordClass}" data-word="${cleanWord}" data-index="${index}">${word}</span>`;
                 
-                // 记录第一个匹配的索引
                 if (isCurrentWord && currentWordIndex === -1) {
                     currentWordIndex = index;
                     appendedWords = [cleanWord];
                 }
-            } else if (word.trim().length > 0) {
-                // 非字母字符（标点符号等）直接显示，不可点击
-                clickableSentence += `<span>${word}</span>`;
-            } else {
-                // 空格直接添加
-                clickableSentence += word;
             }
         });
 
@@ -524,7 +496,7 @@ function updateOriginalSentence(sentence, currentWord, currentLanguageMode = 'en
         // 重新绑定点击事件
         originalSentence.removeEventListener('click', handleSentenceWordClick);
         originalSentence.addEventListener('click', handleSentenceWordClick);
-        
+
         console.log('英语原句更新完成:', { 
             sentence, 
             currentWord, 

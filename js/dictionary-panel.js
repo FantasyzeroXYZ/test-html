@@ -436,7 +436,6 @@ async function showJapaneseWordSegmentation(sentence, currentWord = '') {
 // 更新原句显示
 function updateOriginalSentence(sentence, currentWord, currentLanguageMode = 'english', japaneseWords = []) {
     if (currentLanguageMode === 'japanese') {
-        // 日语逻辑保持不变
         let clickableSentence = '';
         if (japaneseWords && japaneseWords.length > 0) {
             let lastIndex = 0;

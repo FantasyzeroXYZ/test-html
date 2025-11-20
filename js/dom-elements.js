@@ -1,4 +1,10 @@
-// DOM元素获取
+// DOM元素获取 - 添加侧边栏相关元素
+const sidebar = document.getElementById('sidebar');
+const sidebarOverlay = document.getElementById('sidebar-overlay');
+const openSidebarBtn = document.getElementById('open-sidebar-btn');
+const closeSidebarBtn = document.getElementById('close-sidebar');
+
+// 原有的DOM元素保持不变
 const mediaModeBtn = document.getElementById('media-mode-btn');
 const languageModeBtn = document.getElementById('language-mode-btn');
 const subtitleImportBtn = document.getElementById('subtitle-import-btn');
@@ -6,14 +12,11 @@ const mediaImportBtn = document.getElementById('media-import-btn');
 const videoFileInput = document.getElementById('video-file-input');
 const audioFileInput = document.getElementById('audio-file-input');
 const subtitleFileInput = document.getElementById('subtitle-file-input');
-const trackTitle = document.getElementById('track-title');
-const trackDescription = document.getElementById('track-description');
 const subtitleText = document.getElementById('subtitle-text');
 const toggleSubtitleBtn = document.getElementById('toggle-subtitle-btn');
 const subtitleDisplay = document.getElementById('subtitle-display');
 const videoPlayer = document.getElementById('player');
 const videoSubtitles = document.getElementById('video-subtitles');
-const mediaIcon = document.getElementById('media-icon');
 
 // 媒体类型选择
 const videoPlayerContainer = document.getElementById('video-player');

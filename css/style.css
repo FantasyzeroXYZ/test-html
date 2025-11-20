@@ -1,3 +1,213 @@
+/* 侧边栏样式 */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -320px;
+    width: 320px;
+    height: 100%;
+    background: rgba(30, 30, 40, 0.95);
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.5);
+    transition: left 0.3s ease;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.sidebar.active {
+    left: 0;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-header h2 {
+    font-size: 1.3rem;
+    color: #4cc9f0;
+}
+
+.close-sidebar {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.3s;
+}
+
+.close-sidebar:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.sidebar-section {
+    margin-bottom: 25px;
+}
+
+.sidebar-section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    color: #3498db;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 8px;
+}
+
+.sidebar-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sidebar-btn {
+    background: rgba(52, 152, 219, 0.7);
+    color: white;
+    border: none;
+    padding: 12px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+.sidebar-btn:hover, .sidebar-btn:active {
+    background: rgba(52, 152, 219, 1);
+}
+
+.placeholder-content {
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    text-align: center;
+    color: #bbb;
+}
+
+/* 侧边栏遮罩 */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 顶部控制区域 */
+.top-controls-section {
+    margin-bottom: 20px;
+}
+
+.top-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: rgba(30, 30, 40, 0.9);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.open-sidebar-btn {
+    background: rgba(155, 89, 182, 0.7);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 80px;
+    flex-shrink: 0;
+}
+
+.open-sidebar-btn:hover, .open-sidebar-btn:active {
+    background: rgba(155, 89, 182, 1);
+}
+
+.media-mode-btn {
+    background: rgba(52, 152, 219, 0.7);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 100px;
+    flex-shrink: 0;
+}
+
+.media-mode-btn:hover, .media-mode-btn:active {
+    background: rgba(52, 152, 219, 1);
+}
+
+.import-controls {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.import-btn {
+    background: rgba(52, 152, 219, 0.7);
+    color: white;
+    border: none;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 80px;
+    flex-shrink: 0;
+}
+
+.import-btn:hover, .import-btn:active {
+    background: rgba(52, 152, 219, 1);
+}
+
+/* 基础样式 */
 * {
     margin: 0;
     padding: 0;
@@ -114,86 +324,6 @@ h1 {
 
 .anki-btn:hover, .anki-btn:active {
     background: rgba(155, 89, 182, 1);
-}
-
-/* 顶部按钮布局 - 移动端优化 */
-.top-controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 15px;
-    align-items: center;
-    justify-content: center;
-}
-
-.media-mode-btn {
-    background: rgba(52, 152, 219, 0.7);
-    color: white;
-    border: none;
-    padding: 10px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 100px;
-    flex: 1;
-    max-width: 120px;
-}
-
-.media-mode-btn:hover, .media-mode-btn:active {
-    background: rgba(52, 152, 219, 1);
-}
-
-.language-mode-btn {
-    background: rgba(155, 89, 182, 0.7);
-    color: white;
-    border: none;
-    padding: 10px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 100px;
-    flex: 1;
-    max-width: 120px;
-}
-
-.language-mode-btn:hover, .language-mode-btn:active {
-    background: rgba(155, 89, 182, 1);
-}
-
-.import-controls {
-    display: flex;
-    gap: 8px;
-    flex: 2;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-}
-
-.import-btn {
-    background: rgba(52, 152, 219, 0.7);
-    color: white;
-    border: none;
-    padding: 10px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 80px;
-    flex: 1;
-}
-
-.import-btn:hover, .import-btn:active {
-    background: rgba(52, 152, 219, 1);
 }
 
 /* 自动配置区域 */
@@ -383,40 +513,6 @@ h1 {
     transform: scale(1.1);
 }
 
-/* 音频信息 */
-.audio-info {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.album-art {
-    width: 80px;
-    height: 80px;
-    border-radius: 10px;
-    background: linear-gradient(45deg, #3498db, #8e44ad);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    flex-shrink: 0;
-}
-
-.album-art i {
-    font-size: 30px;
-    color: rgba(255, 255, 255, 0.8);
-}
-
-.track-info h2 {
-    font-size: 1.3rem;
-    margin-bottom: 5px;
-}
-
-.track-info p {
-    color: #bbb;
-    font-size: 0.9rem;
-}
 
 /* 字幕区域 */
 .subtitle-section {
@@ -814,12 +910,12 @@ h1 {
 }
 
 .sentence-word {
-    cursor: pointer;                 /* 鼠标悬停变手型 */
-    display: inline;                 /* 紧密排列 */
-    padding: 0;                      /* 内边距去掉 */
-    margin: 0;                       /* 外间距去掉 */
-    word-break: keep-all;            /* 不换行 */
-    transition: background-color 0.2s; /* 高亮过渡效果 */
+    cursor: pointer;
+    display: inline;
+    padding: 0;
+    margin: 0;
+    word-break: keep-all;
+    transition: background-color 0.2s;
 }
 
 .sentence-word:hover, .sentence-word:active {
@@ -1512,26 +1608,43 @@ footer {
         min-width: auto;
     }
     
-    /* 移动端顶部按钮布局 */
+    /* 移动端侧边栏调整 */
+    .sidebar {
+        width: 280px;
+        left: -280px;
+    }
+    
+    .sidebar-btn {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+    }
+    
+    /* 移动端顶部控制栏调整 - 确保设置和音视频模式按钮在同一行 */
     .top-controls {
-        flex-direction: column;
+        flex-wrap: nowrap;
         gap: 8px;
+        padding: 12px;
     }
     
-    .media-mode-btn,
-    .language-mode-btn {
-        max-width: 100%;
-        width: 100%;
+    /* 设置和音视频模式按钮保持固定宽度 */
+    .open-sidebar-btn,
+    .media-mode-btn {
+        min-width: 90px;
+        flex: 0 0 auto;
+        padding: 10px 12px;
+        font-size: 0.85rem;
     }
     
+    /* 导入按钮组调整 */
     .import-controls {
-        width: 100%;
-        justify-content: space-between;
+        margin-left: auto;
+        flex-shrink: 1;
     }
     
     .import-btn {
-        flex: 1;
-        max-width: calc(50% - 4px);
+        min-width: 70px;
+        padding: 10px 10px;
+        font-size: 0.8rem;
     }
     
     /* 移动端视频字幕调整 */
@@ -1607,6 +1720,25 @@ footer {
         font-size: 1.1rem;
     }
     
+    /* 小屏幕顶部控制栏进一步优化 */
+    .top-controls {
+        gap: 6px;
+        padding: 10px;
+    }
+    
+    .open-sidebar-btn,
+    .media-mode-btn {
+        min-width: 80px;
+        padding: 8px 10px;
+        font-size: 0.8rem;
+    }
+    
+    .import-btn {
+        min-width: 60px;
+        padding: 8px 8px;
+        font-size: 0.75rem;
+    }
+    
     /* 小屏幕词典按钮进一步调整 */
     .panel-search-btn,
     .append-word-btn,
@@ -1625,6 +1757,25 @@ footer {
     
     .video-subtitles {
         font-size: 0.8rem;
+    }
+    
+    /* 超小屏幕顶部控制栏优化 */
+    .top-controls {
+        gap: 4px;
+        padding: 8px;
+    }
+    
+    .open-sidebar-btn,
+    .media-mode-btn {
+        min-width: 70px;
+        padding: 8px 8px;
+        font-size: 0.75rem;
+    }
+    
+    .import-btn {
+        min-width: 55px;
+        padding: 8px 6px;
+        font-size: 0.7rem;
     }
     
     /* 超小屏幕词典按钮进一步调整 */
@@ -1654,6 +1805,16 @@ footer {
         font-size: 1.2rem;
     }
     
+    /* 横屏时顶部控制栏保持紧凑 */
+    .top-controls {
+        padding: 8px 12px;
+    }
+    
+    .open-sidebar-btn,
+    .media-mode-btn {
+        min-height: 36px;
+    }
+    
     /* 横屏时统一按钮高度 */
     .panel-search-btn,
     .append-word-btn,
@@ -1664,6 +1825,27 @@ footer {
     
     .panel-search-input {
         min-height: 36px;
+    }
+}
+
+/* 超小屏幕横向布局优化 */
+@media (max-width: 320px) {
+    .top-controls {
+        gap: 3px;
+        padding: 6px;
+    }
+    
+    .open-sidebar-btn,
+    .media-mode-btn {
+        min-width: 65px;
+        padding: 6px 6px;
+        font-size: 0.7rem;
+    }
+    
+    .import-btn {
+        min-width: 50px;
+        padding: 6px 4px;
+        font-size: 0.65rem;
     }
 }
 

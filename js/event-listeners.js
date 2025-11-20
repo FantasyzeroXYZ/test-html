@@ -24,9 +24,6 @@ videoFileInput.addEventListener('change', async function(e) {
 
     currentMediaFile = file;
     currentMediaType = 'video';
-    trackTitle.textContent = file.name.replace(/\.[^/.]+$/, "");
-    trackDescription.textContent = `文件大小: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
-    mediaIcon.className = 'fas fa-video';
 
     if (audioElement && !audioElement.paused) {
         audioElement.pause();
@@ -55,9 +52,6 @@ audioFileInput.addEventListener('change', async function(e) {
 
     currentMediaFile = file;
     currentMediaType = 'audio';
-    trackTitle.textContent = file.name.replace(/\.[^/.]+$/, "");
-    trackDescription.textContent = `文件大小: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
-    mediaIcon.className = 'fas fa-music';
 
     if (!videoPlayer.paused) {
         videoPlayer.pause();
@@ -358,3 +352,47 @@ fullscreenVideoPlayer.addEventListener('timeupdate', () => {
 // 更新全屏控制条事件
 fullscreenVideoContainer.addEventListener('mousemove', showFullscreenControls);
 fullscreenControls.addEventListener('mousemove', showFullscreenControls);
+
+
+// 侧边栏功能
+function initSidebarEvents() {
+    // 打开侧边栏
+    if (openSidebarBtn) {
+        openSidebarBtn.addEventListener('click', openSidebar);
+    }
+    
+    // 关闭侧边栏
+    if (closeSidebarBtn) {
+        closeSidebarBtn.addEventListener('click', closeSidebar);
+    }
+    
+    // 点击遮罩层关闭侧边栏
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', closeSidebar);
+    }
+    
+    // ESC键关闭侧边栏
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && sidebar.classList.contains('active')) {
+            closeSidebar();
+        }
+    });
+}
+
+// 打开侧边栏函数
+function openSidebar() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.add('active');
+        sidebarOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden'; // 防止背景滚动
+    }
+}
+
+// 关闭侧边栏函数
+function closeSidebar() {
+    if (sidebar && sidebarOverlay) {
+        sidebar.classList.remove('active');
+        sidebarOverlay.classList.remove('active');
+        document.body.style.overflow = ''; // 恢复背景滚动
+    }
+}

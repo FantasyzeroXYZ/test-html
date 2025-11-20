@@ -44,8 +44,8 @@ function updateLanguageModeButton() {
 // 更新媒体模式按钮文本
 function updateMediaModeButton() {
     mediaModeBtn.innerHTML = currentMediaType === 'video' ? 
-        '<i class="fas fa-video"></i> 视频模式' : 
-        '<i class="fas fa-music"></i> 音频模式';
+        '<i class="fas fa-video"></i> 模式' : 
+        '<i class="fas fa-music"></i> 模式';
     updateImportButton();
 }
 
@@ -71,10 +71,6 @@ function clearCurrentMedia() {
     currentMediaFile = null;
     videoFileInput.value = '';
     audioFileInput.value = '';
-    
-    trackTitle.textContent = '未选择媒体文件';
-    trackDescription.textContent = '请导入媒体文件开始学习';
-    mediaIcon.className = 'fas fa-file';
     
     subtitles = [];
     subtitleFileInput.value = '';

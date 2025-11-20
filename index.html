@@ -9,15 +9,19 @@
     <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
-    <header>
-        <h1>VAMplayer</h1>
-        <p class="subtitle">支持视频/音频播放、字幕显示与Anki制卡</p>
-    </header>
-    
-    <div class="container">
-        <!-- Anki配置区域 -->
-        <section class="anki-section">
-            <div class="anki-container">
+    <!-- 侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>设置</h2>
+            <button class="close-sidebar" id="close-sidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="sidebar-content">
+            <!-- Anki配置区域 -->
+            <div class="sidebar-section">
+                <h3>Anki配置</h3>
                 <div class="anki-status-row">
                     <div class="anki-status">
                         <div class="status-indicator" id="anki-status-indicator"></div>
@@ -28,28 +32,6 @@
                         <button class="anki-btn" id="show-config-btn">配置</button>
                     </div>
                 </div>
-                
-                <!-- 顶部控制按钮 -->
-                <div class="top-controls">
-                    <button class="media-mode-btn" id="media-mode-btn">
-                        <i class="fas fa-video"></i> 视频模式
-                    </button>
-                    <button class="language-mode-btn" id="language-mode-btn">
-                        <i class="fas fa-language"></i> 英语模式
-                    </button>
-                    <div class="import-controls">
-                        <button class="import-btn" id="subtitle-import-btn">
-                            <i class="fas fa-closed-captioning"></i> 字幕
-                        </button>
-                        <button class="import-btn" id="media-import-btn">
-                            <i class="fas fa-file-video"></i> 视频
-                        </button>
-                    </div>
-                </div>
-                
-                <input type="file" id="video-file-input" accept="video/*" class="hidden">
-                <input type="file" id="audio-file-input" accept="audio/*" class="hidden">
-                <input type="file" id="subtitle-file-input" accept=".srt,.vtt,.txt" class="hidden">
                 
                 <!-- Anki自动配置区域 -->
                 <div class="auto-config-section hidden" id="auto-config-section">
@@ -97,21 +79,63 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- 语言模式选择 -->
+            <div class="sidebar-section">
+                <h3>语言设置</h3>
+                <div class="sidebar-controls">
+                    <button class="sidebar-btn" id="language-mode-btn">
+                        <i class="fas fa-language"></i> 英语模式
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 预留空间给以后的功能 -->
+            <div class="sidebar-section">
+                <h3>更多功能</h3>
+                <div class="placeholder-content">
+                    <p>预留空间给以后的功能添加</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 侧边栏遮罩 -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    
+    <header>
+        <h1>VAMplayer</h1>
+        <p class="subtitle">支持视频/音频播放、字幕显示与Anki制卡</p>
+    </header>
+    
+    <div class="container">
+        <!-- 顶部控制区域 -->
+        <section class="top-controls-section">
+            <div class="top-controls">
+                <button class="open-sidebar-btn" id="open-sidebar-btn">
+                    <i class="fas fa-cog"></i> 设置
+                </button>
+                <button class="media-mode-btn" id="media-mode-btn">
+                    <i class="fas fa-video"></i> 模式
+                </button>
+                <div class="import-controls">
+                    <button class="import-btn" id="media-import-btn">
+                        <i class="fas fa-file-video"></i> 视频
+                    </button>
+                    <button class="import-btn" id="subtitle-import-btn">
+                        <i class="fas fa-closed-captioning"></i> 字幕
+                    </button>
+                </div>
+            </div>
+            
+            <input type="file" id="video-file-input" accept="video/*" class="hidden">
+            <input type="file" id="audio-file-input" accept="audio/*" class="hidden">
+            <input type="file" id="subtitle-file-input" accept=".srt,.vtt,.txt" class="hidden">
         </section>
         
         <!-- 播放器区域 -->
         <section class="player-section">
             <div class="player-container">
-                <div class="audio-info">
-                    <div class="album-art">
-                        <i id="media-icon">▶</i>
-                    </div>
-                    <div class="track-info">
-                        <h2 id="track-title">请选择媒体文件</h2>
-                        <p id="track-description">支持 MP4, AVI, MKV, MP3, WAV 等格式</p>
-                    </div>
-                </div>
-                
                 <!-- 视频播放器 -->
                 <div class="video-player" id="video-player">
                     <video id="player" controls>

@@ -50,6 +50,7 @@ async function init() {
     fullscreenVideoPlayer.muted = true;
     
     // 新增初始化调用
+    initSidebarEvents(); // 侧边栏事件初始化
     initClipboardFunction();
     initClipboardSupport(); // 新增：检查剪贴板支持
     initFullscreenDrag();
